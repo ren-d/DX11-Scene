@@ -4,10 +4,10 @@ To create a small Swiss inspired village with a lake surrounded by mountains. In
 ## Checklist
 ### Geometry
   - [ ] Height Mapped Plane
-    - [ ] added Mesh
+    - [x] added Mesh
     - [ ] Per Pixel normal map
     - [ ] Vertex Manipulation
-    - [ ] Textured
+    - [x] Textured
     - [ ] Multiple Noise Maps
     - [ ] UI editable
   - [ ] Imported models
