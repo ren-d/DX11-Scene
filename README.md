@@ -1,4 +1,4 @@
-# CMP301-Coursework
+# DirectX 11 Scene
 ### Project Plan
 To create a small Swiss inspired village with a lake surrounded by mountains. Including a sun that orbits the landscape and streetlamps about the village.
 ## Checklist
