@@ -7,6 +7,7 @@ using namespace DirectX;
 class BasicShader :
     public BaseShader
 {
+    
 public:
     BasicShader(ID3D11Device* device, HWND hwnd);
     ~BasicShader();

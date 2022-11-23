@@ -13,10 +13,12 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
 	// Initalise scene variables.
-	obj = new SceneObject();
 	
-	obj->setMesh(new SphereMesh(renderer->getDevice(), renderer->getDeviceContext()));
+	
+	
 	textureMgr->loadTexture(L"brick", L"res/brick1.dds");
+	obj = new SceneObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"brick"));
+	obj->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
 	basicShader = new BasicShader(renderer->getDevice(), hwnd);
 }
 
@@ -63,9 +65,8 @@ bool App1::render()
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
-	obj->getMesh()->sendData(renderer->getDeviceContext());
-	basicShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"brick"));
-	basicShader->render(renderer->getDeviceContext(), obj->getMesh()->getIndexCount());
+	obj->translate(XMFLOAT3(0.0f, -10.0f, 0.0f));
+	obj->render(worldMatrix, viewMatrix, projectionMatrix, basicShader);
 	// Render GUI
 	gui();
 
