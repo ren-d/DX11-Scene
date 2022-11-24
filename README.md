@@ -49,6 +49,7 @@ To create a small Swiss inspired village with a lake surrounded by mountains. In
   - [ ] Texture
   - [ ] Depth
   - [ ] Shadow
+  - [ ] Skybox
 ### Stretch Goal
   - [ ] Cloud Shader using voronoi noise and raymarching
 ## Coding Standards
