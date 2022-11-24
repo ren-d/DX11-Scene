@@ -5,7 +5,7 @@ To create a small Swiss inspired village with a lake surrounded by mountains. In
 ### Geometry
   - [ ] Height Mapped Plane
     - [x] added Mesh
-    - [ ] Per Pixel normal map
+    - [x] Per Pixel normal map
     - [x] Vertex Manipulation
     - [x] Textured
     - [ ] Multiple Noise Maps
