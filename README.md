@@ -8,7 +8,7 @@ To create a small Swiss inspired village with a lake surrounded by mountains. In
     - [x] Per Pixel normal map
     - [x] Vertex Manipulation
     - [x] Textured
-    - [ ] Multiple Noise Maps
+    - [x] Multiple Noise Maps
     - [ ] UI editable
   - [ ] Imported models
     - [ ] Houses
