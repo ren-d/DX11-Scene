@@ -47,7 +47,7 @@ To create a small Swiss inspired village with a lake surrounded by mountains. In
   - [ ] Depth of field
   - [ ] Edge Detection outline
   - [ ] Kernel
-  - [ ] Texture
+  - [x] Texture
   - [ ] Depth
   - [ ] Shadow
   - [ ] Skybox
