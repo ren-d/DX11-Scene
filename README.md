@@ -3,16 +3,17 @@
 To create a small Swiss inspired village with a lake surrounded by mountains. Including a sun that orbits the landscape and streetlamps about the village.
 ## Checklist
 ### Geometry
-  - [ ] Height Mapped Plane
+  - [x] Height Mapped Plane
     - [x] added Mesh
     - [x] Per Pixel normal map
     - [x] Vertex Manipulation
     - [x] Textured
     - [x] Multiple Noise Maps
-    - [ ] UI editable
+    - [x] UI editable
   - [ ] Imported models
     - [ ] Houses
-      - [ ] Textured
+      - [x] Textured
+      - [ ] Bump Map
     - [ ] Street Lamps
       - [ ] Textured
   - [ ] Other Geometry
