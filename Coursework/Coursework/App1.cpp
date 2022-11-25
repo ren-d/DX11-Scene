@@ -15,11 +15,30 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Initalise scene variables.
 	
 	
-	
+	sun = new Light();
+	sun->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	sun->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	sun->setDirection(0.45f, -0.5f, 0.75f);
+
 	textureMgr->loadTexture(L"brick", L"res/brick1.dds");
+	textureMgr->loadTexture(L"height", L"res/height.png");
+	textureMgr->loadTexture(L"cottage", L"res/models/cottage_textures/cottage_diffuse.png");
+	textureMgr->loadTexture(L"cottageNormal", L"res/models/cottage_textures/cottage_normal.png");
+	heightMapObj = new HeightMappedObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"brick"), textureMgr->getTexture(L"height"));
+	heightMapObj->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
+	heightShader = new HeightMapShader(renderer->getDevice(), hwnd);
+
 	obj = new SceneObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"brick"));
 	obj->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
 	basicShader = new BasicShader(renderer->getDevice(), hwnd);
+	modelShader = new ModelShader(renderer->getDevice(), hwnd);
+	houseModel = new AModel(renderer->getDevice(), "res/models/cottage_fbx.fbx");
+	house = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"cottage"), textureMgr->getTexture(L"cottageNormal"));
+	house->setModel(houseModel);
+
+	lightdir[0] = sun->getDirection().x;
+	lightdir[1] = sun->getDirection().y;
+	lightdir[2] = sun->getDirection().z;
 }
 
 
@@ -36,7 +55,7 @@ App1::~App1()
 bool App1::frame()
 {
 	bool result;
-
+	sun->setDirection(lightdir[0], lightdir[1], lightdir[2]);
 	result = BaseApplication::frame();
 	if (!result)
 	{
@@ -65,8 +84,11 @@ bool App1::render()
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
-	obj->translate(XMFLOAT3(0.0f, -10.0f, 0.0f));
-	obj->render(worldMatrix, viewMatrix, projectionMatrix, basicShader);
+	
+	obj->translate(XMFLOAT3(0.0f, 10.0f, 0.0f));
+
+	heightMapObj->render(worldMatrix, viewMatrix, projectionMatrix, heightShader, sun);
+	house->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, sun);
 	// Render GUI
 	gui();
 
@@ -86,7 +108,8 @@ void App1::gui()
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
-
+	ImGui::SliderFloat("Amplitude ", heightMapObj->getAmplitude(), -50.0f, 50.0f);
+	ImGui::SliderFloat3("lightdir", lightdir, -1.0f, 1.0f);
 	// Render UI
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

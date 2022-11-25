@@ -6,6 +6,9 @@
 #include "DXF.h"
 #include "SceneObject.h"
 #include "BasicShader.h"
+#include "HeightMappedObject.h"
+#include "HeightMapShader.h"
+#include "ModelObject.h"
 class App1 : public BaseApplication
 {
 public:
@@ -22,8 +25,16 @@ protected:
 
 private:
 	SceneObject* obj;
+	ModelObject* house;
+	AModel* houseModel;
 	BasicShader* basicShader;
+	HeightMapShader* heightShader;
+	ModelShader* modelShader;
 	SphereMesh* sphere;
+	HeightMappedObject* heightMapObj;
+	Light* sun;
+
+	float lightdir[3];
 };
 
 #endif
