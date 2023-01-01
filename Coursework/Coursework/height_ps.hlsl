@@ -20,6 +20,7 @@ struct InputType
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    
 };
 
 float getHeight(float2 uv)
