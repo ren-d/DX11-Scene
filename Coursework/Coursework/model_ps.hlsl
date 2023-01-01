@@ -37,11 +37,11 @@ float4 main(InputType input) : SV_TARGET
     bumpMap = (bumpMap * 2.0f) - 1.0f;
 
     // Calculate the normal from the data in the bump map.
-    bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+   
 	
     // Normalize the resulting bump normal.
     bumpNormal = normalize(bumpNormal);
     lightColour = calculateLighting(-lightDirection, input.normal, diffuseColour);
     textureColour = texture0.Sample(Sampler0, input.tex);
-    return textureColour * lightColour;
+    return textureColour;
 }

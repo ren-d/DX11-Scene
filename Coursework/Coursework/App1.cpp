@@ -20,7 +20,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	sun->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	sun->setDirection(0.45f, -0.5f, 0.75f);
 
-	textureMgr->loadTexture(L"brick", L"res/brick1.dds");
+	textureMgr->loadTexture(L"brick", L"res/heightTexture.png");
 	textureMgr->loadTexture(L"height", L"res/height.png");
 	textureMgr->loadTexture(L"cottage", L"res/models/cottage_textures/cottage_diffuse.png");
 	textureMgr->loadTexture(L"cottageNormal", L"res/models/cottage_textures/cottage_normal.png");
@@ -89,6 +89,9 @@ bool App1::render()
 
 	heightMapObj->render(worldMatrix, viewMatrix, projectionMatrix, heightShader, sun);
 	house->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, sun);
+	house->scale(XMFLOAT3(1.0f, 0.5f, 0.25f));
+	house->rotateX(XMConvertToRadians(90));
+	house->translate(XMFLOAT3(40, 1, 40));
 	// Render GUI
 	gui();
 
