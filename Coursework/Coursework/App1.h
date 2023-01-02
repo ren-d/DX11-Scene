@@ -37,6 +37,8 @@ private:
 
 	float deltaTime;
 	float lightdir[3];
+	float waveOneDir[2];
+	float waveTwoDir[2];
 };
 
 #endif

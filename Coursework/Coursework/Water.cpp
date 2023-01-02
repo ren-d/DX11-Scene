@@ -6,9 +6,14 @@ Water::Water(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11Sha
 	m_deviceContext = deviceContext;
 	setTexture(texture);
 	m_heightMap = heightMap;
-	m_steepness = 0.0f;
-	m_waveLength = 10.0f;
-	m_gravity = 9.8f;
+	waves[0] = new Wave();
+	waves[0]->direction = XMFLOAT2(1, 0);
+	waves[0]->steepness = 0.0f;
+	waves[0]->waveLength = 64.0f;
+	waves[1] = new Wave();
+	waves[1]->direction = XMFLOAT2(0, 1);
+	waves[1]->steepness = 0.0f;
+	waves[1]->waveLength = 16.0f;
 }
 
 Water::~Water()
@@ -21,21 +26,17 @@ void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projec
 
 	buildTransformations(world);
 	m_mesh->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, m_steepness, m_waveLength, m_gravity, deltaTime, *lights);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, deltaTime, *lights, waves);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 }
 
-float* Water::getSteepness()
+Wave* Water::getWave(int id)
 {
-	return &m_steepness;
+	return waves[id];
 }
 
-float* Water::getWaveLength()
+void Water::setWaveDir(int id, XMFLOAT2 direction)
 {
-	return &m_waveLength;
+	waves[id]->direction = direction;
 }
 
-float* Water::getGravity()
-{
-	return &m_gravity;
-}

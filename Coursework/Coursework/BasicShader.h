@@ -1,9 +1,14 @@
 #pragma once
 #include "DXF.h"
 #include "LightSource.h"
+
 using namespace std;
 using namespace DirectX;
-
+struct Wave {
+    XMFLOAT2 direction;
+    float steepness,
+        waveLength;
+};
 class BasicShader :
     public BaseShader
 {
@@ -11,10 +16,8 @@ class BasicShader :
 public:
     struct WaterBufferType
     {
-        float steepness;
-        float waveLength;
-        float gravity;
-        float timeInSeconds;
+        XMFLOAT4 waves[2];
+        XMFLOAT4 timeInSeconds;
     };
     struct LightBufferType
     {
@@ -26,7 +29,7 @@ public:
 
     BasicShader(ID3D11Device* device, HWND hwnd);
     ~BasicShader();
-    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, float amplitude, float waveLength, float gravity, float time, LightSource lights[4]);
+    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture,float time, LightSource lights[4], Wave* waves[2]);
 
 private:
     void initShader(const wchar_t* vs, const wchar_t* ps);

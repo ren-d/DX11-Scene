@@ -51,6 +51,11 @@ basicShader = new BasicShader(renderer->getDevice(), hwnd);
 lightdir[0] = lights[0]->getDirection().x;
 lightdir[1] = lights[0]->getDirection().y;
 lightdir[2] = lights[0]->getDirection().z;
+
+waveOneDir[0] = water->getWave(0)->direction.x;
+waveOneDir[1] = water->getWave(0)->direction.y;
+waveTwoDir[0] = water->getWave(1)->direction.x;
+waveTwoDir[1] = water->getWave(1)->direction.y;
 }
 
 
@@ -69,6 +74,8 @@ bool App1::frame()
 	
 	bool result;
 	lights[0]->setDirection(lightdir[0], lightdir[1], lightdir[2]);
+	water->setWaveDir(0, XMFLOAT2(waveOneDir[0], waveOneDir[1]));
+	water->setWaveDir(1, XMFLOAT2(waveTwoDir[0], waveTwoDir[1]));
 	result = BaseApplication::frame();
 
 	deltaTime += timer->getTime();
@@ -130,10 +137,19 @@ void App1::gui()
 
 	if (ImGui::CollapsingHeader("water"))
 	{
-		ImGui::SliderFloat("Steepness", water->getSteepness(), 0, 1.0f);
-		ImGui::SliderFloat("Wave Length ", water->getWaveLength(), 0.0f, 30.0f);
-		ImGui::InputFloat("Gravity ", water->getGravity(), 0.0f, 10.8);
-
+		if (ImGui::CollapsingHeader("wave 1"))
+		{
+			ImGui::SliderFloat2("Direction", waveOneDir, 0, 1.0f);
+			ImGui::SliderFloat("Steepness", &water->getWave(0)->steepness, 0.0f, 1.0f);
+			ImGui::SliderFloat("Wave Length", &water->getWave(0)->waveLength, 0.0f, 100);
+		}
+		
+		if (ImGui::CollapsingHeader("wave 2"))
+		{
+			ImGui::SliderFloat2("Direction2", waveTwoDir, 0, 1.0f);
+			ImGui::SliderFloat("Steepness2", &water->getWave(1)->steepness, 0.0f, 1.0f);
+			ImGui::SliderFloat("Wave Length2", &water->getWave(1)->waveLength, 0.0f, 100);
+		}
 
 	}
 

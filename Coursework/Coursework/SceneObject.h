@@ -1,5 +1,5 @@
 #pragma once
-#include "BasicShader.h"
+
 #include "DXF.h"
 
 class SceneObject 
@@ -9,7 +9,7 @@ public:
     SceneObject(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture);
     ~SceneObject();
 
-    virtual void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, BasicShader* shader);
+
     bool setMesh(BaseMesh* mesh);
     bool setTexture(ID3D11ShaderResourceView* texture);
     void translate(XMFLOAT3 translation);

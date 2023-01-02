@@ -10,10 +10,9 @@ cbuffer MatrixBuffer : register(b0)
 
 cbuffer WaveBuffer : register(b1)
 {
-    float steepness;
-    float waveLength;
-    float gravity;
-    float timeInSeconds;
+    float4 waves[2];
+    float4 timeInSeconds;
+
 }
 
 struct InputType
@@ -32,42 +31,54 @@ struct OutputType
 
 static float4 dir = float4(1.0f, 1.0f, 0.0f,0.0f);
 static float PI = 3.14159265f;
+static float GRAVITY = 9.8f;
 // gersner wave algorithm
-float3 vertexManipulation(float4 position)
+float3 GerstnerWave(float4 wave, float3 position, inout float3 tangent, inout float3 binormal)
 {
-    float3 p = position.xyz;
+    float steepness = wave.z;
+    float waveLength = wave.w;
+
     float k = 2 * PI / waveLength;
-    float c = sqrt(gravity / k); //gravity
-    float2 d = normalize(dir);
-    float f = k * (dot(d, p.xz) - c * timeInSeconds);
+    float c = sqrt(GRAVITY / k); //gravity
+    float2 d = normalize(wave.xy);
+    float f = k * (dot(d, position.xz) - c * timeInSeconds.x);
     float a = steepness / k;
-    p.x += d * (a * cos(f));
-    p.y =  a * sin(f);
-    p.z += d * (a * cos(f));
+ 
+    tangent += float3(
+        -d.x * d.x * (steepness * sin(f)),
+	    d.x * (steepness * cos(f)),
+	    -d.x * d.y * (steepness * sin(f))
+        );
     
-    return p;
+    binormal += float3(
+        -d.x * d.x * (steepness * sin(f)),
+        d.y * (steepness * cos(f)),
+        -d.y * d.y * (steepness * sin(f))
+        );
+    
+    return float3(
+    d.x * (a * cos(f)),
+    a * sin(f),
+    d.y * (a * cos(f))
+    );
 }
 
-float3 recalculateNormals(float4 position)
-{
-    float3 p = position.xyz;
-    float k = 2 * PI / waveLength;
-    float c = sqrt(gravity / k); //gravity
-    float f = k * (p.x - c * timeInSeconds);
 
-    float3 tangent = normalize(float3(1 - k * steepness * sin(f), k * steepness * cos(f), 0));
-    float3 normal = float3(-tangent.y, tangent.x, 0.0f);
-    
-    return normal;
-    
-}
 
 OutputType main(InputType input)
 {
     OutputType output;
 
-    input.normal = recalculateNormals(input.position);
-    input.position.xyz = vertexManipulation(input.position);
+    float3 waterPoint = input.position;
+    float3 tangent = float3(1, 0, 0);
+    float3 binormal = float3(0, 0, 1);
+    float3 finalPoint = waterPoint;
+    
+    finalPoint += GerstnerWave(waves[0], waterPoint, tangent, binormal);
+    finalPoint += GerstnerWave(waves[1], waterPoint, tangent, binormal);
+    float3 normal = normalize(cross(binormal, tangent));
+    input.position.xyz = finalPoint;
+    input.normal = normal;
     
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(input.position, worldMatrix);
