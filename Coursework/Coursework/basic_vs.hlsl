@@ -10,7 +10,7 @@ cbuffer MatrixBuffer : register(b0)
 
 cbuffer WaveBuffer : register(b1)
 {
-    float4 waves[2];
+    float4 waves[4];
     float4 timeInSeconds;
 
 }
@@ -25,6 +25,7 @@ struct InputType
 struct OutputType
 {
     float4 position : SV_POSITION;
+    float3 worldPosition : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
 };
@@ -76,15 +77,17 @@ OutputType main(InputType input)
     
     finalPoint += GerstnerWave(waves[0], waterPoint, tangent, binormal);
     finalPoint += GerstnerWave(waves[1], waterPoint, tangent, binormal);
+    finalPoint += GerstnerWave(waves[2], waterPoint, tangent, binormal);
+    finalPoint += GerstnerWave(waves[3], waterPoint, tangent, binormal);
     float3 normal = normalize(cross(binormal, tangent));
     input.position.xyz = finalPoint;
     input.normal = normal;
-    
+    output.worldPosition = finalPoint;
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
-
+    
     output.normal = mul(input.normal, (float3x3) worldMatrix);
     output.normal = normalize(output.normal);
 	// Store the texture coordinates for the pixel shader.

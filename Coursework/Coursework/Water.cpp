@@ -14,6 +14,14 @@ Water::Water(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11Sha
 	waves[1]->direction = XMFLOAT2(0, 1);
 	waves[1]->steepness = 0.0f;
 	waves[1]->waveLength = 16.0f;
+	waves[2] = new Wave();
+	waves[2]->direction = XMFLOAT2(1, 0);
+	waves[2]->steepness = 0.0f;
+	waves[2]->waveLength = 64.0f;
+	waves[3] = new Wave();
+	waves[3]->direction = XMFLOAT2(0, 1);
+	waves[3]->steepness = 0.0f;
+	waves[3]->waveLength = 16.0f;
 }
 
 Water::~Water()

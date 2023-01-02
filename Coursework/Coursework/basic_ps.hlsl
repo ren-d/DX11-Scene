@@ -19,6 +19,7 @@ float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 struct InputType
 {
     float4 position : SV_POSITION;
+    float3 worldPosition : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
 };
@@ -30,6 +31,26 @@ float4 main(InputType input) : SV_TARGET
     float4 textureColour;
     
     lightColour = calculateLighting(-lightDirection[0].xyz, input.normal, lightColour[0]);
+
+    if (input.worldPosition.y > 1.5f)
+    {
+        return float4(1.0f, 1.0f, 1.0f, 1.0f) * lightColour;
+
+    }
+    else if (input.worldPosition.y > 1.2f)
+    {
+        return float4(0, 1.0f, 1.0f, 1.0f) * lightColour;
+    }
+    else if(input.worldPosition.y > 1.0f)
+    {
+        return float4(0, 0, 1.0f, 1.0f) * lightColour;
+    }
+    
+   
+    else
+    {
+        return float4(0, 0.0f, 0.7f, 1.0f) * lightColour;
+    }
     textureColour = texture0.Sample(Sampler0, input.tex);
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
     return textureColour * lightColour;

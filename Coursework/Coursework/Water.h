@@ -19,6 +19,6 @@ private:
 	ID3D11ShaderResourceView* m_heightMap;
 
 
-	Wave* waves[2];
+	Wave* waves[4];
 };
 

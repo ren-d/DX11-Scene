@@ -16,7 +16,7 @@ class BasicShader :
 public:
     struct WaterBufferType
     {
-        XMFLOAT4 waves[2];
+        XMFLOAT4 waves[4];
         XMFLOAT4 timeInSeconds;
     };
     struct LightBufferType
@@ -29,7 +29,7 @@ public:
 
     BasicShader(ID3D11Device* device, HWND hwnd);
     ~BasicShader();
-    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture,float time, LightSource lights[4], Wave* waves[2]);
+    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture,float time, LightSource lights[4], Wave* waves[4]);
 
 private:
     void initShader(const wchar_t* vs, const wchar_t* ps);

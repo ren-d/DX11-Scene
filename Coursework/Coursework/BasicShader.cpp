@@ -96,7 +96,7 @@ void BasicShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void BasicShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float time, LightSource lights[4], Wave* waves[2])
+void BasicShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float time, LightSource lights[4], Wave* waves[4])
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -120,7 +120,7 @@ void BasicShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	WaterBufferType* waterPtr;
 	result = deviceContext->Map(waterBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	waterPtr = (WaterBufferType*)mappedResource.pData;
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		waterPtr->waves[i] = 
 			XMFLOAT4(
