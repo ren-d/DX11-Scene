@@ -36,10 +36,10 @@ SceneObject::~SceneObject()
 
 void SceneObject::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, BasicShader* shader)
 {
-
+	LightSource lights[4];
 	buildTransformations(world);
 	m_mesh->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, 1.0f, 0.0f, 0.0f, 0.0f, lights);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 }
 

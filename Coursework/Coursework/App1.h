@@ -6,9 +6,10 @@
 #include "DXF.h"
 #include "SceneObject.h"
 #include "BasicShader.h"
-#include "HeightMappedObject.h"
-#include "HeightMapShader.h"
+#include "Water.h"
+#include "WaterShader.h"
 #include "ModelObject.h"
+#include "LightSource.h"
 class App1 : public BaseApplication
 {
 public:
@@ -22,18 +23,19 @@ public:
 protected:
 	bool render();
 	void gui();
-
+	void basepass();
 private:
-	SceneObject* obj;
+	SceneObject* waterMesh;
 	ModelObject* house;
 	AModel* houseModel;
 	BasicShader* basicShader;
-	HeightMapShader* heightShader;
+	WaterShader* waterShader;
 	ModelShader* modelShader;
 	SphereMesh* sphere;
-	HeightMappedObject* heightMapObj;
-	Light* sun;
+	Water* water;
+	LightSource* lights[4];
 
+	float deltaTime;
 	float lightdir[3];
 };
 

@@ -1,12 +1,12 @@
-#include "HeightMapShader.h"
+#include "WaterShader.h"
 
 
-HeightMapShader::HeightMapShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+WaterShader::WaterShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"height_vs.cso", L"height_ps.cso");
+	initShader(L"water_vs.cso", L"water_vs.cso");
 }
 
-HeightMapShader::~HeightMapShader()
+WaterShader::~WaterShader()
 {
 	// Release the sampler state.
 	if (sampleState)
@@ -34,7 +34,7 @@ HeightMapShader::~HeightMapShader()
 }
 
 
-void HeightMapShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
+void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -90,7 +90,7 @@ void HeightMapShader::initShader(const wchar_t* vsFilename, const wchar_t* psFil
 }
 
 
-void HeightMapShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* heightTexture, float amplitude, Light* light)
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* heightTexture, float amplitude, Light* light)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;

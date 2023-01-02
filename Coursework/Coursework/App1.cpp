@@ -7,38 +7,50 @@ App1::App1()
 
 }
 
-void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input *in, bool VSYNC, bool FULL_SCREEN)
+void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN)
 {
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
 	// Initalise scene variables.
-	
-	
-	sun = new Light();
-	sun->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	sun->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	sun->setDirection(0.45f, -0.5f, 0.75f);
 
-	textureMgr->loadTexture(L"brick", L"res/heightTexture.png");
-	textureMgr->loadTexture(L"height", L"res/height.png");
-	textureMgr->loadTexture(L"cottage", L"res/models/cottage_textures/cottage_diffuse.png");
-	textureMgr->loadTexture(L"cottageNormal", L"res/models/cottage_textures/cottage_normal.png");
-	heightMapObj = new HeightMappedObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"brick"), textureMgr->getTexture(L"height"));
-	heightMapObj->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
-	heightShader = new HeightMapShader(renderer->getDevice(), hwnd);
 
-	obj = new SceneObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"brick"));
-	obj->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
-	basicShader = new BasicShader(renderer->getDevice(), hwnd);
-	modelShader = new ModelShader(renderer->getDevice(), hwnd);
-	houseModel = new AModel(renderer->getDevice(), "res/models/cottage_fbx.fbx");
-	house = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"cottage"), textureMgr->getTexture(L"cottageNormal"));
-	house->setModel(houseModel);
+lights[0] = new LightSource();
+lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
+lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+lights[0]->setPosition(0.2, 0.2, 0.2);
+lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+lights[0]->setDirection(0.45f, 0.5f, 0.50f);
+lights[1] = new LightSource();
+lights[1]->setLightType(LightSource::LType::DIRECTIONAL);
+lights[1]->setPosition(0.2, 0.2, 0.2);
+lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+lights[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+lights[1]->setDirection(0.45f, -0.5f, 0.75f);
+lights[2] = new LightSource();
+lights[2]->setLightType(LightSource::LType::DIRECTIONAL);
+lights[2]->setPosition(0.2, 0.2, 0.2);
+lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+lights[2]->setDirection(0.45f, -0.5f, 0.75f);
+lights[3] = new LightSource();
+lights[3]->setLightType(LightSource::LType::DIRECTIONAL);
+lights[3]->setPosition(0.2, 0.2, 0.2);
+lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+lights[3]->setDirection(0.45f, -0.5f, 0.75f);
 
-	lightdir[0] = sun->getDirection().x;
-	lightdir[1] = sun->getDirection().y;
-	lightdir[2] = sun->getDirection().z;
+textureMgr->loadTexture(L"water", L"res/water.png");
+textureMgr->loadTexture(L"height", L"res/height.png");
+water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"height"));
+water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
+
+waterShader = new WaterShader(renderer->getDevice(), hwnd);
+basicShader = new BasicShader(renderer->getDevice(), hwnd);
+
+lightdir[0] = lights[0]->getDirection().x;
+lightdir[1] = lights[0]->getDirection().y;
+lightdir[2] = lights[0]->getDirection().z;
 }
 
 
@@ -48,15 +60,18 @@ App1::~App1()
 	BaseApplication::~BaseApplication();
 
 	// Release the Direct3D object.
-	
+
 }
 
 
 bool App1::frame()
 {
+	
 	bool result;
-	sun->setDirection(lightdir[0], lightdir[1], lightdir[2]);
+	lights[0]->setDirection(lightdir[0], lightdir[1], lightdir[2]);
 	result = BaseApplication::frame();
+
+	deltaTime += timer->getTime();
 	if (!result)
 	{
 		return false;
@@ -80,18 +95,8 @@ bool App1::render()
 	// Generate the view matrix based on the camera's position.
 	camera->update();
 
-	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
-	XMMATRIX worldMatrix = renderer->getWorldMatrix();
-	XMMATRIX viewMatrix = camera->getViewMatrix();
-	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
-	
-	obj->translate(XMFLOAT3(0.0f, 10.0f, 0.0f));
 
-	heightMapObj->render(worldMatrix, viewMatrix, projectionMatrix, heightShader, sun);
-	house->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, sun);
-	house->scale(XMFLOAT3(1.0f, 0.5f, 0.25f));
-	house->rotateX(XMConvertToRadians(90));
-	house->translate(XMFLOAT3(40, 1, 40));
+	basepass();
 	// Render GUI
 	gui();
 
@@ -101,6 +106,17 @@ bool App1::render()
 	return true;
 }
 
+void App1::basepass()
+{
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	XMMATRIX worldMatrix = renderer->getWorldMatrix();
+	XMMATRIX viewMatrix = camera->getViewMatrix();
+	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
+
+	water->render(worldMatrix, viewMatrix, projectionMatrix, basicShader, lights, deltaTime);
+
+}
 void App1::gui()
 {
 	// Force turn off unnecessary shader stages.
@@ -111,8 +127,21 @@ void App1::gui()
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
-	ImGui::SliderFloat("Amplitude ", heightMapObj->getAmplitude(), -50.0f, 50.0f);
-	ImGui::SliderFloat3("lightdir", lightdir, -1.0f, 1.0f);
+
+	if (ImGui::CollapsingHeader("water"))
+	{
+		ImGui::SliderFloat("Steepness", water->getSteepness(), 0, 1.0f);
+		ImGui::SliderFloat("Wave Length ", water->getWaveLength(), 0.0f, 30.0f);
+		ImGui::InputFloat("Gravity ", water->getGravity(), 0.0f, 10.8);
+
+
+	}
+
+	if(ImGui::CollapsingHeader("lights"))
+	{
+		ImGui::SliderFloat3("lightdir", lightdir, -1.0f, 1.0f);
+	}
+	
 	// Render UI
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

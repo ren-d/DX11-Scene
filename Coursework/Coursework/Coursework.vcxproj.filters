@@ -30,7 +30,7 @@
     <ClCompile Include="SceneObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HeightMappedObject.cpp">
+    <ClCompile Include="Water.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ModelObject.cpp">
@@ -42,8 +42,11 @@
     <ClCompile Include="ModelShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="HeightMapShader.cpp">
+    <ClCompile Include="WaterShader.cpp">
       <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSource.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -53,7 +56,7 @@
     <ClInclude Include="SceneObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HeightMappedObject.h">
+    <ClInclude Include="Water.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LightHelper.h">
@@ -65,11 +68,14 @@
     <ClInclude Include="BasicShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="HeightMapShader.h">
+    <ClInclude Include="WaterShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ModelShader.h">
       <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -77,12 +83,6 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="basic_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="height_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="height_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="model_ps.hlsl">

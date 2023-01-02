@@ -68,6 +68,9 @@ float4 main(InputType input) : SV_TARGET
     bumpedNormalMap.z = -bumpedNormalMap.z;
     lightColour = calculateLighting(-lightDirection, bumpedNormalMap, diffuseColour);
     textureColour = texture0.Sample(Sampler0, input.tex);
+    
+    if(lightDirection.y > 0.2)
+        return textureColour * float4(0.2, 0.2, 0.2, 1.0f);
     return textureColour * lightColour;
 }
 

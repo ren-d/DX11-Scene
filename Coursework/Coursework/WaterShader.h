@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseShader.h"
 #include "Light.h"
-class HeightMapShader :
+class WaterShader :
     public BaseShader
 {
     
@@ -17,8 +17,8 @@ public:
         XMFLOAT3 lightDirection;
         float padding;
     };
-    HeightMapShader(ID3D11Device* device, HWND hwnd);
-    ~HeightMapShader();
+    WaterShader(ID3D11Device* device, HWND hwnd);
+    ~WaterShader();
     void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* heightTexture, float amplitude, Light* light);
 
 private:
