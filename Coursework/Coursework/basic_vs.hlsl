@@ -30,6 +30,7 @@ struct OutputType
     float3 normal : NORMAL;
 };
 
+static float4 dir = float4(1.0f, 1.0f, 0.0f,0.0f);
 static float PI = 3.14159265f;
 // gersner wave algorithm
 float3 vertexManipulation(float4 position)
@@ -37,11 +38,12 @@ float3 vertexManipulation(float4 position)
     float3 p = position.xyz;
     float k = 2 * PI / waveLength;
     float c = sqrt(gravity / k); //gravity
-    float f = k * (p.x - c * timeInSeconds);
+    float2 d = normalize(dir);
+    float f = k * (dot(d, p.xz) - c * timeInSeconds);
     float a = steepness / k;
-    p.x += a * cos(f);
+    p.x += d * (a * cos(f));
     p.y =  a * sin(f);
-    
+    p.z += d * (a * cos(f));
     
     return p;
 }
