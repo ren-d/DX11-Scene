@@ -12,54 +12,57 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
-	// Initalise scene variables.
+	// Initalise scene lighting.
+	lights[0] = new LightSource();
+	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
+	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[0]->setPosition(0.2, 0.2, 0.2);
+	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[0]->setDirection(0.45f, 0.5f, 0.50f);
+	lights[1] = new LightSource();
+	lights[1]->setLightType(LightSource::LType::DIRECTIONAL);
+	lights[1]->setPosition(0.2, 0.2, 0.2);
+	lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[1]->setDirection(0.45f, -0.5f, 0.75f);
+	lights[2] = new LightSource();
+	lights[2]->setLightType(LightSource::LType::DIRECTIONAL);
+	lights[2]->setPosition(0.2, 0.2, 0.2);
+	lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[2]->setDirection(0.45f, -0.5f, 0.75f);
+	lights[3] = new LightSource();
+	lights[3]->setLightType(LightSource::LType::DIRECTIONAL);
+	lights[3]->setPosition(0.2, 0.2, 0.2);
+	lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[3]->setDirection(0.45f, -0.5f, 0.75f);
+	
+	// load textures
+	textureMgr->loadTexture(L"water", L"res/water.png");
+	textureMgr->loadTexture(L"height", L"res/height.png");
 
-
-lights[0] = new LightSource();
-lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
-lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-lights[0]->setPosition(0.2, 0.2, 0.2);
-lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-lights[0]->setDirection(0.45f, 0.5f, 0.50f);
-lights[1] = new LightSource();
-lights[1]->setLightType(LightSource::LType::DIRECTIONAL);
-lights[1]->setPosition(0.2, 0.2, 0.2);
-lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-lights[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-lights[1]->setDirection(0.45f, -0.5f, 0.75f);
-lights[2] = new LightSource();
-lights[2]->setLightType(LightSource::LType::DIRECTIONAL);
-lights[2]->setPosition(0.2, 0.2, 0.2);
-lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-lights[2]->setDirection(0.45f, -0.5f, 0.75f);
-lights[3] = new LightSource();
-lights[3]->setLightType(LightSource::LType::DIRECTIONAL);
-lights[3]->setPosition(0.2, 0.2, 0.2);
-lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-lights[3]->setDirection(0.45f, -0.5f, 0.75f);
-
-textureMgr->loadTexture(L"water", L"res/water.png");
-textureMgr->loadTexture(L"height", L"res/height.png");
-water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"height"));
-water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
-
-waterShader = new WaterShader(renderer->getDevice(), hwnd);
-basicShader = new BasicShader(renderer->getDevice(), hwnd);
-
-lightdir[0] = lights[0]->getDirection().x;
-lightdir[1] = lights[0]->getDirection().y;
-lightdir[2] = lights[0]->getDirection().z;
-
-waveOneDir[0] = water->getWave(0)->direction.x;
-waveOneDir[1] = water->getWave(0)->direction.y;
-waveTwoDir[0] = water->getWave(1)->direction.x;
-waveTwoDir[1] = water->getWave(1)->direction.y;
-waveThreeDir[0] = water->getWave(2)->direction.x;
-waveThreeDir[1] = water->getWave(2)->direction.y;
-waveFourDir[0] = water->getWave(3)->direction.x;
-waveFourDir[1] = water->getWave(3)->direction.y;
+	// initialise scene objects
+	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"height"));
+	water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
+	
+	// initialise shaders
+	waterShader = new WaterShader(renderer->getDevice(), hwnd);
+	basicShader = new BasicShader(renderer->getDevice(), hwnd);
+	
+	// Setup GUI Variables
+	lightdir[0] = lights[0]->getDirection().x;
+	lightdir[1] = lights[0]->getDirection().y;
+	lightdir[2] = lights[0]->getDirection().z;
+	
+	waveOneDir[0] = water->getWave(0)->direction.x;
+	waveOneDir[1] = water->getWave(0)->direction.y;
+	waveTwoDir[0] = water->getWave(1)->direction.x;
+	waveTwoDir[1] = water->getWave(1)->direction.y;
+	waveThreeDir[0] = water->getWave(2)->direction.x;
+	waveThreeDir[1] = water->getWave(2)->direction.y;
+	waveFourDir[0] = water->getWave(3)->direction.x;
+	waveFourDir[1] = water->getWave(3)->direction.y;
 }
 
 
@@ -68,8 +71,6 @@ App1::~App1()
 	// Run base application deconstructor
 	BaseApplication::~BaseApplication();
 
-	// Release the Direct3D object.
-
 }
 
 
@@ -77,14 +78,19 @@ bool App1::frame()
 {
 	
 	bool result;
+
+	//update variables based on the GUI input
 	lights[0]->setDirection(lightdir[0], lightdir[1], lightdir[2]);
 	water->setWaveDir(0, XMFLOAT2(waveOneDir[0], waveOneDir[1]));
 	water->setWaveDir(1, XMFLOAT2(waveTwoDir[0], waveTwoDir[1]));
 	water->setWaveDir(2, XMFLOAT2(waveThreeDir[0], waveThreeDir[1]));
 	water->setWaveDir(3, XMFLOAT2(waveFourDir[0], waveFourDir[1]));
+
+
 	result = BaseApplication::frame();
 
 	deltaTime += timer->getTime();
+
 	if (!result)
 	{
 		return false;
@@ -127,6 +133,7 @@ void App1::basepass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
+	// Render Objects
 	water->render(worldMatrix, viewMatrix, projectionMatrix, basicShader, lights, deltaTime);
 
 }
@@ -141,6 +148,7 @@ void App1::gui()
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 
+	// Water GUI
 	if (ImGui::CollapsingHeader("water"))
 	{
 		if (ImGui::CollapsingHeader("wave 1"))
@@ -173,6 +181,7 @@ void App1::gui()
 
 	}
 
+	// Lighting GUI
 	if(ImGui::CollapsingHeader("lights"))
 	{
 		ImGui::SliderFloat3("lightdir", lightdir, -1.0f, 1.0f);

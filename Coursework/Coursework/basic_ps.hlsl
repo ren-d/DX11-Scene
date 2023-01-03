@@ -9,6 +9,7 @@ cbuffer LightBuffer : register(b0)
     float4 ambient;
 };
 
+// calculate direction lighting
 float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 {
     float intensity = saturate(dot(normal, lightDirection));

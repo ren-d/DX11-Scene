@@ -30,33 +30,38 @@ struct OutputType
     float3 normal : NORMAL;
 };
 
-static float4 dir = float4(1.0f, 1.0f, 0.0f,0.0f);
+
 static float PI = 3.14159265f;
 static float GRAVITY = 9.8f;
+
 // gersner wave algorithm
 float3 GerstnerWave(float4 wave, float3 position, inout float3 tangent, inout float3 binormal)
 {
     float steepness = wave.z;
     float waveLength = wave.w;
 
+    // Gersner Algorithm
     float k = 2 * PI / waveLength;
-    float c = sqrt(GRAVITY / k); //gravity
+    float c = sqrt(GRAVITY / k); 
     float2 d = normalize(wave.xy);
     float f = k * (dot(d, position.xz) - c * timeInSeconds.x);
     float a = steepness / k;
  
+    //calculate tangent of the vertex
     tangent += float3(
         -d.x * d.x * (steepness * sin(f)),
 	    d.x * (steepness * cos(f)),
 	    -d.x * d.y * (steepness * sin(f))
         );
     
+    //calculate the binormal of the vertex
     binormal += float3(
         -d.x * d.x * (steepness * sin(f)),
         d.y * (steepness * cos(f)),
         -d.y * d.y * (steepness * sin(f))
         );
     
+    // returns calculated position
     return float3(
     d.x * (a * cos(f)),
     a * sin(f),
@@ -75,14 +80,21 @@ OutputType main(InputType input)
     float3 binormal = float3(0, 0, 1);
     float3 finalPoint = waterPoint;
     
+    // add gersner waves to the vertex
     finalPoint += GerstnerWave(waves[0], waterPoint, tangent, binormal);
     finalPoint += GerstnerWave(waves[1], waterPoint, tangent, binormal);
     finalPoint += GerstnerWave(waves[2], waterPoint, tangent, binormal);
     finalPoint += GerstnerWave(waves[3], waterPoint, tangent, binormal);
-    float3 normal = normalize(cross(binormal, tangent));
     input.position.xyz = finalPoint;
+    
+    // calculate normal of the vertex
+    float3 normal = normalize(cross(binormal, tangent));
     input.normal = normal;
+    
+    // send vertex data to pixel shader
     output.worldPosition = finalPoint;
+    
+    
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);

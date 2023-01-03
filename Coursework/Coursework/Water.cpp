@@ -31,7 +31,6 @@ Water::~Water()
 
 void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, BasicShader* shader, LightSource* lights[4], float deltaTime)
 {
-
 	buildTransformations(world);
 	m_mesh->sendData(m_deviceContext);
 	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, deltaTime, *lights, waves);

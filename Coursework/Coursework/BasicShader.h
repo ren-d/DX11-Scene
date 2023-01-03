@@ -4,16 +4,19 @@
 
 using namespace std;
 using namespace DirectX;
+
 struct Wave {
     XMFLOAT2 direction;
     float steepness,
         waveLength;
 };
+
 class BasicShader :
     public BaseShader
 {
     
 public:
+    // Buffer Type structs
     struct WaterBufferType
     {
         XMFLOAT4 waves[4];

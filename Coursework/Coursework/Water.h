@@ -13,12 +13,11 @@ public:
 	~Water();
 
 	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, BasicShader* shader, LightSource* lights[4], float deltaTime);
+
 	Wave* getWave(int id);
 	void setWaveDir(int id, XMFLOAT2 direction);
 private:
 	ID3D11ShaderResourceView* m_heightMap;
-
-
 	Wave* waves[4];
 };
 

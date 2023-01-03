@@ -117,6 +117,7 @@ void BasicShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 
+	// Send Wave Data
 	WaterBufferType* waterPtr;
 	result = deviceContext->Map(waterBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	waterPtr = (WaterBufferType*)mappedResource.pData;
@@ -133,6 +134,7 @@ void BasicShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(waterBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &waterBuffer);
 
+	// Send Light Data
 	LightBufferType* lightPtr;
 	result = deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightPtr = (LightBufferType*)mappedResource.pData;
@@ -145,6 +147,7 @@ void BasicShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	lightPtr->ambientColour = lights[0].getAmbientColour();
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
+
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
