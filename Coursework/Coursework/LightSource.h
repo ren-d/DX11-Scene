@@ -17,6 +17,7 @@ public:
     float* getDiffuseColourFloatArray();
     float* getSpecularColourFloatArray();
     float* getAmbientColourFloatArray();
+
     void setSpecularPower(float specularPower) { m_specularPower = specularPower; }
     void setConstantFactor(float constantFactor) { m_constantFactor = constantFactor; }
     void setLinearFactor(float linearFactor) { m_linearFactor = linearFactor; }
