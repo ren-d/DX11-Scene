@@ -1,11 +1,11 @@
-#include "BasicShader.h"
+#include "WaterShader.h"
 
-BasicShader::BasicShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+WaterShader::WaterShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 	initShader(L"basic_vs.cso", L"basic_ps.cso");
 }
 
-BasicShader::~BasicShader()
+WaterShader::~WaterShader()
 {
 	// Release the sampler state.
 	if (sampleState)
@@ -33,7 +33,7 @@ BasicShader::~BasicShader()
 }
 
 
-void BasicShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
+void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -96,7 +96,7 @@ void BasicShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void BasicShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float time, LightSource lights[4], Wave* waves[4])
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float time, LightSource lights[4], Wave* waves[4])
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;

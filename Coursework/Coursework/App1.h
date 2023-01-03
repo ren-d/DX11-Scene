@@ -5,7 +5,7 @@
 // Includes
 #include "DXF.h"
 #include "SceneObject.h"
-#include "BasicShader.h"
+
 #include "Water.h"
 #include "WaterShader.h"
 #include "ModelObject.h"
@@ -28,7 +28,6 @@ private:
 	SceneObject* waterMesh;
 	ModelObject* house;
 	AModel* houseModel;
-	BasicShader* basicShader;
 	WaterShader* waterShader;
 	ModelShader* modelShader;
 	SphereMesh* sphere;
@@ -36,6 +35,8 @@ private:
 	LightSource* lights[4];
 
 	float deltaTime;
+
+	// GUI variables
 	float lightdir[3];
 	float waveOneDir[2];
 	float waveTwoDir[2];

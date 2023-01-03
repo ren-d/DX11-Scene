@@ -36,13 +36,10 @@
     <ClCompile Include="ModelObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BasicShader.cpp">
+    <ClCompile Include="WaterShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ModelShader.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="WaterShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="LightSource.cpp">
@@ -64,9 +61,6 @@
     </ClInclude>
     <ClInclude Include="ModelObject.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicShader.h">
-      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="WaterShader.h">
       <Filter>Header Files\Shaders</Filter>

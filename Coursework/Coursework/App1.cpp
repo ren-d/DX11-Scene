@@ -48,8 +48,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	
 	// initialise shaders
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
-	basicShader = new BasicShader(renderer->getDevice(), hwnd);
-	
+
 	// Setup GUI Variables
 	lightdir[0] = lights[0]->getDirection().x;
 	lightdir[1] = lights[0]->getDirection().y;
@@ -134,7 +133,7 @@ void App1::basepass()
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
 	// Render Objects
-	water->render(worldMatrix, viewMatrix, projectionMatrix, basicShader, lights, deltaTime);
+	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, deltaTime);
 
 }
 void App1::gui()

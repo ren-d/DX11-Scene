@@ -167,10 +167,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp" />
-    <ClCompile Include="BasicShader.cpp" />
+    <ClCompile Include="WaterShader.cpp" />
     <ClCompile Include="LightSource.cpp" />
     <ClCompile Include="Water.cpp" />
-    <ClCompile Include="WaterShader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ModelObject.cpp" />
     <ClCompile Include="ModelShader.cpp" />
@@ -178,10 +177,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
-    <ClInclude Include="BasicShader.h" />
+    <ClInclude Include="WaterShader.h" />
     <ClInclude Include="LightSource.h" />
     <ClInclude Include="Water.h" />
-    <ClInclude Include="WaterShader.h" />
     <ClInclude Include="LightHelper.h" />
     <ClInclude Include="ModelObject.h" />
     <ClInclude Include="ModelShader.h" />

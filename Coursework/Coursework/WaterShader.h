@@ -11,7 +11,7 @@ struct Wave {
         waveLength;
 };
 
-class BasicShader :
+class WaterShader :
     public BaseShader
 {
     
@@ -30,8 +30,8 @@ public:
         XMFLOAT4 ambientColour;
     };
 
-    BasicShader(ID3D11Device* device, HWND hwnd);
-    ~BasicShader();
+    WaterShader(ID3D11Device* device, HWND hwnd);
+    ~WaterShader();
     void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture,float time, LightSource lights[4], Wave* waves[4]);
 
 private:

@@ -29,7 +29,7 @@ Water::~Water()
 
 }
 
-void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, BasicShader* shader, LightSource* lights[4], float deltaTime)
+void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], float deltaTime)
 {
 	buildTransformations(world);
 	m_mesh->sendData(m_deviceContext);
