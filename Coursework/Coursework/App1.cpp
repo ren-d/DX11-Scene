@@ -24,19 +24,20 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[0]->setConstantFactor(1.5f);
 	lights[0]->setLinearFactor(0.125f);
 	lights[0]->setQuadraticFactor(0.2f);
-
+	lights[0]->init();
 
 	lights[1] = new LightSource();
 	lights[1]->setLightType(LightSource::LType::POINT);
 	lights[1]->setPosition(1.0, 1.0, 30);
 	lights[1]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	lights[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[1]->setDiffuseColour(1.0f, 0.0f, 1.0f, 1.0f);
 	lights[1]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[1]->setSpecularPower(100.0f);
 	lights[1]->setConstantFactor(1.5f);
 	lights[1]->setLinearFactor(0.125f);
 	lights[1]->setQuadraticFactor(0.2f);
+	lights[1]->init();
 
 	lights[2] = new LightSource();
 	lights[2]->setLightType(LightSource::LType::POINT);
@@ -49,6 +50,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[2]->setConstantFactor(1.5f);
 	lights[2]->setLinearFactor(0.125f);
 	lights[2]->setQuadraticFactor(0.2f);
+	lights[2]->init();
 
 	lights[3] = new LightSource();
 	lights[3]->setLightType(LightSource::LType::DIRECTIONAL);
@@ -61,7 +63,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[3]->setConstantFactor(1.5f);
 	lights[3]->setLinearFactor(0.125f);
 	lights[3]->setQuadraticFactor(0.2f);
-
+	lights[3]->init();
 	// load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
 	textureMgr->loadTexture(L"height", L"res/height.png");
@@ -113,11 +115,9 @@ bool App1::frame()
 {
 	
 	bool result;
-
+	
 	//update variables based on the GUI input
-	lights[0]->setDirection(lightdir[0], lightdir[1], lightdir[2]);
-	lights[0]->setDiffuseColour(lightOneColour[0], lightOneColour[1], lightOneColour[2], lightOneColour[3]);
-	lights[0]->setAmbientColour(ambientColour[0], ambientColour[1], ambientColour[2], ambientColour[3]);
+	
 	water->setWaveDir(0, XMFLOAT2(waveOneDir[0], waveOneDir[1]));
 	water->setWaveDir(1, XMFLOAT2(waveTwoDir[0], waveTwoDir[1]));
 	water->setWaveDir(2, XMFLOAT2(waveThreeDir[0], waveThreeDir[1]));
@@ -219,33 +219,59 @@ void App1::gui()
 	}
 
 	// Lighting GUI
+	const char* LIST_ITEMS[] = { "Directional", "Point", "Spot" };
 	if(ImGui::CollapsingHeader("lights"))
 	{
-		ImGui::ColorEdit4("ambient", ambientColour);
-		if (ImGui::CollapsingHeader("light 1"))
+		ImGui::ColorEdit4("ambient", lights[0]->getAmbientColourFloatArray());
+
+		for (int i = 0; i < 4; i++)
 		{
-			
-			const char* LIST_ITEMS[] = { "Directional", "Point", "Spot" };
-			static int currentSelection = (int)lights[0]->getLightType();
-			ImGui::ListBox("listbox", &currentSelection, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
-			switch (currentSelection)
+			std::string mainHeaderName = "light ";
+			std::string listboxName = "light type ";
+			std::string positionName = "position ";
+			std::string directionName = "direction ";
+			std::string colourName = "colour ";
+			std::string indexAsString = std::to_string(i);
+			mainHeaderName += indexAsString;
+			listboxName += indexAsString;
+			positionName += indexAsString;
+			directionName += indexAsString;
+			colourName += indexAsString;
+
+			if (ImGui::CollapsingHeader(mainHeaderName.c_str()))
 			{
-			case 0:
-				ImGui::SliderFloat3("direction 1", lightdir, -1.0f, 1.0f);
-				ImGui::ColorEdit4("colour", lightOneColour);
-				break;
-			case 1:
-				ImGui::SliderFloat3("position 1", lightdir, -1.0f, 1.0f);
-				
-				break;
-			case 2:
-				ImGui::SliderFloat3("direction 1", lightdir, -1.0f, 1.0f);
-				ImGui::SliderFloat3("position 1", lightdir, -1.0f, 1.0f);
-				break;
+
+
+				int currentSelection1 = (int)lights[i]->getLightType();
+				ImGui::ListBox(listboxName.c_str() , &currentSelection1, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
+				switch (currentSelection1)
+				{
+				case 0:
+					lights[i]->setLightType(LightSource::LType::DIRECTIONAL);
+					ImGui::SliderFloat3(directionName.c_str(), lights[i]->getDirectionFloatArray(), -1.0f, 1.0f);
+					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
+
+
+					break;
+				case 1:
+					lights[i]->setLightType(LightSource::LType::POINT);
+					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0, 100);
+					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
+					break;
+				case 2:
+					lights[i]->setLightType(LightSource::LType::SPOTLIGHT);
+					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0, 100);
+					ImGui::SliderFloat3(directionName.c_str(), lights[i]->getDirectionFloatArray(), -1.0f, 1.0f);
+					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
+					break;
+				}
+				lights[i]->update();
+
+
 			}
-			
-			
 		}
+		lights[0]->update();
+
 		
 	}
 	

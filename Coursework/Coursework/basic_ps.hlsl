@@ -51,7 +51,8 @@ struct InputType
 float4 main(InputType input) : SV_TARGET
 {
     
-    float4 lightColour = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float4 finalColour = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float4 lightColour[4];
     float4 textureColour;
     float distance, constantFactor,
     linearFactor, quadraticFactor, attenuationValue;
@@ -61,20 +62,19 @@ float4 main(InputType input) : SV_TARGET
         switch (lightPosition[i].w)
         {
             case 0:
-                lightColour += calculateLighting(-lightDirection[0].xyz, input.normal, diffuseColour[i]);
+                lightColour[i] = calculateLighting(-lightDirection[0].xyz, input.normal, diffuseColour[i]);
                 break;
             
             case 1:
-                float4 newColour;
+                
                 distance = length(lightPosition[i].xyz - input.worldPosition);
                 constantFactor = attenuation[i].x;
                 linearFactor = attenuation[i].y;
                 quadraticFactor = attenuation[i].z;
                 
                 attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
-                newColour[i] = ambient + calculateLighting(distance, input.normal, diffuseColour[i]);
-                newColour[i] *= attenuationValue;
-                lightColour += newColour[i];
+                lightColour[i] = ambient + calculateLighting(distance, input.normal, diffuseColour[i]);
+                lightColour[i] *= attenuationValue;
                 break;
             
             case 2:
@@ -87,8 +87,14 @@ float4 main(InputType input) : SV_TARGET
 
         }
     }
-       
+    
+    finalColour = float4(
+    lightColour[0].r + lightColour[1].r + lightColour[2].r + lightColour[3].r,
+    lightColour[0].g + lightColour[1].g + lightColour[2].g + lightColour[3].g,
+    lightColour[0].b + lightColour[1].b + lightColour[2].b + lightColour[3].b,
+    1.0f
+    );
     textureColour = texture0.Sample(Sampler0, input.tex);
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
-    return textureColour * lightColour;
+    return  finalColour * textureColour;
 }

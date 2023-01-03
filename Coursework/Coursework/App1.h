@@ -34,6 +34,9 @@ private:
 	Water* water;
 	LightSource* lights[4];
 	float lightOneColour[4];
+	float lightTwoColour[4];
+	float lightThreeColour[4];
+	float lightFourColour[4];
 	float ambientColour[4];
 	float deltaTime;
 
