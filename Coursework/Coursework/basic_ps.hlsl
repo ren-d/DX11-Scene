@@ -6,6 +6,8 @@ cbuffer LightBuffer : register(b0)
     float4 lightPosition[4];
     float4 lightDirection[4];
     float4 diffuseColour[4];
+    float4 specularColour[4];
+    float4 specularPower[4];
     float4 ambient;
 };
 
@@ -28,10 +30,15 @@ struct InputType
 
 float4 main(InputType input) : SV_TARGET
 {
-    float4 lightColour = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    float4 lightColour = float4(0.0f, 0.0f, 0.0f, 1.0f);
     float4 textureColour;
     
-    lightColour = calculateLighting(-lightDirection[0].xyz, input.normal, lightColour[0]);
+    
+
+    lightColour += calculateLighting(-lightDirection[0].xyz, input.normal, diffuseColour[0]);
+
+    
+   
 
 
     textureColour = texture0.Sample(Sampler0, input.tex);

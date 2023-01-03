@@ -7,12 +7,13 @@ class LightSource :
 public:
     enum class LType
     {
-        DIRECTIONAL, POINT, SPOTLIGHT
+        DIRECTIONAL = 0, POINT = 1, SPOTLIGHT = 2
     };
+
 
     void setSpecularPower(float specularPower) { m_specularPower = specularPower; }
     void setLightType(LType type) { m_type = type; }
-
+    
     float getSpecularPower() { return m_specularPower; }
     LType getLightType() { return m_type; }
 private:

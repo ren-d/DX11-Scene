@@ -17,23 +17,27 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[0]->setPosition(0.2, 0.2, 0.2);
+	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDirection(0.45f, 0.5f, 0.50f);
 	lights[1] = new LightSource();
-	lights[1]->setLightType(LightSource::LType::DIRECTIONAL);
+	lights[1]->setLightType(LightSource::LType::POINT);
 	lights[1]->setPosition(0.2, 0.2, 0.2);
+	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[1]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[2] = new LightSource();
-	lights[2]->setLightType(LightSource::LType::DIRECTIONAL);
+	lights[2]->setLightType(LightSource::LType::POINT);
 	lights[2]->setPosition(0.2, 0.2, 0.2);
+	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[2]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[3] = new LightSource();
-	lights[3]->setLightType(LightSource::LType::DIRECTIONAL);
+	lights[3]->setLightType(LightSource::LType::SPOTLIGHT);
 	lights[3]->setPosition(0.2, 0.2, 0.2);
+	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[3]->setDirection(0.45f, -0.5f, 0.75f);
@@ -53,7 +57,17 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lightdir[0] = lights[0]->getDirection().x;
 	lightdir[1] = lights[0]->getDirection().y;
 	lightdir[2] = lights[0]->getDirection().z;
+
+	lightOneColour[0] = lights[0]->getDiffuseColour().x;
+	lightOneColour[1] = lights[0]->getDiffuseColour().y;
+	lightOneColour[2] = lights[0]->getDiffuseColour().z;
+	lightOneColour[3] = lights[0]->getDiffuseColour().w;
 	
+	ambientColour[0] = lights[0]->getAmbientColour().x;
+	ambientColour[1] = lights[0]->getAmbientColour().y;
+	ambientColour[2] = lights[0]->getAmbientColour().z;
+	ambientColour[3] = lights[0]->getAmbientColour().w;
+
 	waveOneDir[0] = water->getWave(0)->direction.x;
 	waveOneDir[1] = water->getWave(0)->direction.y;
 	waveTwoDir[0] = water->getWave(1)->direction.x;
@@ -62,6 +76,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	waveThreeDir[1] = water->getWave(2)->direction.y;
 	waveFourDir[0] = water->getWave(3)->direction.x;
 	waveFourDir[1] = water->getWave(3)->direction.y;
+
+
 }
 
 
@@ -80,6 +96,8 @@ bool App1::frame()
 
 	//update variables based on the GUI input
 	lights[0]->setDirection(lightdir[0], lightdir[1], lightdir[2]);
+	lights[0]->setDiffuseColour(lightOneColour[0], lightOneColour[1], lightOneColour[2], lightOneColour[3]);
+	lights[0]->setAmbientColour(ambientColour[0], ambientColour[1], ambientColour[2], ambientColour[3]);
 	water->setWaveDir(0, XMFLOAT2(waveOneDir[0], waveOneDir[1]));
 	water->setWaveDir(1, XMFLOAT2(waveTwoDir[0], waveTwoDir[1]));
 	water->setWaveDir(2, XMFLOAT2(waveThreeDir[0], waveThreeDir[1]));
@@ -183,7 +201,32 @@ void App1::gui()
 	// Lighting GUI
 	if(ImGui::CollapsingHeader("lights"))
 	{
-		ImGui::SliderFloat3("lightdir", lightdir, -1.0f, 1.0f);
+		ImGui::ColorEdit4("ambient", ambientColour);
+		if (ImGui::CollapsingHeader("light 1"))
+		{
+			
+			const char* LIST_ITEMS[] = { "Directional", "Point", "Spot" };
+			static int currentSelection = (int)lights[0]->getLightType();
+			ImGui::ListBox("listbox", &currentSelection, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
+			switch (currentSelection)
+			{
+			case 0:
+				ImGui::SliderFloat3("direction 1", lightdir, -1.0f, 1.0f);
+				ImGui::ColorEdit4("colour", lightOneColour);
+				break;
+			case 1:
+				ImGui::SliderFloat3("position 1", lightdir, -1.0f, 1.0f);
+				
+				break;
+			case 2:
+				ImGui::SliderFloat3("direction 1", lightdir, -1.0f, 1.0f);
+				ImGui::SliderFloat3("position 1", lightdir, -1.0f, 1.0f);
+				break;
+			}
+			
+			
+		}
+		
 	}
 	
 	// Render UI

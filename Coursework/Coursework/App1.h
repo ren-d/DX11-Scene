@@ -33,7 +33,8 @@ private:
 	SphereMesh* sphere;
 	Water* water;
 	LightSource* lights[4];
-
+	float lightOneColour[4];
+	float ambientColour[4];
 	float deltaTime;
 
 	// GUI variables
@@ -42,6 +43,7 @@ private:
 	float waveTwoDir[2];
 	float waveThreeDir[2];
 	float waveFourDir[2];
+	
 };
 
 #endif

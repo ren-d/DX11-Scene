@@ -22,11 +22,14 @@ public:
         XMFLOAT4 waves[4];
         XMFLOAT4 timeInSeconds;
     };
+
     struct LightBufferType
     {
         XMFLOAT4 lightPosition[4];
         XMFLOAT4 lightDirection[4];
         XMFLOAT4 diffuseColour[4];
+        XMFLOAT4 specularColour[4];
+        XMFLOAT4 specularPower[4];
         XMFLOAT4 ambientColour;
     };
 
