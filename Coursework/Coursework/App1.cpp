@@ -240,7 +240,7 @@ void App1::gui()
 
 			if (ImGui::CollapsingHeader(mainHeaderName.c_str()))
 			{
-
+				char* blah;
 
 				int currentSelection1 = (int)lights[i]->getLightType();
 				ImGui::ListBox(listboxName.c_str() , &currentSelection1, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
