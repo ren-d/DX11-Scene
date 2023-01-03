@@ -96,7 +96,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float time, LightSource lights[4], Wave* waves[4])
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float time, LightSource* lights[4], Wave* waves[4])
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -140,13 +140,18 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	lightPtr = (LightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 4; i++)
 	{
-		lightPtr->lightPosition[i] = XMFLOAT4(lights[i].getPosition().x, lights[i].getPosition().y, lights[i].getPosition().z, (int)lights[i].getLightType());
-		lightPtr->lightDirection[i] = XMFLOAT4(lights[i].getDirection().x, lights[i].getDirection().y, lights[i].getDirection().z, 0.0f);
-		lightPtr->diffuseColour[i] = lights[i].getDiffuseColour();
-		lightPtr->specularColour[i] = lights[i].getSpecularColour();
-		lightPtr->specularPower[i] = XMFLOAT4(lights[i].getSpecularPower(), 0.0f,0.0f,0.0f);
+		lightPtr->lightPosition[i] = XMFLOAT4(lights[i]->getPosition().x, lights[i]->getPosition().y, lights[i]->getPosition().z, lights[i]->getLightType());
+		lightPtr->lightDirection[i] = XMFLOAT4(lights[i]->getDirection().x, lights[i]->getDirection().y, lights[i]->getDirection().z, 0.0f);
+		lightPtr->diffuseColour[i] = lights[i]->getDiffuseColour();
+		lightPtr->specularColour[i] = lights[i]->getSpecularColour();
+		lightPtr->specularPower[i] = XMFLOAT4(lights[i]->getSpecularPower(), 0.0f,0.0f,0.0f);
+		lightPtr->attenuation[i] = XMFLOAT4(
+			lights[i]->getConstantFactor(),
+			lights[i]->getLinearfactor(),
+			lights[i]->getQuadraticFactor(), 0.0f
+		);
 	}
-	lightPtr->ambientColour = lights[0].getAmbientColour();
+	lightPtr->ambientColour = lights[0]->getAmbientColour();
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
 

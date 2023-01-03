@@ -20,28 +20,48 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDirection(0.45f, 0.5f, 0.50f);
+	lights[0]->setSpecularPower(100.0f);
+	lights[0]->setConstantFactor(1.5f);
+	lights[0]->setLinearFactor(0.125f);
+	lights[0]->setQuadraticFactor(0.2f);
+
+
 	lights[1] = new LightSource();
 	lights[1]->setLightType(LightSource::LType::POINT);
-	lights[1]->setPosition(0.2, 0.2, 0.2);
-	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[1]->setPosition(1.0, 1.0, 30);
+	lights[1]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[1]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[1]->setDirection(0.45f, -0.5f, 0.75f);
+	lights[1]->setSpecularPower(100.0f);
+	lights[1]->setConstantFactor(1.5f);
+	lights[1]->setLinearFactor(0.125f);
+	lights[1]->setQuadraticFactor(0.2f);
+
 	lights[2] = new LightSource();
 	lights[2]->setLightType(LightSource::LType::POINT);
 	lights[2]->setPosition(0.2, 0.2, 0.2);
-	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[2]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[2]->setSpecularPower(100.0f);
 	lights[2]->setDirection(0.45f, -0.5f, 0.75f);
+	lights[2]->setConstantFactor(1.5f);
+	lights[2]->setLinearFactor(0.125f);
+	lights[2]->setQuadraticFactor(0.2f);
+
 	lights[3] = new LightSource();
-	lights[3]->setLightType(LightSource::LType::SPOTLIGHT);
+	lights[3]->setLightType(LightSource::LType::DIRECTIONAL);
 	lights[3]->setPosition(0.2, 0.2, 0.2);
-	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[3]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[3]->setDirection(0.45f, -0.5f, 0.75f);
-	
+	lights[3]->setSpecularPower(100.0f);
+	lights[3]->setConstantFactor(1.5f);
+	lights[3]->setLinearFactor(0.125f);
+	lights[3]->setQuadraticFactor(0.2f);
+
 	// load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
 	textureMgr->loadTexture(L"height", L"res/height.png");

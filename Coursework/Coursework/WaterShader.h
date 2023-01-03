@@ -30,12 +30,13 @@ public:
         XMFLOAT4 diffuseColour[4];
         XMFLOAT4 specularColour[4];
         XMFLOAT4 specularPower[4];
+        XMFLOAT4 attenuation[4];
         XMFLOAT4 ambientColour;
     };
 
     WaterShader(ID3D11Device* device, HWND hwnd);
     ~WaterShader();
-    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture,float time, LightSource lights[4], Wave* waves[4]);
+    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture,float time, LightSource* lights[4], Wave* waves[4]);
 
 private:
     void initShader(const wchar_t* vs, const wchar_t* ps);

@@ -33,7 +33,7 @@ void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projec
 {
 	buildTransformations(world);
 	m_mesh->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, deltaTime, *lights, waves);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, deltaTime, lights, waves);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 }
 
