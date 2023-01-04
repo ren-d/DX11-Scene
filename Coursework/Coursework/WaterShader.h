@@ -31,7 +31,9 @@ public:
         XMFLOAT4 specularColour[4];
         XMFLOAT4 specularPower[4];
         XMFLOAT4 attenuation[4];
+        XMFLOAT4 spotlightConeAngles[4];
         XMFLOAT4 ambientColour;
+        
     };
 
     WaterShader(ID3D11Device* device, HWND hwnd);

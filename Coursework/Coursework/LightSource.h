@@ -22,12 +22,16 @@ public:
     void setConstantFactor(float constantFactor) { m_constantFactor = constantFactor; }
     void setLinearFactor(float linearFactor) { m_linearFactor = linearFactor; }
     void setQuadraticFactor(float quadraticFactor) { m_quadraticFactor = quadraticFactor; }
+    void setInnerSpotlightConeInDegrees(float innerCone) { m_innerCone = innerCone; }
+    void setOuterSpotlightConeInDegrees(float outerCone) { m_outerCone = outerCone; }
     void setLightType(LType type) { m_type = type; }
     
-    float getSpecularPower() { return m_specularPower; }
-    float getConstantFactor() { return m_constantFactor; }
-    float getLinearfactor() { return m_linearFactor; }
-    float getQuadraticFactor() { return m_quadraticFactor; }
+    float* getSpecularPower() { return &m_specularPower; }
+    float* getConstantFactor() { return &m_constantFactor; }
+    float* getLinearfactor() { return &m_linearFactor; }
+    float* getQuadraticFactor() { return &m_quadraticFactor; }
+    float* getInnerCone() { return &m_innerCone; }
+    float* getOuterCone() { return &m_outerCone; }
     int getLightType();
 
 private:
@@ -35,7 +39,9 @@ private:
         m_specularPower,
         m_constantFactor,
         m_linearFactor,
-        m_quadraticFactor;
+        m_quadraticFactor,
+        m_innerCone,
+        m_outerCone;
     LType m_type;
 
     float m_direction[3];

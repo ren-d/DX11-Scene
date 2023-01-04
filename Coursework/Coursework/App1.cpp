@@ -24,6 +24,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[0]->setConstantFactor(1.0f);
 	lights[0]->setLinearFactor(0.14f);
 	lights[0]->setQuadraticFactor(0.07f);
+	lights[0]->setInnerSpotlightConeInDegrees(25);
+	lights[0]->setOuterSpotlightConeInDegrees(35);
 	lights[0]->init();
 
 	lights[1] = new LightSource();
@@ -37,6 +39,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[1]->setConstantFactor(1.0f);
 	lights[1]->setLinearFactor(0.14f);
 	lights[1]->setQuadraticFactor(0.07f);
+	lights[1]->setInnerSpotlightConeInDegrees(25);
+	lights[1]->setOuterSpotlightConeInDegrees(35);
 	lights[1]->init();
 
 	lights[2] = new LightSource();
@@ -50,11 +54,13 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[2]->setConstantFactor(1.0f);
 	lights[2]->setLinearFactor(0.14f);
 	lights[2]->setQuadraticFactor(0.07f);
+	lights[2]->setInnerSpotlightConeInDegrees(25);
+	lights[2]->setOuterSpotlightConeInDegrees(35);
 	lights[2]->init();
 
 	lights[3] = new LightSource();
 	lights[3]->setLightType(LightSource::LType::SPOTLIGHT);
-	lights[3]->setPosition(30, 0.5, 30);
+	lights[3]->setPosition(30, 25.0f, 30);
 	lights[3]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
@@ -63,6 +69,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[3]->setConstantFactor(1.0f);
 	lights[3]->setLinearFactor(0.014f);
 	lights[3]->setQuadraticFactor(0.0007f);
+	lights[3]->setInnerSpotlightConeInDegrees(25);
+	lights[3]->setOuterSpotlightConeInDegrees(35);
 	lights[3]->init();
 	// load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
@@ -231,24 +239,32 @@ void App1::gui()
 			std::string positionName = "position ";
 			std::string directionName = "direction ";
 			std::string colourName = "colour ";
-			std::string linearFactor = "linear factor ";
-			std::string quadraticFactor = "quadratic factor ";
+			std::string specularColourName = "specular colour ";
+			std::string specularPowerName = "specular power ";
+			std::string linearFactorName = "linear factor ";
+			std::string quadraticFactorName = "quadratic factor ";
+			std::string outerConeName = "outer cone (degrees) ";
+			std::string innerConeName = "inner cone (degrees) ";
 			std::string indexAsString = std::to_string(i);
+
 			mainHeaderName += indexAsString;
 			listboxName += indexAsString;
 			positionName += indexAsString;
 			directionName += indexAsString;
 			colourName += indexAsString;
-			linearFactor += indexAsString;
-			quadraticFactor += indexAsString;
+			specularColourName += indexAsString;
+			specularPowerName += indexAsString;
+			linearFactorName += indexAsString;
+			quadraticFactorName += indexAsString;
+			outerConeName += indexAsString;
+			innerConeName += indexAsString;
 
 			if (ImGui::CollapsingHeader(mainHeaderName.c_str()))
 			{
-				char* blah;
 
-				int currentSelection1 = (int)lights[i]->getLightType();
-				ImGui::ListBox(listboxName.c_str() , &currentSelection1, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
-				switch (currentSelection1)
+				int currentSelection = (int)lights[i]->getLightType();
+				ImGui::ListBox(listboxName.c_str() , &currentSelection, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
+				switch (currentSelection)
 				{
 				case 0:
 					lights[i]->setLightType(LightSource::LType::DIRECTIONAL);
@@ -261,12 +277,22 @@ void App1::gui()
 					lights[i]->setLightType(LightSource::LType::POINT);
 					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0, 100);
 					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
+					ImGui::ColorEdit4(specularColourName.c_str(), lights[i]->getSpecularColourFloatArray());
+					ImGui::SliderFloat(specularPowerName.c_str(), lights[i]->getSpecularPower(), 0.00f, 100.0f);
+					ImGui::SliderFloat(linearFactorName.c_str(), lights[i]->getLinearfactor(), 0.014f, 0.35);
+					ImGui::SliderFloat(quadraticFactorName.c_str(), lights[i]->getQuadraticFactor(), 0.0007f, 0.44);
 					break;
 				case 2:
 					lights[i]->setLightType(LightSource::LType::SPOTLIGHT);
 					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0, 100);
 					ImGui::SliderFloat3(directionName.c_str(), lights[i]->getDirectionFloatArray(), -1.0f, 1.0f);
 					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
+					ImGui::ColorEdit4(specularColourName.c_str(), lights[i]->getSpecularColourFloatArray());
+					ImGui::SliderFloat(specularPowerName.c_str(), lights[i]->getSpecularPower(), 0.00f, 100.0f);
+					ImGui::SliderFloat(outerConeName.c_str(), lights[i]->getOuterCone(), *lights[i]->getInnerCone(), 90.0f);
+					ImGui::SliderFloat(innerConeName.c_str(), lights[i]->getInnerCone(), 0.1f, *lights[i]->getOuterCone());
+					ImGui::SliderFloat(linearFactorName.c_str(), lights[i]->getLinearfactor(), 0.014, 0.35);
+					ImGui::SliderFloat(quadraticFactorName.c_str(), lights[i]->getQuadraticFactor(), 0.0007, 0.44);
 					break;
 				}
 				lights[i]->update();

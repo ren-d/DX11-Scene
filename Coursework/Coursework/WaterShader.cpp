@@ -144,12 +144,13 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 		lightPtr->lightDirection[i] = XMFLOAT4(lights[i]->getDirection().x, lights[i]->getDirection().y, lights[i]->getDirection().z, 0.0f);
 		lightPtr->diffuseColour[i] = lights[i]->getDiffuseColour();
 		lightPtr->specularColour[i] = lights[i]->getSpecularColour();
-		lightPtr->specularPower[i] = XMFLOAT4(lights[i]->getSpecularPower(), 0.0f,0.0f,0.0f);
+		lightPtr->specularPower[i] = XMFLOAT4(*lights[i]->getSpecularPower(), 0.0f,0.0f,0.0f);
 		lightPtr->attenuation[i] = XMFLOAT4(
-			lights[i]->getConstantFactor(),
-			lights[i]->getLinearfactor(),
-			lights[i]->getQuadraticFactor(), 0.0f
+			*lights[i]->getConstantFactor(),
+			*lights[i]->getLinearfactor(),
+			*lights[i]->getQuadraticFactor(), 0.0f
 		);
+		lightPtr->spotlightConeAngles[i] = XMFLOAT4(*lights[i]->getInnerCone(), *lights[i]->getOuterCone(), 0.0f, 0.0f);
 	}
 	lightPtr->ambientColour = lights[0]->getAmbientColour();
 	deviceContext->Unmap(lightBuffer, 0);

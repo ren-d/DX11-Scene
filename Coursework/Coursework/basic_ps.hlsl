@@ -11,7 +11,9 @@ cbuffer LightBuffer : register(b0)
     float4 specularColour[4];
     float4 specularPower[4];
     float4 attenuation[4];
+    float4 spotlightConeAngles[4];
     float4 ambient;
+    
 };
 
 cbuffer CameraBuffer : register(b1)
@@ -61,14 +63,14 @@ float4 main(InputType input) : SV_TARGET
     float4 lightColour[4];
     float4 textureColour;
     float distance, constantFactor,
-    linearFactor, quadraticFactor, attenuationValue, falloff, phi, theta, ambientAtten;
+    linearFactor, quadraticFactor, attenuationValue, falloff, outerCone, theta, innerCone,ambientAtten;
     for (int i = 0; i < 4; i++)
     {
         // light type is stored in the position w value
         switch (lightPosition[i].w)
         {
             case 0:
-                lightColour[i] = calculateLighting(-lightDirection[0].xyz, input.normal, diffuseColour[i]);
+                lightColour[i] = calculateLighting(-lightDirection[i].xyz, input.normal, diffuseColour[i]);
                 break;
             
             case 1:
@@ -86,11 +88,11 @@ float4 main(InputType input) : SV_TARGET
             
             case 2:
                 float3 lightDir = normalize(lightPosition[i].xyz - input.worldPosition);
-                falloff = 1.0f;
-                phi = cos(radians(10.0f));
+                innerCone = cos(radians(spotlightConeAngles[i].x));
+                outerCone = cos(radians(spotlightConeAngles[i].y));
                 theta = dot(lightDir, normalize(-lightDirection[i].xyz));
-                float epsilon = phi - 0.82f;
-                float intensity = clamp((theta - 0.82f) / epsilon, 0.0f,1.0f);
+                float epsilon = innerCone - outerCone;
+                float intensity = clamp((theta - outerCone) / epsilon, 0.0f, 1.0f);
 
                 distance = length(lightPosition[i].xyz - input.worldPosition);
                 constantFactor = attenuation[i].x;
