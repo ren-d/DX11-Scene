@@ -75,7 +75,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
 	textureMgr->loadTexture(L"height", L"res/height.png");
-
+	
 	// initialise scene objects
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"height"));
 	water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
@@ -179,7 +179,7 @@ void App1::basepass()
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
 	// Render Objects
-	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, deltaTime);
+	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, deltaTime, camera);
 
 }
 void App1::gui()
@@ -261,7 +261,7 @@ void App1::gui()
 
 			if (ImGui::CollapsingHeader(mainHeaderName.c_str()))
 			{
-
+				
 				int currentSelection = (int)lights[i]->getLightType();
 				ImGui::ListBox(listboxName.c_str() , &currentSelection, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
 				switch (currentSelection)

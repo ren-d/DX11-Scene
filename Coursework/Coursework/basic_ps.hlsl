@@ -35,7 +35,7 @@ float4 calculateSpecular(float3 lightDirection, float3 normal, float3 viewVector
 	//blinn-phong specular calculation
     float3 halfway = normalize(lightDirection + viewVector);
     float specularIntensity = pow(max(dot(normal, halfway), 0.0), specularPower);
-    return saturate(specularColour * specularIntensity);
+    return specularColour * specularIntensity;
 }
 
 float4 calculateLightingDirection(float3 lightDirection, float3 normal, float4 ldiffuse)
@@ -60,6 +60,7 @@ float4 main(InputType input) : SV_TARGET
 {
     
     float4 finalColour = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float4 specular = float4(0.0f,0.0f,0.0f,1.0f);
     float4 lightColour[4];
     float4 textureColour;
     float distance, constantFactor,
@@ -74,19 +75,35 @@ float4 main(InputType input) : SV_TARGET
                 break;
             
             case 1:
-                
+                specular = calculateSpecular(
+                    normalize(lightPosition[i].xyz - input.worldPosition),
+                    input.normal,
+                    normalize(cameraPosition.xyz - input.worldPosition),
+                    specularColour[i],
+                    specularPower[i].x
+                );
+            
+            
                 distance = length(lightPosition[i].xyz - input.worldPosition);
                 constantFactor = attenuation[i].x;
                 linearFactor = attenuation[i].y;
                 quadraticFactor = attenuation[i].z;
                 
                 attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
-                ambientAtten = ambient * attenuationValue;
-                lightColour[i] = ambientAtten + (calculateLighting(distance, input.normal, diffuseColour[i]) * attenuationValue);
+                lightColour[i] = ambient * attenuationValue;
+                lightColour[i] += calculateLighting(distance, input.normal, diffuseColour[i]) * attenuationValue;
+                lightColour[i] += specular * attenuationValue;
                 
                 break;
             
             case 2:
+                specular = calculateSpecular(
+                    normalize(lightPosition[i].xyz - input.worldPosition),
+                    input.normal,
+                    normalize(cameraPosition.xyz - input.worldPosition),
+                    specularColour[i],
+                    specularPower[i].x
+                );
                 float3 lightDir = normalize(lightPosition[i].xyz - input.worldPosition);
                 innerCone = cos(radians(spotlightConeAngles[i].x));
                 outerCone = cos(radians(spotlightConeAngles[i].y));
@@ -100,8 +117,9 @@ float4 main(InputType input) : SV_TARGET
                 quadraticFactor = attenuation[i].z;
                 
                 attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
-                ambientAtten = ambient * attenuationValue;
-                lightColour[i] = ambientAtten + (calculateLighting(distance, input.normal, diffuseColour[i]) * intensity) * attenuationValue;
+                lightColour[i] = ambient * attenuationValue;
+                lightColour[i] += (calculateLighting(distance, input.normal, diffuseColour[i]) * intensity) * attenuationValue;
+                lightColour[i] += (specular * attenuationValue) * intensity;
 
             
             
