@@ -14,6 +14,12 @@ cbuffer LightBuffer : register(b0)
     float4 ambient;
 };
 
+cbuffer CameraBuffer : register(b1)
+{
+    float4 cameraPosition;
+    float4 cameraDirection;
+}
+
 // calculate direction lighting
 float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 {
@@ -55,7 +61,7 @@ float4 main(InputType input) : SV_TARGET
     float4 lightColour[4];
     float4 textureColour;
     float distance, constantFactor,
-    linearFactor, quadraticFactor, attenuationValue;
+    linearFactor, quadraticFactor, attenuationValue, falloff, phi, theta, ambientAtten;
     for (int i = 0; i < 4; i++)
     {
         // light type is stored in the position w value
@@ -73,25 +79,43 @@ float4 main(InputType input) : SV_TARGET
                 quadraticFactor = attenuation[i].z;
                 
                 attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
-                lightColour[i] = ambient + calculateLighting(distance, input.normal, diffuseColour[i]);
-                lightColour[i] *= attenuationValue;
+                ambientAtten = ambient * attenuationValue;
+                lightColour[i] = ambientAtten + (calculateLighting(distance, input.normal, diffuseColour[i]) * attenuationValue);
+                
                 break;
             
             case 2:
-                return float4(1.0f, 1.0f, 1.0f, 1.0f);
+                float3 lightDir = normalize(lightPosition[i].xyz - input.worldPosition);
+                falloff = 1.0f;
+                phi = cos(radians(10.0f));
+                theta = dot(lightDir, normalize(-lightDirection[i].xyz));
+                float epsilon = phi - 0.82f;
+                float intensity = clamp((theta - 0.82f) / epsilon, 0.0f,1.0f);
+
+                distance = length(lightPosition[i].xyz - input.worldPosition);
+                constantFactor = attenuation[i].x;
+                linearFactor = attenuation[i].y;
+                quadraticFactor = attenuation[i].z;
+                
+                attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
+                ambientAtten = ambient * attenuationValue;
+                lightColour[i] = ambientAtten + (calculateLighting(distance, input.normal, diffuseColour[i]) * intensity) * attenuationValue;
+
+            
+            
                 break;
             
             default:
-                return float4(1.0f, 0.0f, 1.0f, 1.0f);
+                return float4(1.0f, 0.0f, 1.0f, 1.0f); // easy to debug colour
                 break;
 
         }
     }
     
     finalColour = float4(
-    lightColour[0].r + lightColour[1].r + lightColour[2].r + lightColour[3].r,
-    lightColour[0].g + lightColour[1].g + lightColour[2].g + lightColour[3].g,
-    lightColour[0].b + lightColour[1].b + lightColour[2].b + lightColour[3].b,
+    clamp(lightColour[0].r + lightColour[1].r + lightColour[2].r + lightColour[3].r, 0.0f, 1.0f),
+    clamp(lightColour[0].g + lightColour[1].g + lightColour[2].g + lightColour[3].g, 0.0f, 1.0f),
+    clamp(lightColour[0].b + lightColour[1].b + lightColour[2].b + lightColour[3].b, 0.0f, 1.0f),
     1.0f
     );
     textureColour = texture0.Sample(Sampler0, input.tex);

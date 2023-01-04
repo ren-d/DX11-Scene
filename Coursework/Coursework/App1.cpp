@@ -21,9 +21,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDirection(0.45f, 0.5f, 0.50f);
 	lights[0]->setSpecularPower(100.0f);
-	lights[0]->setConstantFactor(1.5f);
-	lights[0]->setLinearFactor(0.125f);
-	lights[0]->setQuadraticFactor(0.2f);
+	lights[0]->setConstantFactor(1.0f);
+	lights[0]->setLinearFactor(0.14f);
+	lights[0]->setQuadraticFactor(0.07f);
 	lights[0]->init();
 
 	lights[1] = new LightSource();
@@ -34,9 +34,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[1]->setDiffuseColour(1.0f, 0.0f, 1.0f, 1.0f);
 	lights[1]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[1]->setSpecularPower(100.0f);
-	lights[1]->setConstantFactor(1.5f);
-	lights[1]->setLinearFactor(0.125f);
-	lights[1]->setQuadraticFactor(0.2f);
+	lights[1]->setConstantFactor(1.0f);
+	lights[1]->setLinearFactor(0.14f);
+	lights[1]->setQuadraticFactor(0.07f);
 	lights[1]->init();
 
 	lights[2] = new LightSource();
@@ -47,22 +47,22 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[2]->setSpecularPower(100.0f);
 	lights[2]->setDirection(0.45f, -0.5f, 0.75f);
-	lights[2]->setConstantFactor(1.5f);
-	lights[2]->setLinearFactor(0.125f);
-	lights[2]->setQuadraticFactor(0.2f);
+	lights[2]->setConstantFactor(1.0f);
+	lights[2]->setLinearFactor(0.14f);
+	lights[2]->setQuadraticFactor(0.07f);
 	lights[2]->init();
 
 	lights[3] = new LightSource();
-	lights[3]->setLightType(LightSource::LType::DIRECTIONAL);
-	lights[3]->setPosition(0.2, 0.2, 0.2);
+	lights[3]->setLightType(LightSource::LType::SPOTLIGHT);
+	lights[3]->setPosition(30, 0.5, 30);
 	lights[3]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[3]->setDirection(0.45f, -0.5f, 0.75f);
+	lights[3]->setDirection(0.0f, -1.0f, 0.0f);
 	lights[3]->setSpecularPower(100.0f);
-	lights[3]->setConstantFactor(1.5f);
-	lights[3]->setLinearFactor(0.125f);
-	lights[3]->setQuadraticFactor(0.2f);
+	lights[3]->setConstantFactor(1.0f);
+	lights[3]->setLinearFactor(0.014f);
+	lights[3]->setQuadraticFactor(0.0007f);
 	lights[3]->init();
 	// load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
@@ -231,12 +231,16 @@ void App1::gui()
 			std::string positionName = "position ";
 			std::string directionName = "direction ";
 			std::string colourName = "colour ";
+			std::string linearFactor = "linear factor ";
+			std::string quadraticFactor = "quadratic factor ";
 			std::string indexAsString = std::to_string(i);
 			mainHeaderName += indexAsString;
 			listboxName += indexAsString;
 			positionName += indexAsString;
 			directionName += indexAsString;
 			colourName += indexAsString;
+			linearFactor += indexAsString;
+			quadraticFactor += indexAsString;
 
 			if (ImGui::CollapsingHeader(mainHeaderName.c_str()))
 			{
