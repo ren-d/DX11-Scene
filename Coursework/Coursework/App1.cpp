@@ -12,6 +12,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
+	const int sceneWidth = 200;
+	const int sceneHeight = 200;
+
 	// Initalise scene lighting.
 	lights[0] = new LightSource();
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
@@ -26,6 +29,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[0]->setQuadraticFactor(0.07f);
 	lights[0]->setInnerSpotlightConeInDegrees(25);
 	lights[0]->setOuterSpotlightConeInDegrees(35);
+	lights[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[0]->init();
 
 	lights[1] = new LightSource();
@@ -41,6 +45,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[1]->setQuadraticFactor(0.07f);
 	lights[1]->setInnerSpotlightConeInDegrees(25);
 	lights[1]->setOuterSpotlightConeInDegrees(35);
+	lights[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[1]->init();
 
 	lights[2] = new LightSource();
@@ -56,6 +61,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[2]->setQuadraticFactor(0.07f);
 	lights[2]->setInnerSpotlightConeInDegrees(25);
 	lights[2]->setOuterSpotlightConeInDegrees(35);
+	lights[2]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[2]->init();
 
 	lights[3] = new LightSource();
@@ -71,7 +77,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[3]->setQuadraticFactor(0.0007f);
 	lights[3]->setInnerSpotlightConeInDegrees(25);
 	lights[3]->setOuterSpotlightConeInDegrees(35);
+	lights[3]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[3]->init();
+
 	// load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
 	textureMgr->loadTexture(L"normal1", L"res/models/waternormal1.png");
@@ -86,10 +94,20 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	boatModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
 	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
 	boat->setModel(boatModel);
+
+	const int shadowmapWidth = 1024;
+	const int shadowmapHeight = 1024;
+
 	
+
+	for (int i = 0; i < 2; i++)
+	{
+		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
+	}
 	// initialise shaders
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
+	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	// Setup GUI Variables
 	lightdir[0] = lights[0]->getDirection().x;
 	lightdir[1] = lights[0]->getDirection().y;
@@ -177,6 +195,33 @@ bool App1::render()
 	return true;
 }
 
+void App1::depthpass()
+{
+	for (int i = 0; i < 1; i++)
+	{
+		shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+		lights[0]->generateViewMatrix();
+
+		XMMATRIX lightViewMatrix = lights[0]->getViewMatrix();
+		XMMATRIX lightProjectionMatrix  = lights[0]->getOrthoMatrix();
+		XMMATRIX worldMatrix = renderer->getWorldMatrix();
+
+		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+		worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+		worldMatrix *= XMMatrixTranslation(60, 1, 40);
+		boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+
+		renderer->setBackBufferRenderTarget();
+		renderer->resetViewport();
+	}
+	
+	if (displayShadowMaps)
+	{
+
+	}
+
+}
+
 void App1::basepass()
 {
 
@@ -197,6 +242,8 @@ void App1::basepass()
 	
 
 }
+
+
 void App1::gui()
 {
 	// Force turn off unnecessary shader stages.
@@ -246,8 +293,9 @@ void App1::gui()
 	if(ImGui::CollapsingHeader("lights"))
 	{
 		ImGui::ColorEdit4("ambient", lights[0]->getAmbientColourFloatArray());
+		ImGui::Checkbox("display shadow maps", &displayShadowMaps);
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < MAX_LIGHTS; i++)
 		{
 			std::string mainHeaderName = "light ";
 			std::string listboxName = "light type ";

@@ -23,6 +23,9 @@ cbuffer LightBuffer : register(b1)
     float4 spotlightConeAngles[4];
     float4 ambient;
     
+    matrix lightViewMatrix[2];
+    matrix lightProjectionMatrix[2];
+    
 };
 
 cbuffer CameraBuffer : register(b2)

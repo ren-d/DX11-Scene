@@ -56,14 +56,14 @@ float4 calculateSpecular(float3 lightDirection, float3 normal, float3 viewVector
 }
 
 
-float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float3 specularMap)
+float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float4 specularMap)
 {
     float4 lightColour[4];
     float distance, constantFactor,
     linearFactor, quadraticFactor, attenuationValue, 
     outerCone, theta, innerCone, ambientAtten;
 
-    float4 specular = float4(specularMap.r, specularMap.g, specularMap.b, 1.0f);
+    float4 specular = float4(0.0f,0.0f,0.0f, 1.0f);
     
     for (int i = 0; i < numberOfLights; i++)
     {
@@ -75,7 +75,13 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
             
             case 1: // point light calculatioin
                 
-            
+                specular = calculateSpecular(
+                    normalize(lightPosition[i].xyz - worldPosition),
+                    normal,
+                    normalize(cameraPosition.xyz - worldPosition),
+                    specularMap * specularColour[i],
+                    specularPower[i].x
+                );
                 distance = length(lightPosition[i].xyz - worldPosition);
                 constantFactor = attenuation[i].x;
                 linearFactor = attenuation[i].y;
@@ -84,12 +90,18 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                 attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
                 lightColour[i] = ambient * attenuationValue;
                 lightColour[i] += calculateLighting(distance, normal, diffuseColour[i]) * attenuationValue;
-                lightColour[i] += specular * attenuationValue;
+                lightColour[i].rgb += specular.rgb;
                 
                 break;
             
             case 2: // spotlight calculation
-            
+                specular = calculateSpecular(
+                    normalize(lightPosition[i].xyz - worldPosition),
+                    normal,
+                    normalize(cameraPosition.xyz - worldPosition),
+                    specularMap * specularColour[i],
+                    specularPower[i].x
+                );
                 float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
                 innerCone = cos(radians(spotlightConeAngles[i].x));
                 outerCone = cos(radians(spotlightConeAngles[i].y));
@@ -105,7 +117,7 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                 attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
                 lightColour[i] = ambient * attenuationValue;
                 lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuationValue;
-                lightColour[i] += (specular * attenuationValue) * intensity;
+                lightColour[i].rgb += (specular.rgb * attenuationValue) * 50;
 
                 break;
             
@@ -117,12 +129,12 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
     }
     
     // final colour value
-    return saturate(float4(
+    return float4(
     lightColour[0].r + lightColour[1].r + lightColour[2].r + lightColour[3].r,
     lightColour[0].g + lightColour[1].g + lightColour[2].g + lightColour[3].g,
     lightColour[0].b + lightColour[1].b + lightColour[2].b + lightColour[3].b,
     1.0f
-    ));
+    );
      
     
 }
@@ -168,11 +180,11 @@ float3 recalculateNormals(float3 currentNormal, float3 bumpMap)
 
 float4 main(InputType input) : SV_TARGET
 {
-    float4 lightColour;
+    float4 lightColour = float4(0.0f, 0.0f, 0.0f,1.0f);
     float4 textureColour;
     float3 newNormals;
     float3 bumpMap;
-    float3 specMap = textureSpecMap.Sample(Sampler0, input.tex).rgb;
+    float4 specMap = textureSpecMap.Sample(Sampler0, input.tex).rgba;
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
     bumpMap = textureNormalMap.Sample(Sampler0, input.tex).rgb;
     // Normalize the resulting bump normal.

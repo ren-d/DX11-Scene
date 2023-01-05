@@ -33,6 +33,9 @@ public:
         XMFLOAT4 attenuation[4];
         XMFLOAT4 spotlightConeAngles[4];
         XMFLOAT4 ambientColour;
+
+        XMMATRIX lightViewMatrix[2];
+        XMMATRIX lightProjectionMatrix[2];
         
     };
 

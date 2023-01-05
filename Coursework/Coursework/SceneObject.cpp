@@ -73,7 +73,10 @@ void SceneObject::scale(XMFLOAT3 scale)
 {
 	m_scale = scale;
 }
-
+void SceneObject::setModel(AModel* model)
+{
+	m_model = model;
+}
 void SceneObject::buildTransformations(XMMATRIX& world)
 {
 	XMMATRIX translation = XMMatrixTranslation(m_translation.x, m_translation.y, m_translation.z);
@@ -94,7 +97,19 @@ void SceneObject::buildTransformations(XMMATRIX& world)
 
 	world = XMMatrixMultiply(world, m_transformMatrix);
 
-	
+}
 
+void SceneObject::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader)
+{
+	if (m_mesh != nullptr)
+	{
+		shader->setShaderParameters(m_deviceContext, world, view, projection);
+		shader->render(m_deviceContext, m_mesh->getIndexCount());
+	}
+	else
+	{
+		shader->setShaderParameters(m_deviceContext, world, view, projection);
+		shader->render(m_deviceContext, m_model->getIndexCount());
+	}
 	
 }

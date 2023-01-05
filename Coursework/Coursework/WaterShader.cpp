@@ -143,6 +143,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 			);
 	}
 	waterPtr->timeInSeconds = XMFLOAT4(time,0,0,0);
+	
 	deviceContext->Unmap(waterBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &waterBuffer);
 
@@ -165,6 +166,11 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 		lightPtr->spotlightConeAngles[i] = XMFLOAT4(*lights[i]->getInnerCone(), *lights[i]->getOuterCone(), 0.0f, 0.0f);
 	}
 	lightPtr->ambientColour = lights[0]->getAmbientColour();
+
+	lightPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[0]->getViewMatrix());
+	lightPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[0]->getViewMatrix());
+	lightPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
+	lightPtr->lightProjectionMatrix[1] = lights[0]->getOrthoMatrix();
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(1, 1, &lightBuffer);
 
