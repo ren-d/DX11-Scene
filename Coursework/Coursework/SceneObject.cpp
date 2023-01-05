@@ -34,7 +34,23 @@ SceneObject::~SceneObject()
 
 }
 
+void SceneObject::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader)
+{
+	// checks if object is a mesh or model
+	if (m_mesh != nullptr)
+	{
+		m_mesh->sendData(m_deviceContext);
+		shader->setShaderParameters(m_deviceContext, world, view, projection);
+		shader->render(m_deviceContext, m_mesh->getIndexCount());
+	}
+	else
+	{
+		m_model->sendData(m_deviceContext);
+		shader->setShaderParameters(m_deviceContext, world, view, projection);
+		shader->render(m_deviceContext, m_model->getIndexCount());
+	}
 
+}
 
 bool SceneObject::setMesh(BaseMesh* mesh)
 {
@@ -77,6 +93,7 @@ void SceneObject::setModel(AModel* model)
 {
 	m_model = model;
 }
+
 void SceneObject::buildTransformations(XMMATRIX& world)
 {
 	XMMATRIX translation = XMMatrixTranslation(m_translation.x, m_translation.y, m_translation.z);
@@ -99,12 +116,3 @@ void SceneObject::buildTransformations(XMMATRIX& world)
 
 }
 
-void SceneObject::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader)
-{
-	
-	m_model->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection);
-	shader->render(m_deviceContext, m_model->getIndexCount());
-
-	
-}

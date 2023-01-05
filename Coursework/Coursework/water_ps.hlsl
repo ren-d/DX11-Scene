@@ -35,7 +35,18 @@ cbuffer CameraBuffer : register(b2)
     float4 cameraDirection;
 }
 
-// calculate direction lighting
+struct InputType
+{
+    float4 position : SV_POSITION;
+    float3 worldPosition : POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAl;
+    float4 lightViewPos : TEXCOORD1;
+};
+
+
 float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 {
     float intensity = saturate(dot(normal, lightDirection));
@@ -51,36 +62,53 @@ float4 calculateSpecular(float3 lightDirection, float3 normal, float3 viewVector
     return specularColour * specularIntensity;
 }
 
-
-struct InputType
+float calculateAttenuation(int iterator_id, float distance)
 {
-    float4 position : SV_POSITION;
-    float3 worldPosition : POSITION;
-    float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAl;
-    float4 lightViewPos : TEXCOORD1;
-};
+    float constantFactor, linearFactor, quadraticFactor;
+    
+    constantFactor = attenuation[iterator_id].x;
+    linearFactor = attenuation[iterator_id].y;
+    quadraticFactor = attenuation[iterator_id].z;
+    
+    return 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
+}
 
+float calculateSpotlight(int iterator_id, float3 lightDir)
+{
+    float outerCone, theta, innerCone;
+     
+    innerCone = cos(radians(spotlightConeAngles[iterator_id].x));
+    outerCone = cos(radians(spotlightConeAngles[iterator_id].y));
+    theta = dot(lightDir, normalize(-lightDirection[iterator_id].xyz));
+    
+    float epsilon = innerCone - outerCone;
+    
+    return clamp((theta - outerCone) / epsilon, 0.0f, 1.0f);
 
+}
 
 float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition)
 {
     float4 lightColour[4];
-    float distance, constantFactor,
-    linearFactor, quadraticFactor, attenuationValue, falloff, outerCone, theta, innerCone, ambientAtten;
+    float distance,
+     attenuation;
     float4 specular = float4(0.0f, 0.0f, 0.0f, 1.0f);
     
     for (int i = 0; i < numberOfLights; i++)
     {
-        switch (lightPosition[i].w)
+        distance = length(lightPosition[i].xyz - worldPosition);
+        
+        switch (lightPosition[i].w) // light type is stored in the position w value
         {
-            case 0:
+            case 0: // directional light calculation
                 lightColour[i] = calculateLighting(-lightDirection[i].xyz, normal, diffuseColour[i]);
                 break;
             
+            
+            // point light calculation
             case 1:
+                
+                // Blinn-Phong Specular Calculation
                 specular = calculateSpecular(
                     normalize(lightPosition[i].xyz - worldPosition),
                     normal,
@@ -88,21 +116,15 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                     specularColour[i],
                     specularPower[i].x
                 );
+                attenuation = calculateAttenuation(i, distance);
             
-            
-                distance = length(lightPosition[i].xyz - worldPosition);
-                constantFactor = attenuation[i].x;
-                linearFactor = attenuation[i].y;
-                quadraticFactor = attenuation[i].z;
-                
-                attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
-                lightColour[i] = ambient * attenuationValue;
-                lightColour[i] += calculateLighting(distance, normal, diffuseColour[i]) * attenuationValue;
-                lightColour[i] += specular * attenuationValue;
+                lightColour[i] = ambient * attenuation;
+                lightColour[i] += calculateLighting(distance, normal, diffuseColour[i]) * attenuation;
+                lightColour[i].rgb += specular.rgb * attenuation;
                 
                 break;
             
-            case 2:
+            case 2: // Blinn-Phong Specular Calculation
                 specular = calculateSpecular(
                     normalize(lightPosition[i].xyz - worldPosition),
                     normal,
@@ -110,25 +132,17 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                     specularColour[i],
                     specularPower[i].x
                 );
+            
+                attenuation = calculateAttenuation(i, distance);
+            
                 float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
-                innerCone = cos(radians(spotlightConeAngles[i].x));
-                outerCone = cos(radians(spotlightConeAngles[i].y));
-                theta = dot(lightDir, normalize(-lightDirection[i].xyz));
-                float epsilon = innerCone - outerCone;
-                float intensity = clamp((theta - outerCone) / epsilon, 0.0f, 1.0f);
-
-                distance = length(lightPosition[i].xyz - worldPosition);
-                constantFactor = attenuation[i].x;
-                linearFactor = attenuation[i].y;
-                quadraticFactor = attenuation[i].z;
+                float intensity = calculateSpotlight(i, lightDir);
+            
                 
-                attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
-                lightColour[i] = ambient * attenuationValue;
-                lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuationValue;
-                lightColour[i] += (specular * attenuationValue) * intensity;
+                lightColour[i] = ambient * attenuation;
+                lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuation;
+                lightColour[i].rgb += (specular.rgb * attenuation) * intensity;
 
-            
-            
                 break;
             
             default:
@@ -137,16 +151,17 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
 
         }
     }
-    return saturate(float4(
+    
+    // final colour value
+    return float4(
     lightColour[0].r + lightColour[1].r + lightColour[2].r + lightColour[3].r,
     lightColour[0].g + lightColour[1].g + lightColour[2].g + lightColour[3].g,
     lightColour[0].b + lightColour[1].b + lightColour[2].b + lightColour[3].b,
     1.0f
-    ));
-     // light type is stored in the position w value
+    );
+     
     
 }
-
 
 float magnitude(float3 _vector)
 {
@@ -188,16 +203,9 @@ float3 recalculateNormals(float3 currentNormal, float3 bumpMap)
 
 float4 main(InputType input) : SV_TARGET
 {
-    
     float4 lightColour = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    
-    
     float4 textureColour;
     float3 newNormals;
-
-    
-    
-    
 
     lightColour = calculateFinalLighting(4, input.normal, input.worldPosition);
     

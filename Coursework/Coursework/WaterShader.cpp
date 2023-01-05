@@ -108,7 +108,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float time, LightSource* lights[4], Wave* waves[4], Camera* camera)
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float timeInSeconds, LightSource* lights[4], Wave* waves[4], Camera* camera)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -143,7 +143,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 			waves[i]->waveLength
 			);
 	}
-	waterPtr->timeInSeconds = XMFLOAT4(time,0,0,0);
+	waterPtr->timeInSeconds = XMFLOAT4(timeInSeconds,0,0,0);
 	
 	deviceContext->Unmap(waterBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &waterBuffer);

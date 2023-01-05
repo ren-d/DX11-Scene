@@ -12,10 +12,29 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
+	initShadowMaps();
+	initLighting();
+	initTextures();
+	initSceneObjects(&screenWidth, &screenHeight);
+	initShaders(hwnd);
+	initGUI();
+}
+
+void App1::initShadowMaps()
+{
+	const int shadowmapWidth = 1024;
+	const int shadowmapHeight = 1024;
+	for (int i = 0; i < 2; i++)
+	{
+		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
+	}
+}
+
+void App1::initLighting()	// Initalise scene lighting.
+{
+
 	const int sceneWidth = 100;
 	const int sceneHeight = 100;
-
-	// Initalise scene lighting.
 	lights[0] = new LightSource();
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
@@ -80,50 +99,42 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[3]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[3]->init();
 
-	// load textures
+}	
+
+void App1::initTextures() // load textures
+{
+	
 	textureMgr->loadTexture(L"water", L"res/water.png");
 	textureMgr->loadTexture(L"normal1", L"res/models/waternormal1.png");
 	textureMgr->loadTexture(L"normal2", L"res/models/waternormal2.png");
 	textureMgr->loadTexture(L"crate", L"res/models/boatColor.png");
 	textureMgr->loadTexture(L"crateBump", L"res/models/boatNormal.png");
 	textureMgr->loadTexture(L"crateSpec", L"res/models/boatMetallic.png");
-	// initialise scene objects
+}
+
+void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise scene objects
+{
+	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 2, *screenHeight / 2, *screenWidth / 2.7, -*screenHeight / 2.7);
+
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
 
 	boatModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
 	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
 	boat->setModel(boatModel);
+}
 
-	const int shadowmapWidth = 1024;
-	const int shadowmapHeight = 1024;
-	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenHeight / 2, screenHeight / 2, screenWidth / 2.7, -screenHeight / 2.7);
-	
-
-	for (int i = 0; i < 2; i++)
-	{
-		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
-	}
-	// initialise shaders
+void App1::initShaders(HWND hwnd)
+{
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
+}
 
-	// Setup GUI Variables
-	lightdir[0] = lights[0]->getDirection().x;
-	lightdir[1] = lights[0]->getDirection().y;
-	lightdir[2] = lights[0]->getDirection().z;
-
-	lightOneColour[0] = lights[0]->getDiffuseColour().x;
-	lightOneColour[1] = lights[0]->getDiffuseColour().y;
-	lightOneColour[2] = lights[0]->getDiffuseColour().z;
-	lightOneColour[3] = lights[0]->getDiffuseColour().w;
+void App1::initGUI() // Setup GUI Variables
+{
 	
-	ambientColour[0] = lights[0]->getAmbientColour().x;
-	ambientColour[1] = lights[0]->getAmbientColour().y;
-	ambientColour[2] = lights[0]->getAmbientColour().z;
-	ambientColour[3] = lights[0]->getAmbientColour().w;
 
 	waveOneDir[0] = water->getWave(0)->direction.x;
 	waveOneDir[1] = water->getWave(0)->direction.y;
@@ -133,10 +144,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	waveThreeDir[1] = water->getWave(2)->direction.y;
 	waveFourDir[0] = water->getWave(3)->direction.x;
 	waveFourDir[1] = water->getWave(3)->direction.y;
-
-
 }
-
 
 App1::~App1()
 {
@@ -145,23 +153,25 @@ App1::~App1()
 
 }
 
+void App1::updateInput() // update variables based on the GUI input
+{
+	water->setWaveDir(0, XMFLOAT2(waveOneDir[0], waveOneDir[1]));
+	water->setWaveDir(1, XMFLOAT2(waveTwoDir[0], waveTwoDir[1]));
+	water->setWaveDir(2, XMFLOAT2(waveThreeDir[0], waveThreeDir[1]));
+	water->setWaveDir(3, XMFLOAT2(waveFourDir[0], waveFourDir[1]));
+
+}
 
 bool App1::frame()
 {
 	
 	bool result;
 	
-	//update variables based on the GUI input
+	updateInput();
 	
-	water->setWaveDir(0, XMFLOAT2(waveOneDir[0], waveOneDir[1]));
-	water->setWaveDir(1, XMFLOAT2(waveTwoDir[0], waveTwoDir[1]));
-	water->setWaveDir(2, XMFLOAT2(waveThreeDir[0], waveThreeDir[1]));
-	water->setWaveDir(3, XMFLOAT2(waveFourDir[0], waveFourDir[1]));
-
-
 	result = BaseApplication::frame();
 
-	deltaTime += timer->getTime();
+	timeInSeconds += timer->getTime();
 
 	if (!result)
 	{
@@ -178,6 +188,7 @@ bool App1::frame()
 	return true;
 }
 
+
 bool App1::render()
 {
 	// Clear the scene. (default blue colour)
@@ -189,6 +200,7 @@ bool App1::render()
 	
 	basepass();
 	depthpass();
+
 	// Render GUI
 	gui();
 
@@ -210,7 +222,7 @@ void App1::depthpass()
 		XMMATRIX lightProjectionMatrix  = lights[0]->getOrthoMatrix();
 		XMMATRIX worldMatrix = renderer->getWorldMatrix();
 
-		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader, deltaTime);
+		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader, timeInSeconds);
 		worldMatrix = renderer->getWorldMatrix();
 		worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 		worldMatrix *= XMMatrixTranslation(60, 1, 40);
@@ -220,10 +232,7 @@ void App1::depthpass()
 		renderer->resetViewport();
 	}
 	
-	if (displayShadowMaps)
-	{
 
-	}
 
 }
 
@@ -235,22 +244,26 @@ void App1::basepass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 	
-	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, deltaTime, camera);
+	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera);
 
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 	worldMatrix *= XMMatrixTranslation(60, 1, 40);
 	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera);
 
 	
-	worldMatrix = renderer->getWorldMatrix();
+	if (displayShadowMaps)
+	{
+		worldMatrix = renderer->getWorldMatrix();
 
-	renderer->setZBuffer(false);
-	XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
-	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
-	orthoMesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[0]->getDepthMapSRV());
-	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
-	renderer->setZBuffer(true);
+		renderer->setZBuffer(false);
+		XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
+		XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
+		orthoMesh->sendData(renderer->getDeviceContext());
+		textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[0]->getDepthMapSRV());
+		textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+		renderer->setZBuffer(true);
+	}
+	
 	
 
 }

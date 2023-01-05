@@ -94,7 +94,7 @@ void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->VSSetConstantBuffers(1, 1, &waterBuffer);
 }
 
-void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, Wave* waves[4], float time)
+void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, Wave* waves[4], float timeInSeconds)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -127,7 +127,7 @@ void DepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 				waves[i]->waveLength
 			);
 	}
-	waterPtr->timeInSeconds = XMFLOAT4(time, 0, 0, 0);
+	waterPtr->timeInSeconds = XMFLOAT4(timeInSeconds, 0, 0, 0);
 
 	deviceContext->Unmap(waterBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &waterBuffer);

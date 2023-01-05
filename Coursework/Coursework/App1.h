@@ -6,7 +6,6 @@
 #include "DXF.h"
 #include "SceneObject.h"
 #include "structsforuse.h"
-
 #include "Water.h"
 #include "WaterShader.h"
 #include "DepthShader.h"
@@ -21,8 +20,15 @@ public:
 	~App1();
 	void init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN);
 
+	void initShadowMaps();
+	void initLighting();
+	void initTextures();
+	void initSceneObjects(int* sceneWidth, int* sceneHeight);
+	void initShaders(HWND hwnd);
+	void initGUI();
 	bool frame();
 
+	void updateInput();
 protected:
 	bool render();
 	void gui();
@@ -52,7 +58,7 @@ private:
 	bool displayShadowMaps;
 
 	
-	float deltaTime;
+	float timeInSeconds;
 
 	// GUI variables
 	float lightdir[3];

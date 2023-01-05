@@ -26,9 +26,17 @@ public:
         XMFLOAT4 cameraPostion;
         XMFLOAT4 cameraDirection;
     };
+
     ModelShader(ID3D11Device* device, HWND hwnd);
     ~ModelShader();
-    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, LightSource* lights[4], Camera* camera);
+
+    void setShaderParameters(
+        ID3D11DeviceContext* deviceContext, 
+        const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, 
+        ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, 
+        LightSource* lights[4], 
+        Camera* camera
+    );
 
 private:
     void initShader(const wchar_t* vs, const wchar_t* ps);

@@ -68,6 +68,11 @@ float3 GerstnerWave(float4 wave, float3 position, inout float3 tangent, inout fl
 OutputType main(InputType input)
 {
     OutputType output;
+    
+    /* ensures depth map is accurate when the object is water
+            1 = water
+            0 = not water
+    */
     if(isWater.x == 1)
     {
         float3 waterPoint = input.position;
@@ -75,7 +80,7 @@ OutputType main(InputType input)
         float3 binormal = float3(0, 0, 1);
         float3 finalPoint = waterPoint;
     
-    // add gersner waves to the vertex
+        // add gersner waves to the vertex
         finalPoint += GerstnerWave(waves[0], waterPoint, tangent, binormal);
         finalPoint += GerstnerWave(waves[1], waterPoint, tangent, binormal);
         finalPoint += GerstnerWave(waves[2], waterPoint, tangent, binormal);
@@ -86,7 +91,7 @@ OutputType main(InputType input)
         output.position = mul(output.position, viewMatrix);
         output.position = mul(output.position, projectionMatrix);
 
-    // Store the position value in a second input value for depth value calculations.
+        // Store the position value in a second input value for depth value calculations.
         output.depthPosition = output.position;
     }
     else
@@ -96,10 +101,9 @@ OutputType main(InputType input)
         output.position = mul(output.position, viewMatrix);
         output.position = mul(output.position, projectionMatrix);
 
-    // Store the position value in a second input value for depth value calculations.
+
         output.depthPosition = output.position;
     }
-    // Calculate the position of the vertex against the world, view, and projection matrices.
 
 	
     return output;
