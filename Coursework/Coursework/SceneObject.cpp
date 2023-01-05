@@ -95,4 +95,6 @@ void SceneObject::buildTransformations(XMMATRIX& world)
 	world = XMMatrixMultiply(world, m_transformMatrix);
 
 	
+
+	
 }

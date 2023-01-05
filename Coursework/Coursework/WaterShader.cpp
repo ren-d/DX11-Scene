@@ -93,9 +93,9 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -108,7 +108,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float time, LightSource* lights[4], Wave* waves[4], Camera* camera)
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], float time, LightSource* lights[4], Wave* waves[4], Camera* camera)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -128,7 +128,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
-
+	deviceContext->PSSetConstantBuffers(0, 1, &matrixBuffer);
 	// Send Wave Data
 	WaterBufferType* waterPtr;
 	result = deviceContext->Map(waterBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -166,7 +166,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	}
 	lightPtr->ambientColour = lights[0]->getAmbientColour();
 	deviceContext->Unmap(lightBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
+	deviceContext->PSSetConstantBuffers(1, 1, &lightBuffer);
 
 
 	CameraBufferType* cameraPtr;
@@ -176,9 +176,11 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	cameraPtr->cameraDirection = XMFLOAT4(camera->getRotation().x, camera->getRotation().y, camera->getRotation().z, 1.0f);
 
 	deviceContext->Unmap(cameraBuffer, 0);
-	deviceContext->PSSetConstantBuffers(1, 1, &cameraBuffer);
+	deviceContext->PSSetConstantBuffers(2, 1, &cameraBuffer);
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(1, 1, &normalMap[0]);
+	deviceContext->PSSetShaderResources(2, 1, &normalMap[1]);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 }
 

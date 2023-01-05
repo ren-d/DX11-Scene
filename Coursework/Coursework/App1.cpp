@@ -74,15 +74,22 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[3]->init();
 	// load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
-	textureMgr->loadTexture(L"height", L"res/height.png");
-	
+	textureMgr->loadTexture(L"normal1", L"res/models/waternormal1.png");
+	textureMgr->loadTexture(L"normal2", L"res/models/waternormal2.png");
+	textureMgr->loadTexture(L"crate", L"res/models/boatColor.png");
+	textureMgr->loadTexture(L"crateBump", L"res/models/boatNormal.png");
+	textureMgr->loadTexture(L"crateSpec", L"res/models/boatMetallic.png");
 	// initialise scene objects
-	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"height"));
+	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
+
+	houseModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
+	house = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
+	house->setModel(houseModel);
 	
 	// initialise shaders
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
-
+	modelShader = new ModelShader(renderer->getDevice(), hwnd);
 	// Setup GUI Variables
 	lightdir[0] = lights[0]->getDirection().x;
 	lightdir[1] = lights[0]->getDirection().y;
@@ -177,9 +184,17 @@ void App1::basepass()
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
-
-	// Render Objects
+	
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, deltaTime, camera);
+
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(60, 1, 40);
+	house->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera);
+	// Render Objects
+	
+	
+	
+	
 
 }
 void App1::gui()

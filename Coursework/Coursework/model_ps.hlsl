@@ -1,27 +1,145 @@
 Texture2D texture0 : register(t0);
 Texture2D textureNormalMap : register(t1);
+Texture2D textureSpecMap : register(t2);
+
 SamplerState Sampler0 : register(s0);
 
-cbuffer LightBuffer : register(b0)
+cbuffer MatrixBuffer : register(b0)
 {
-    float4 diffuseColour;
-    float3 lightDirection;
-    float padding;
+    matrix worldMatrix;
+    matrix viewMatrix;
+    matrix projectionMatrix;
 };
+cbuffer LightBuffer : register(b1)
+{
+    float4 lightPosition[4];
+    float4 lightDirection[4];
+    float4 diffuseColour[4];
+    float4 specularColour[4];
+    float4 specularPower[4];
+    float4 attenuation[4];
+    float4 spotlightConeAngles[4];
+    float4 ambient;
+    
+};
+
+cbuffer CameraBuffer : register(b2)
+{
+    float4 cameraPosition;
+    float4 cameraDirection;
+}
+
+
 
 struct InputType
 {
     float4 position : SV_POSITION;
+    float3 worldPosition : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
-    float3 tangent : TANGENT;
 };
 
+// calculate direction lighting
 float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 {
     float intensity = saturate(dot(normal, lightDirection));
-    float4 colour = float4(0.2, 0.2, 0.2, 1.0f) + saturate(diffuse * intensity);
+    float4 colour = ambient + saturate(diffuse * intensity);
     return colour;
+}
+
+float4 calculateSpecular(float3 lightDirection, float3 normal, float3 viewVector, float4 specularColour, float specularPower)
+{
+	//blinn-phong specular calculation
+    float3 halfway = normalize(lightDirection + viewVector);
+    float specularIntensity = pow(max(dot(normal, halfway), 0.0), specularPower);
+    return specularColour * specularIntensity;
+}
+
+
+float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float3 specular_)
+{
+    float4 lightColour[4];
+    float distance, constantFactor,
+    linearFactor, quadraticFactor, attenuationValue, falloff, outerCone, theta, innerCone, ambientAtten;
+
+    float4 specular = float4(specular_.r, specular_.g, specular_.b, 1.0f);
+    for (int i = 0; i < numberOfLights; i++)
+    {
+        switch (lightPosition[i].w)
+        {
+            case 0:
+                lightColour[i] = calculateLighting(-lightDirection[i].xyz, normal, diffuseColour[i]);
+                break;
+            
+            case 1:
+            /*
+                specular = calculateSpecular(
+                    normalize(lightPosition[i].xyz - worldPosition),
+                    normal,
+                    normalize(cameraPosition.xyz - worldPosition),
+                    specularColour[i],
+                    specularPower[i].x
+                );
+*/
+                
+            
+                distance = length(lightPosition[i].xyz - worldPosition);
+                constantFactor = attenuation[i].x;
+                linearFactor = attenuation[i].y;
+                quadraticFactor = attenuation[i].z;
+                
+                attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
+                lightColour[i] = ambient * attenuationValue;
+                lightColour[i] += calculateLighting(distance, normal, diffuseColour[i]) * attenuationValue;
+                lightColour[i] += specular * attenuationValue;
+                
+                break;
+            
+            case 2:
+            /*
+                specular = calculateSpecular(
+                    normalize(lightPosition[i].xyz - worldPosition),
+                    normal,
+                    normalize(cameraPosition.xyz - worldPosition),
+                    specularColour[i],
+                    specularPower[i].x
+                );
+*/
+                float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
+                innerCone = cos(radians(spotlightConeAngles[i].x));
+                outerCone = cos(radians(spotlightConeAngles[i].y));
+                theta = dot(lightDir, normalize(-lightDirection[i].xyz));
+                float epsilon = innerCone - outerCone;
+                float intensity = clamp((theta - outerCone) / epsilon, 0.0f, 1.0f);
+
+                distance = length(lightPosition[i].xyz - worldPosition);
+                constantFactor = attenuation[i].x;
+                linearFactor = attenuation[i].y;
+                quadraticFactor = attenuation[i].z;
+                
+                attenuationValue = 1 / (constantFactor + (linearFactor * distance) + (quadraticFactor * pow(distance, 2)));
+                lightColour[i] = ambient * attenuationValue;
+                lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuationValue;
+                lightColour[i] += (specular * attenuationValue) * intensity;
+
+            
+            
+                break;
+            
+            default:
+                float4(1.0f, 0.0f, 1.0f, 1.0f); // easy to debug colour
+                break;
+
+        }
+    }
+    return saturate(float4(
+    lightColour[0].r + lightColour[1].r + lightColour[2].r + lightColour[3].r,
+    lightColour[0].g + lightColour[1].g + lightColour[2].g + lightColour[3].g,
+    lightColour[0].b + lightColour[1].b + lightColour[2].b + lightColour[3].b,
+    1.0f
+    ));
+     // light type is stored in the position w value
+    
 }
 
 float magnitude(float3 _vector)
@@ -30,18 +148,13 @@ float magnitude(float3 _vector)
 
 }
 
-float4 main(InputType input) : SV_TARGET
+float3 recalculateNormals(float3 currentNormal, float3 bumpMap)
 {
-    float4 lightColour;
-    float4 textureColour;
-    float3 bumpMap;
-    float3 bumpNormal;
-	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
-        // Sample the pixel in the bump map.
-    bumpMap = textureNormalMap.Sample(Sampler0, input.tex).rgb;
+    float3 bumpNormal; // Sample the pixel in the bump map.
+   
 
-    float3 tangent1 = cross(input.normal, float3(0, 0, 1));
-    float3 tangent2 = cross(input.normal, float3(0, 01, 0));
+    float3 tangent1 = cross(currentNormal, float3(0, 0, 1));
+    float3 tangent2 = cross(currentNormal, float3(0, 1, 0));
     float3 tangent;
     if (magnitude(tangent1) > magnitude(tangent2))
     {
@@ -57,20 +170,34 @@ float4 main(InputType input) : SV_TARGET
     bumpMap = (bumpMap * 2.0f) - 1.0f;
  
     // Calculate the normal from the data in the bump map.
-    float3 N = input.normal;
+    float3 N = currentNormal;
     float3 T = normalize(tangent - dot(tangent, N) * N);
     float3 B = cross(N, T);
    
     float3x3 TBN = float3x3(T, B, N);
     
-    float3 bumpedNormalMap = mul(bumpMap, TBN);
+    return mul(bumpMap, TBN);
+}
+
+
+
+float4 main(InputType input) : SV_TARGET
+{
+    float4 lightColour;
+    float4 textureColour;
+    float3 newNormals;
+    float3 bumpMap;
+    float3 specMap = textureSpecMap.Sample(Sampler0, input.tex).rgb;
+	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+    bumpMap = textureNormalMap.Sample(Sampler0, input.tex).rgb;
     // Normalize the resulting bump normal.
-    bumpedNormalMap.z = -bumpedNormalMap.z;
-    lightColour = calculateLighting(-lightDirection, bumpedNormalMap, diffuseColour);
+    
+    newNormals = recalculateNormals(input.normal, bumpMap);
+    
+    lightColour = calculateFinalLighting(4, newNormals, input.worldPosition, specMap);
     textureColour = texture0.Sample(Sampler0, input.tex);
     
-    if(lightDirection.y > 0.2)
-        return textureColour * float4(0.2, 0.2, 0.2, 1.0f);
-    return textureColour * lightColour;
+
+    return lightColour * textureColour;
 }
 

@@ -5,13 +5,14 @@ class ModelObject :
     public SceneObject
 {
 public:
-	ModelObject(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap);
+	ModelObject(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap, ID3D11ShaderResourceView* m_specMap);
 	~ModelObject();
 
-	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, Light* light);
+	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, LightSource* lights[4], Camera* camera);
 	void setModel(AModel* model);
 private:
 	ID3D11ShaderResourceView* m_normalMap;
+	ID3D11ShaderResourceView* m_specMap;
 	AModel* m_model;
 };
 

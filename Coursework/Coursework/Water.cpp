@@ -1,11 +1,12 @@
 #include "Water.h"
-Water::Water(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* heightMap)
+Water::Water(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap1, ID3D11ShaderResourceView* normalMap2)
 {
 	m_mesh = nullptr;
 	m_device = device;
 	m_deviceContext = deviceContext;
 	setTexture(texture);
-	m_heightMap = heightMap;
+	m_normalMaps[0] = normalMap1;
+	m_normalMaps[1] = normalMap2;
 	waves[0] = new Wave();
 	waves[0]->direction = XMFLOAT2(1, 0);
 	waves[0]->steepness = 0.264f;
@@ -31,9 +32,9 @@ Water::~Water()
 
 void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], float deltaTime, Camera* camera)
 {
-	buildTransformations(world);
+
 	m_mesh->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, deltaTime, lights, waves, camera);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, m_normalMaps, deltaTime, lights, waves, camera);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 }
 

@@ -38,8 +38,10 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
-	D3D11_BUFFER_DESC heightMapBufferDesc;
+
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC cameraBufferDesc;
+
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
 	loadPixelShader(psFilename);
@@ -51,18 +53,32 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-		// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	lightBufferDesc.MiscFlags = 0;
 	lightBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
+
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
+	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cameraBufferDesc.MiscFlags = 0;
+	cameraBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	renderer->CreateBuffer(&cameraBufferDesc, NULL, &cameraBuffer);
 
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -79,17 +95,16 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
 
 
-
 }
 
 
-void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, Light* light)
+void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, LightSource* lights[4], Camera* camera)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 
-	LightBufferType* lightPtr;
+	
 	XMMATRIX tworld, tview, tproj;
 
 	// Transpose the matrices to prepare them for the shader.
@@ -105,18 +120,44 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
+	deviceContext->PSSetConstantBuffers(0, 1, &matrixBuffer);
 
 
+	// Send Light Data
+	LightBufferType* lightPtr;
 	result = deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	lightPtr = (LightBufferType*)mappedResource.pData;
-	lightPtr->diffuseColour = light->getDiffuseColour();
-	lightPtr->lightDirection = light->getDirection();
-	lightPtr->padding = 0.0f;
+	for (int i = 0; i < 4; i++)
+	{
+		lightPtr->lightPosition[i] = XMFLOAT4(lights[i]->getPosition().x, lights[i]->getPosition().y, lights[i]->getPosition().z, lights[i]->getLightType());
+		lightPtr->lightDirection[i] = XMFLOAT4(lights[i]->getDirection().x, lights[i]->getDirection().y, lights[i]->getDirection().z, 0.0f);
+		lightPtr->diffuseColour[i] = lights[i]->getDiffuseColour();
+		lightPtr->specularColour[i] = lights[i]->getSpecularColour();
+		lightPtr->specularPower[i] = XMFLOAT4(*lights[i]->getSpecularPower(), 0.0f, 0.0f, 0.0f);
+		lightPtr->attenuation[i] = XMFLOAT4(
+			*lights[i]->getConstantFactor(),
+			*lights[i]->getLinearfactor(),
+			*lights[i]->getQuadraticFactor(), 0.0f
+		);
+		lightPtr->spotlightConeAngles[i] = XMFLOAT4(*lights[i]->getInnerCone(), *lights[i]->getOuterCone(), 0.0f, 0.0f);
+	}
+	lightPtr->ambientColour = lights[0]->getAmbientColour();
+	deviceContext->Unmap(lightBuffer, 0);
+	deviceContext->PSSetConstantBuffers(1, 1, &lightBuffer);
 
-	deviceContext->PSSetConstantBuffers(0, 1, &lightBuffer);
+	
+	CameraBufferType* cameraPtr;
+	result = deviceContext->Map(cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	cameraPtr = (CameraBufferType*)mappedResource.pData;
+	cameraPtr->cameraPostion = XMFLOAT4(camera->getPosition().x, camera->getPosition().y, camera->getPosition().z, 1.0f);
+	cameraPtr->cameraDirection = XMFLOAT4(camera->getRotation().x, camera->getRotation().y, camera->getRotation().z, 1.0f);
+
+	deviceContext->Unmap(cameraBuffer, 0);
+	deviceContext->PSSetConstantBuffers(2, 1, &cameraBuffer);
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalTexture);
+	deviceContext->PSSetShaderResources(2, 1, &specTexture);
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 }
 

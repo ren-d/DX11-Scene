@@ -28,6 +28,9 @@ struct OutputType
     float3 worldPosition : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAl;
+    
 };
 
 
@@ -87,6 +90,7 @@ OutputType main(InputType input)
     finalPoint += GerstnerWave(waves[3], waterPoint, tangent, binormal);
     input.position.xyz = finalPoint;
     
+    
     // calculate normal of the vertex
     float3 normal = normalize(cross(binormal, tangent));
     input.normal = normal;
@@ -101,9 +105,15 @@ OutputType main(InputType input)
     output.position = mul(output.position, projectionMatrix);
     
     output.normal = mul(input.normal, (float3x3) worldMatrix);
-    output.normal = normalize(output.normal);
+
+    
+    output.tangent = mul(tangent, (float3x3) worldMatrix);
+ 
+    
+    output.binormal = mul(binormal, (float3x3) worldMatrix);
+
 	// Store the texture coordinates for the pixel shader.
-    output.tex = input.tex;
+    output.tex = input.tex ;
 
     return output;
 }
