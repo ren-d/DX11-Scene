@@ -56,31 +56,24 @@ float4 calculateSpecular(float3 lightDirection, float3 normal, float3 viewVector
 }
 
 
-float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float3 specular_)
+float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float3 specularMap)
 {
     float4 lightColour[4];
     float distance, constantFactor,
-    linearFactor, quadraticFactor, attenuationValue, falloff, outerCone, theta, innerCone, ambientAtten;
+    linearFactor, quadraticFactor, attenuationValue, 
+    outerCone, theta, innerCone, ambientAtten;
 
-    float4 specular = float4(specular_.r, specular_.g, specular_.b, 1.0f);
+    float4 specular = float4(specularMap.r, specularMap.g, specularMap.b, 1.0f);
+    
     for (int i = 0; i < numberOfLights; i++)
     {
-        switch (lightPosition[i].w)
+        switch (lightPosition[i].w) // light type is stored in the position w value
         {
-            case 0:
+            case 0: // directional light calculation
                 lightColour[i] = calculateLighting(-lightDirection[i].xyz, normal, diffuseColour[i]);
                 break;
             
-            case 1:
-            /*
-                specular = calculateSpecular(
-                    normalize(lightPosition[i].xyz - worldPosition),
-                    normal,
-                    normalize(cameraPosition.xyz - worldPosition),
-                    specularColour[i],
-                    specularPower[i].x
-                );
-*/
+            case 1: // point light calculatioin
                 
             
                 distance = length(lightPosition[i].xyz - worldPosition);
@@ -95,16 +88,8 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                 
                 break;
             
-            case 2:
-            /*
-                specular = calculateSpecular(
-                    normalize(lightPosition[i].xyz - worldPosition),
-                    normal,
-                    normalize(cameraPosition.xyz - worldPosition),
-                    specularColour[i],
-                    specularPower[i].x
-                );
-*/
+            case 2: // spotlight calculation
+            
                 float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
                 innerCone = cos(radians(spotlightConeAngles[i].x));
                 outerCone = cos(radians(spotlightConeAngles[i].y));
@@ -122,8 +107,6 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                 lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuationValue;
                 lightColour[i] += (specular * attenuationValue) * intensity;
 
-            
-            
                 break;
             
             default:
@@ -132,13 +115,15 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
 
         }
     }
+    
+    // final colour value
     return saturate(float4(
     lightColour[0].r + lightColour[1].r + lightColour[2].r + lightColour[3].r,
     lightColour[0].g + lightColour[1].g + lightColour[2].g + lightColour[3].g,
     lightColour[0].b + lightColour[1].b + lightColour[2].b + lightColour[3].b,
     1.0f
     ));
-     // light type is stored in the position w value
+     
     
 }
 
@@ -153,8 +138,8 @@ float3 recalculateNormals(float3 currentNormal, float3 bumpMap)
     float3 bumpNormal; // Sample the pixel in the bump map.
    
 
-    float3 tangent1 = cross(currentNormal, float3(0, 0, 1));
-    float3 tangent2 = cross(currentNormal, float3(0, 1, 0));
+    float3 tangent1 = cross(currentNormal, float3(0, 0, 1)); // forward vector
+    float3 tangent2 = cross(currentNormal, float3(0, 1, 0)); // up vector
     float3 tangent;
     if (magnitude(tangent1) > magnitude(tangent2))
     {

@@ -24,10 +24,11 @@ protected:
 	bool render();
 	void gui();
 	void basepass();
+	void depthpass();
 private:
 	SceneObject* waterMesh;
-	ModelObject* house;
-	AModel* houseModel;
+	ModelObject* boat;
+	AModel* boatModel;
 	WaterShader* waterShader;
 	ModelShader* modelShader;
 	SphereMesh* sphere;

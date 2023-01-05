@@ -2,7 +2,7 @@
 
 WaterShader::WaterShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"basic_vs.cso", L"basic_ps.cso");
+	initShader(L"water_vs.cso", L"water_ps.cso");
 }
 
 WaterShader::~WaterShader()

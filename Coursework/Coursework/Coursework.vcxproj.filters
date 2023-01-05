@@ -73,10 +73,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="basic_ps.hlsl">
+    <FxCompile Include="water_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="basic_vs.hlsl">
+    <FxCompile Include="water_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="model_ps.hlsl">

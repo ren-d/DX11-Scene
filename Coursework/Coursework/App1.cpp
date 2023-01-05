@@ -83,9 +83,9 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
 
-	houseModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
-	house = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
-	house->setModel(houseModel);
+	boatModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
+	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
+	boat->setModel(boatModel);
 	
 	// initialise shaders
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
@@ -189,8 +189,8 @@ void App1::basepass()
 
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 	worldMatrix *= XMMatrixTranslation(60, 1, 40);
-	house->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera);
-	// Render Objects
+	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera);
+
 	
 	
 	
