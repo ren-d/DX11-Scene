@@ -46,6 +46,7 @@ private:
 	TextureShader* textureShader;
 	OrthoMesh* orthoMesh;
 	Water* water;
+	SceneObject* cube;
 	SphereMesh* sphere;
 	LightSource* lights[MAX_LIGHTS];
 	float lightOneColour[MAX_LIGHTS];

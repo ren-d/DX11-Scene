@@ -22,8 +22,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 void App1::initShadowMaps()
 {
-	const int shadowmapWidth = 1024;
-	const int shadowmapHeight = 1024;
+	const int shadowmapWidth = 10024;
+	const int shadowmapHeight = 10024;
 	for (int i = 0; i < 2; i++)
 	{
 		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
@@ -33,15 +33,15 @@ void App1::initShadowMaps()
 void App1::initLighting()	// Initalise scene lighting.
 {
 
-	const int sceneWidth = 100;
-	const int sceneHeight = 100;
+	const int sceneWidth = 200;
+	const int sceneHeight = 200;
 	lights[0] = new LightSource();
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	lights[0]->setPosition(-11.0f, 19.4f, 22.2f);
+	lights[0]->setPosition(59.f, 36.f, 65.0f);
 	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[0]->setDirection(0.296f, -0.148f, 0.130f);
+	lights[0]->setDirection(-0.450f, -0.7f, 0.0f);
 	lights[0]->setSpecularPower(100.0f);
 	lights[0]->setConstantFactor(1.0f);
 	lights[0]->setLinearFactor(0.14f);
@@ -188,7 +188,6 @@ bool App1::frame()
 	return true;
 }
 
-
 bool App1::render()
 {
 	// Clear the scene. (default blue colour)
@@ -197,7 +196,6 @@ bool App1::render()
 	// Generate the view matrix based on the camera's position.
 	camera->update();
 
-	
 	basepass();
 	depthpass();
 
@@ -214,7 +212,7 @@ void App1::depthpass()
 {
 	for (int i = 0; i < 1; i++)
 	{
-		shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+		shadowMaps[0]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 		lights[0]->generateViewMatrix();
 		
 
@@ -222,17 +220,20 @@ void App1::depthpass()
 		XMMATRIX lightProjectionMatrix  = lights[0]->getOrthoMatrix();
 		XMMATRIX worldMatrix = renderer->getWorldMatrix();
 
+		worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
 		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader, timeInSeconds);
 		worldMatrix = renderer->getWorldMatrix();
-		worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-		worldMatrix *= XMMatrixTranslation(60, 1, 40);
+
+		worldMatrix = XMMatrixTranslation(400.f, 1.f, 500.f);
+		XMMATRIX scaleMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+
+		worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
 		boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
 
 		renderer->setBackBufferRenderTarget();
 		renderer->resetViewport();
 	}
 	
-
 
 }
 
@@ -244,11 +245,13 @@ void App1::basepass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 	
+	worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera);
 
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(60, 1, 40);
-	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera);
+	worldMatrix = XMMatrixTranslation(400.f, 1.f, 500.f);
+	XMMATRIX scaleMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps[0]);
 
 	
 	if (displayShadowMaps)

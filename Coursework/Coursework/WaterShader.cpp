@@ -42,6 +42,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	D3D11_BUFFER_DESC waterBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 	D3D11_BUFFER_DESC cameraBufferDesc;
+	D3D11_BUFFER_DESC shadowBufferDesc;
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -91,6 +92,16 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&cameraBufferDesc, NULL, &cameraBuffer);
 
+	shadowBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	shadowBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	shadowBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	shadowBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	shadowBufferDesc.MiscFlags = 0;
+	shadowBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	renderer->CreateBuffer(&shadowBufferDesc, NULL, &shadowBuffer);
+
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -104,6 +115,16 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 
 	// Create the texture sampler state.
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.BorderColor[0] = 1.0f;
+	samplerDesc.BorderColor[1] = 1.0f;
+	samplerDesc.BorderColor[2] = 1.0f;
+	samplerDesc.BorderColor[3] = 1.0f;
+	renderer->CreateSamplerState(&samplerDesc, &shadowSampleState);
 
 }
 
@@ -120,6 +141,8 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	tview = XMMatrixTranspose(viewMatrix);
 	tproj = XMMatrixTranspose(projectionMatrix);
 
+	// __Vertex Shader Buffers__
+	
 	// Send matrix data
 	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
@@ -128,7 +151,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
-	deviceContext->PSSetConstantBuffers(0, 1, &matrixBuffer);
+
 
 	// Send Wave Data
 	WaterBufferType* waterPtr;
@@ -148,6 +171,19 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(waterBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &waterBuffer);
 
+	// Send Shadow Data
+	ShadowBufferType* shadowPtr;
+	result = deviceContext->Map(shadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	shadowPtr = (ShadowBufferType*)mappedResource.pData;
+	shadowPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[0]->getViewMatrix());
+	shadowPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[0]->getViewMatrix());
+	shadowPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
+	shadowPtr->lightProjectionMatrix[1] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
+	deviceContext->Unmap(shadowBuffer, 0);
+	deviceContext->VSSetConstantBuffers(2, 1, &shadowBuffer);
+
+	// __Pixel Shader Buffers__
+	
 	// Send Light Data
 	LightBufferType* lightPtr;
 	result = deviceContext->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -168,29 +204,31 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	}
 	lightPtr->ambientColour = lights[0]->getAmbientColour();
 
-	lightPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[0]->getViewMatrix());
-	lightPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[0]->getViewMatrix());
-	lightPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
-	lightPtr->lightProjectionMatrix[1] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
+
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(1, 1, &lightBuffer);
 
-
+	// Send Camera Data
 	CameraBufferType* cameraPtr;
 	result = deviceContext->Map(cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	cameraPtr = (CameraBufferType*)mappedResource.pData;
 	cameraPtr->cameraPostion = XMFLOAT4(camera->getPosition().x, camera->getPosition().y, camera->getPosition().z, 1.0f);
 	cameraPtr->cameraDirection = XMFLOAT4(camera->getRotation().x, camera->getRotation().y, camera->getRotation().z, 1.0f);
-	ID3D11ShaderResourceView* depth = depthMaps[0]->getDepthMapSRV();
+	
 	deviceContext->Unmap(cameraBuffer, 0);
 	deviceContext->PSSetConstantBuffers(2, 1, &cameraBuffer);
+
+	// __Textures and Samplers__
+	
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalMap[0]);
 	deviceContext->PSSetShaderResources(2, 1, &normalMap[1]);
+	ID3D11ShaderResourceView* depth = depthMaps[0]->getDepthMapSRV();
 	deviceContext->PSSetShaderResources(3, 1, &depth);
 
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
+	deviceContext->PSSetSamplers(1, 1, &shadowSampleState);
 }
 
 

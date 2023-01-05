@@ -27,6 +27,13 @@ public:
         XMFLOAT4 cameraDirection;
     };
 
+    struct ShadowBufferType
+    {
+        XMMATRIX lightViewMatrix[2];
+        XMMATRIX lightProjectionMatrix[2];
+    };
+
+
     ModelShader(ID3D11Device* device, HWND hwnd);
     ~ModelShader();
 
@@ -34,6 +41,7 @@ public:
         ID3D11DeviceContext* deviceContext, 
         const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, 
         ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, 
+        ShadowMap* depthMap,
         LightSource* lights[4], 
         Camera* camera
     );
@@ -45,6 +53,8 @@ private:
     ID3D11Buffer* matrixBuffer;
     ID3D11Buffer* lightBuffer;
     ID3D11Buffer* cameraBuffer;
+    ID3D11Buffer* shadowBuffer;
     ID3D11SamplerState* sampleState;
+    ID3D11SamplerState* shadowSampleState;
 };
 

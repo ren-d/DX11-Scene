@@ -1,8 +1,10 @@
 Texture2D texture0 : register(t0);
 Texture2D textureNormalMap : register(t1);
 Texture2D textureSpecMap : register(t2);
+Texture2D depthMap : register(t3);
 
 SamplerState Sampler0 : register(s0);
+SamplerState shadowSampler : register(s1);
 
 cbuffer MatrixBuffer : register(b0)
 {
@@ -37,13 +39,14 @@ struct InputType
     float3 worldPosition : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float4 lightViewPos[2] : TEXCOORD1;
 };
 
 // calculate direction lighting
 float4 calculateLighting(float3 lightDirection, float3 normal, float4 diffuse)
 {
     float intensity = saturate(dot(normal, lightDirection));
-    float4 colour = ambient + saturate(diffuse * intensity);
+    float4 colour = saturate(diffuse * intensity);
     return colour;
 }
 
@@ -80,7 +83,45 @@ float calculateSpotlight(int iterator_id, float3 lightDir)
 
 }
 
-float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float4 specularMap)
+bool hasDepthData(float2 uv)
+{
+    if (uv.x < 0.f || uv.x > 1.f || uv.y < 0.f || uv.y > 1.f)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool isInShadow(Texture2D sMap, float2 uv, float4 lightViewPosition, float bias)
+{
+    float depthValue;
+    float lightDepthValue;
+    // Sample the shadow map (get depth of geometry)
+
+    depthValue = sMap.Sample(shadowSampler, uv).r;
+	// Calculate the depth from the light.
+    lightDepthValue = lightViewPosition.z / lightViewPosition.w;
+    lightDepthValue -= bias;
+
+
+	// Compare the depth of the shadow map value and the depth of the light to determine whether to shadow or to light this pixel.
+    if (lightDepthValue < depthValue)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+float2 getProjectiveCoords(float4 lightViewPosition)
+{
+    // Calculate the projected texture coordinates.
+    float2 projTex = lightViewPosition.xy / lightViewPosition.w;
+    projTex *= float2(0.5, -0.5);
+    projTex += float2(0.5f, 0.5f);
+    return projTex;
+}
+float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float4 specularMap, float4 lightViewPos)
 {
     float4 lightColour[4];
     float distance,
@@ -95,7 +136,24 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
         switch (lightPosition[i].w) // light type is stored in the position w value
         {
             case 0: // directional light calculation
-                lightColour[i] = calculateLighting(-lightDirection[i].xyz, normal, diffuseColour[i]);
+                float2 pTexCoord;
+                pTexCoord = getProjectiveCoords(lightViewPos);
+                lightColour[i] = ambient;
+                // Shadow test. Is or isn't in shadow
+                if (hasDepthData(pTexCoord))
+                {
+                    // Has depth map data
+                    if (!isInShadow(depthMap, pTexCoord, lightViewPos, 0.005))
+                    {
+                         // is NOT in shadow, therefore light
+
+                        lightColour[i] += calculateLighting(-lightDirection[i].xyz, normal, diffuseColour[i]);
+ 
+                    }
+        
+               
+                    
+                }
                 break;
             
             
@@ -209,7 +267,7 @@ float4 main(InputType input) : SV_TARGET
     
     newNormals = recalculateNormals(input.normal, bumpMap);
     
-    lightColour = calculateFinalLighting(4, newNormals, input.worldPosition, specMap);
+    lightColour = calculateFinalLighting(4, newNormals, input.worldPosition, specMap, input.lightViewPos[0]);
     textureColour = texture0.Sample(Sampler0, input.tex);
     
 

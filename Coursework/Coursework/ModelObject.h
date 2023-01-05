@@ -8,7 +8,7 @@ public:
 	ModelObject(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap, ID3D11ShaderResourceView* specMap);
 	~ModelObject();
 
-	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, LightSource* lights[4], Camera* camera);
+	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, LightSource* lights[4], Camera* camera, ShadowMap* shadowMap);
 
 private:
 	ID3D11ShaderResourceView* m_normalMap;

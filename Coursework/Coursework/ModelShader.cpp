@@ -41,6 +41,7 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 
 	D3D11_BUFFER_DESC lightBufferDesc;
 	D3D11_BUFFER_DESC cameraBufferDesc;
+	D3D11_BUFFER_DESC shadowBufferDesc;
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -80,6 +81,15 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&cameraBufferDesc, NULL, &cameraBuffer);
 
+	shadowBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	shadowBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	shadowBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	shadowBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	shadowBufferDesc.MiscFlags = 0;
+	shadowBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	renderer->CreateBuffer(&shadowBufferDesc, NULL, &shadowBuffer);
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -95,10 +105,22 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
 
 
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.BorderColor[0] = 1.0f;
+	samplerDesc.BorderColor[1] = 1.0f;
+	samplerDesc.BorderColor[2] = 1.0f;
+	samplerDesc.BorderColor[3] = 1.0f;
+	renderer->CreateSamplerState(&samplerDesc, &shadowSampleState);
+
+
 }
 
 
-void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, LightSource* lights[4], Camera* camera)
+void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, ShadowMap* depthMap, LightSource* lights[4], Camera* camera)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -121,6 +143,17 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 	deviceContext->PSSetConstantBuffers(0, 1, &matrixBuffer);
+
+	// Send Shadow Data
+	ShadowBufferType* shadowPtr;
+	result = deviceContext->Map(shadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	shadowPtr = (ShadowBufferType*)mappedResource.pData;
+	shadowPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[0]->getViewMatrix());
+	shadowPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[0]->getViewMatrix());
+	shadowPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
+	shadowPtr->lightProjectionMatrix[1] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
+	deviceContext->Unmap(shadowBuffer, 0);
+	deviceContext->VSSetConstantBuffers(1, 1, &shadowBuffer);
 
 
 	// Send Light Data
@@ -158,7 +191,13 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalTexture);
 	deviceContext->PSSetShaderResources(2, 1, &specTexture);
+	ID3D11ShaderResourceView* depth = depthMap->getDepthMapSRV();
+	deviceContext->PSSetShaderResources(3, 1, &depth);
+
+
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
+	deviceContext->PSSetSamplers(1, 1, &shadowSampleState);
+
 }
 
 

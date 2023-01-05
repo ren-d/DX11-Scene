@@ -30,16 +30,18 @@ public:
         XMFLOAT4 attenuation[4];
         XMFLOAT4 spotlightConeAngles[4];
         XMFLOAT4 ambientColour;
-
-        XMMATRIX lightViewMatrix[2];
-        XMMATRIX lightProjectionMatrix[2];
-        
     };
 
     struct CameraBufferType
     {
         XMFLOAT4 cameraPostion;
         XMFLOAT4 cameraDirection;
+    };
+
+    struct ShadowBufferType
+    {
+        XMMATRIX lightViewMatrix[2];
+        XMMATRIX lightProjectionMatrix[2];
     };
 
     WaterShader(ID3D11Device* device, HWND hwnd);
@@ -64,7 +66,9 @@ private:
     ID3D11Buffer* waterBuffer;
     ID3D11Buffer* lightBuffer;
     ID3D11Buffer* cameraBuffer;
+    ID3D11Buffer* shadowBuffer;
     ID3D11SamplerState* sampleState;
+    ID3D11SamplerState* shadowSampleState;
 };
 
 

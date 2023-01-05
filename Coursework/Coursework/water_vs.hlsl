@@ -15,6 +15,12 @@ cbuffer WaveBuffer : register(b1)
 
 }
 
+cbuffer ShadowBuffer : register(b2)
+{
+    matrix lightViewMatrix[2];
+    matrix lightProjectionMatrix[2];
+}
+
 struct InputType
 {
     float4 position : POSITION;
@@ -30,7 +36,7 @@ struct OutputType
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAl;
-    float4 lightViewPos : TEXCOORD1;
+    float4 lightViewPos[2] : TEXCOORD1;
     
 };
 
@@ -105,7 +111,10 @@ OutputType main(InputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-    output.lightViewPos = mul(input.position, worldMatrix);
+
+    output.lightViewPos[0] = mul(input.position, worldMatrix);
+    output.lightViewPos[0] = mul(output.lightViewPos[0], lightViewMatrix[0]);
+    output.lightViewPos[0] = mul(output.lightViewPos[0], lightProjectionMatrix[0]);
         
     output.normal = mul(input.normal, (float3x3) worldMatrix);
 
