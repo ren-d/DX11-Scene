@@ -19,10 +19,10 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	lights[0] = new LightSource();
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	lights[0]->setPosition(0.0f, 0.0f, 0.0f);
+	lights[0]->setPosition(-11.0f, 19.4f, 22.2f);
 	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[0]->setDirection(0.0f, -1.0f, 0.8f);
+	lights[0]->setDirection(0.296f, -0.148f, 0.130f);
 	lights[0]->setSpecularPower(100.0f);
 	lights[0]->setConstantFactor(1.0f);
 	lights[0]->setLinearFactor(0.14f);
@@ -344,7 +344,7 @@ void App1::gui()
 				case 0:
 					lights[i]->setLightType(LightSource::LType::DIRECTIONAL);
 					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), -150.0f, 150.0f);
-					ImGui::SliderFloat3(directionName.c_str(), lights[i]->getDirectionFloatArray(), -1.0f, 1.0f);
+					ImGui::SliderFloat3(directionName.c_str(), lights[i]->getDirectionFloatArray(), -0.99f, 0.99f);
 					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
 
 
