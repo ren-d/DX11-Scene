@@ -101,15 +101,10 @@ void SceneObject::buildTransformations(XMMATRIX& world)
 
 void SceneObject::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader)
 {
-	if (m_mesh != nullptr)
-	{
-		shader->setShaderParameters(m_deviceContext, world, view, projection);
-		shader->render(m_deviceContext, m_mesh->getIndexCount());
-	}
-	else
-	{
-		shader->setShaderParameters(m_deviceContext, world, view, projection);
-		shader->render(m_deviceContext, m_model->getIndexCount());
-	}
+	
+	m_model->sendData(m_deviceContext);
+	shader->setShaderParameters(m_deviceContext, world, view, projection);
+	shader->render(m_deviceContext, m_model->getIndexCount());
+
 	
 }

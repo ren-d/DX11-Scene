@@ -12,17 +12,17 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
-	const int sceneWidth = 200;
-	const int sceneHeight = 200;
+	const int sceneWidth = 100;
+	const int sceneHeight = 100;
 
 	// Initalise scene lighting.
 	lights[0] = new LightSource();
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	lights[0]->setPosition(0.2, 0.2, 0.2);
+	lights[0]->setPosition(0.0f, 0.0f, 0.0f);
 	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[0]->setDirection(0.45f, 0.5f, 0.50f);
+	lights[0]->setDirection(0.0f, -1.0f, 0.8f);
 	lights[0]->setSpecularPower(100.0f);
 	lights[0]->setConstantFactor(1.0f);
 	lights[0]->setLinearFactor(0.14f);
@@ -97,7 +97,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	const int shadowmapWidth = 1024;
 	const int shadowmapHeight = 1024;
-
+	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), screenHeight / 2, screenHeight / 2, screenWidth / 2.7, -screenHeight / 2.7);
 	
 
 	for (int i = 0; i < 2; i++)
@@ -108,6 +108,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
+	textureShader = new TextureShader(renderer->getDevice(), hwnd);
+
 	// Setup GUI Variables
 	lightdir[0] = lights[0]->getDirection().x;
 	lightdir[1] = lights[0]->getDirection().y;
@@ -184,8 +186,9 @@ bool App1::render()
 	// Generate the view matrix based on the camera's position.
 	camera->update();
 
-
+	
 	basepass();
+	depthpass();
 	// Render GUI
 	gui();
 
@@ -201,12 +204,14 @@ void App1::depthpass()
 	{
 		shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 		lights[0]->generateViewMatrix();
+		
 
 		XMMATRIX lightViewMatrix = lights[0]->getViewMatrix();
 		XMMATRIX lightProjectionMatrix  = lights[0]->getOrthoMatrix();
 		XMMATRIX worldMatrix = renderer->getWorldMatrix();
 
-		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader, deltaTime);
+		worldMatrix = renderer->getWorldMatrix();
 		worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 		worldMatrix *= XMMatrixTranslation(60, 1, 40);
 		boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
@@ -230,15 +235,22 @@ void App1::basepass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 	
-	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, deltaTime, camera);
+	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, deltaTime, camera);
 
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 	worldMatrix *= XMMatrixTranslation(60, 1, 40);
 	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera);
 
 	
-	
-	
+	worldMatrix = renderer->getWorldMatrix();
+
+	renderer->setZBuffer(false);
+	XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
+	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
+	orthoMesh->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[0]->getDepthMapSRV());
+	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+	renderer->setZBuffer(true);
 	
 
 }
@@ -331,6 +343,7 @@ void App1::gui()
 				{
 				case 0:
 					lights[i]->setLightType(LightSource::LType::DIRECTIONAL);
+					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), -150.0f, 150.0f);
 					ImGui::SliderFloat3(directionName.c_str(), lights[i]->getDirectionFloatArray(), -1.0f, 1.0f);
 					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
 

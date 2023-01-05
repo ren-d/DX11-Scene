@@ -108,7 +108,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], float time, LightSource* lights[4], Wave* waves[4], Camera* camera)
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float time, LightSource* lights[4], Wave* waves[4], Camera* camera)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -129,6 +129,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
 	deviceContext->PSSetConstantBuffers(0, 1, &matrixBuffer);
+
 	// Send Wave Data
 	WaterBufferType* waterPtr;
 	result = deviceContext->Map(waterBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -170,7 +171,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	lightPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[0]->getViewMatrix());
 	lightPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[0]->getViewMatrix());
 	lightPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
-	lightPtr->lightProjectionMatrix[1] = lights[0]->getOrthoMatrix();
+	lightPtr->lightProjectionMatrix[1] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
 	deviceContext->Unmap(lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(1, 1, &lightBuffer);
 
@@ -180,13 +181,15 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	cameraPtr = (CameraBufferType*)mappedResource.pData;
 	cameraPtr->cameraPostion = XMFLOAT4(camera->getPosition().x, camera->getPosition().y, camera->getPosition().z, 1.0f);
 	cameraPtr->cameraDirection = XMFLOAT4(camera->getRotation().x, camera->getRotation().y, camera->getRotation().z, 1.0f);
-
+	ID3D11ShaderResourceView* depth = depthMaps[0]->getDepthMapSRV();
 	deviceContext->Unmap(cameraBuffer, 0);
 	deviceContext->PSSetConstantBuffers(2, 1, &cameraBuffer);
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalMap[0]);
 	deviceContext->PSSetShaderResources(2, 1, &normalMap[1]);
+	deviceContext->PSSetShaderResources(3, 1, &depth);
+
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 }
 

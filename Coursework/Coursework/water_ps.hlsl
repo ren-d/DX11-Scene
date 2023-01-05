@@ -3,6 +3,7 @@
 Texture2D texture0 : register(t0);
 Texture2D normalMap : register(t1);
 Texture2D normalMap2 : register(t2);
+Texture2D depthMap : register(t3);
 SamplerState Sampler0 : register(s0);
 
 cbuffer MatrixBuffer : register(b0)
@@ -59,6 +60,7 @@ struct InputType
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAl;
+    float4 lightViewPos : TEXCOORD1;
 };
 
 
@@ -193,6 +195,7 @@ float4 main(InputType input) : SV_TARGET
     float4 textureColour;
     float3 newNormals;
 
+    
     
     
 

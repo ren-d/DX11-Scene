@@ -30,6 +30,7 @@ struct OutputType
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAl;
+    float4 lightViewPos : TEXCOORD1;
     
 };
 
@@ -104,6 +105,8 @@ OutputType main(InputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
+    output.lightViewPos = mul(input.position, worldMatrix);
+        
     output.normal = mul(input.normal, (float3x3) worldMatrix);
 
     

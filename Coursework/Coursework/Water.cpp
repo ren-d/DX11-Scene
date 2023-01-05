@@ -30,14 +30,23 @@ Water::~Water()
 
 }
 
-void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], float deltaTime, Camera* camera)
+void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[2], float deltaTime, Camera* camera)
 {
 
 	m_mesh->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, m_normalMaps, deltaTime, lights, waves, camera);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, m_normalMaps, maps, deltaTime, lights, waves, camera);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 }
 
+void Water::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader, float deltaTime)
+{
+	m_mesh->sendData(m_deviceContext);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, waves, deltaTime);
+	shader->render(m_deviceContext, m_mesh->getIndexCount());
+
+
+
+}
 Wave* Water::getWave(int id)
 {
 	return waves[id];

@@ -5,12 +5,14 @@
 // Includes
 #include "DXF.h"
 #include "SceneObject.h"
+#include "structsforuse.h"
 
 #include "Water.h"
 #include "WaterShader.h"
 #include "DepthShader.h"
 #include "ModelObject.h"
 #include "LightSource.h"
+#include "TextureShader.h"
 class App1 : public BaseApplication
 {
 public:
@@ -35,9 +37,10 @@ private:
 	WaterShader* waterShader;
 	ModelShader* modelShader;
 	DepthShader* depthShader;
-
+	TextureShader* textureShader;
+	OrthoMesh* orthoMesh;
 	Water* water;
-
+	SphereMesh* sphere;
 	LightSource* lights[MAX_LIGHTS];
 	float lightOneColour[MAX_LIGHTS];
 	float lightTwoColour[MAX_LIGHTS];

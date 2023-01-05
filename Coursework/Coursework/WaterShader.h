@@ -5,11 +5,7 @@
 using namespace std;
 using namespace DirectX;
 
-struct Wave {
-    XMFLOAT2 direction;
-    float steepness,
-        waveLength;
-};
+#include "structsforuse.h"
 
 class WaterShader :
     public BaseShader
@@ -21,6 +17,7 @@ public:
     {
         XMFLOAT4 waves[4];
         XMFLOAT4 timeInSeconds;
+        
     };
 
     struct LightBufferType
@@ -47,7 +44,7 @@ public:
 
     WaterShader(ID3D11Device* device, HWND hwnd);
     ~WaterShader();
-    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], float time, LightSource* lights[4], Wave* waves[4], Camera* camera);
+    void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float time, LightSource* lights[4], Wave* waves[4], Camera* camera);
 
 private:
     void initShader(const wchar_t* vs, const wchar_t* ps);
