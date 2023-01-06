@@ -30,8 +30,7 @@ struct ConstantOutputType
 struct InputType
 {
     float3 position : POSITION;
-    float4 colour : COLOR;
-    float2 tex : TEXCOORD;
+    float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
 
 };
@@ -85,7 +84,7 @@ float3 GerstnerWave(float4 wave, float3 position, inout float3 tangent, inout fl
 
 
 [domain("quad")]
-OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, const OutputPatch<InputType, 4> patch)
+OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, const OutputPatch<InputType, 4> patch, InputType input2)
 {
     float3 vertexPosition, vertexnormal;
     OutputType output;

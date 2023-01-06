@@ -10,8 +10,10 @@ cbuffer TessellationBufffer : register(b0)
 struct InputType
 {
     float3 position : POSITION;
-    float4 colour : COLOR;
+    float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+
+    
 };
 
 struct ConstantOutputType
@@ -23,8 +25,9 @@ struct ConstantOutputType
 struct OutputType
 {
     float3 position : POSITION;
-    float4 colour : COLOR;
+    float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+
 };
 
 
@@ -64,10 +67,10 @@ OutputType main(InputPatch<InputType, 4> patch, uint pointId : SV_OutputControlP
     output.position = patch[pointId].position;
 
     // Set the input colour as the output colour.
-    output.colour = patch[pointId].colour;
+    output.tex = patch[pointId].tex;
     
     output.normal = patch[pointId].normal;
-    
+
 
 
     return output;
