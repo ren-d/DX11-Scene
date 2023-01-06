@@ -2,7 +2,7 @@
 
 WaterShader::WaterShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
-	initShader(L"water_vs.cso", L"water_ps.cso");
+	initShader(L"water_vs.cso", L"water_hs.cso", L"water_ds.cso", L"water_ps.cso");
 }
 
 WaterShader::~WaterShader()
@@ -39,10 +39,10 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	D3D11_SAMPLER_DESC samplerDesc;
 
 	
-	D3D11_BUFFER_DESC waterBufferDesc;
-	D3D11_BUFFER_DESC lightBufferDesc;
-	D3D11_BUFFER_DESC cameraBufferDesc;
-	D3D11_BUFFER_DESC shadowBufferDesc;
+	
+	
+	
+	
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -59,6 +59,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 
+	D3D11_BUFFER_DESC waterBufferDesc;
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	waterBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	waterBufferDesc.ByteWidth = sizeof(WaterBufferType);
@@ -70,6 +71,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&waterBufferDesc, NULL, &waterBuffer);
 
+	D3D11_BUFFER_DESC lightBufferDesc;
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
@@ -81,6 +83,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
+	D3D11_BUFFER_DESC cameraBufferDesc;
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
@@ -92,6 +95,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&cameraBufferDesc, NULL, &cameraBuffer);
 
+	D3D11_BUFFER_DESC shadowBufferDesc;
 	shadowBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	shadowBufferDesc.ByteWidth = sizeof(MatrixBufferType);
 	shadowBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -126,8 +130,27 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	samplerDesc.BorderColor[3] = 1.0f;
 	renderer->CreateSamplerState(&samplerDesc, &shadowSampleState);
 
+	D3D11_BUFFER_DESC tessellationBufferDesc;
+	tessellationBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	tessellationBufferDesc.ByteWidth = sizeof(TessellationBufferType);
+	tessellationBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	tessellationBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	tessellationBufferDesc.MiscFlags = 0;
+	tessellationBufferDesc.StructureByteStride = 0;
+
+	renderer->CreateBuffer(&tessellationBufferDesc, NULL, &tessellationBuffer);
+
 }
 
+void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* psFilename)
+{
+	// InitShader must be overwritten and it will load both vertex and pixel shaders + setup buffers
+	initShader(vsFilename, psFilename);
+
+	// Load other required shaders.
+	loadHullShader(hsFilename);
+	loadDomainShader(dsFilename);
+}
 
 void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float timeInSeconds, LightSource* lights[4], Wave* waves[4], Camera* camera)
 {
@@ -150,7 +173,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	dataPtr->view = tview;
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
+	deviceContext->DSSetConstantBuffers(0, 1, &matrixBuffer);
 
 
 	// Send Wave Data
@@ -169,7 +192,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	waterPtr->timeInSeconds = XMFLOAT4(timeInSeconds,0,0,0);
 	
 	deviceContext->Unmap(waterBuffer, 0);
-	deviceContext->VSSetConstantBuffers(1, 1, &waterBuffer);
+	deviceContext->DSSetConstantBuffers(1, 1, &waterBuffer);
 
 	// Send Shadow Data
 	ShadowBufferType* shadowPtr;
@@ -180,7 +203,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	shadowPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
 	shadowPtr->lightProjectionMatrix[1] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
 	deviceContext->Unmap(shadowBuffer, 0);
-	deviceContext->VSSetConstantBuffers(2, 1, &shadowBuffer);
+	deviceContext->DSSetConstantBuffers(2, 1, &shadowBuffer);
 
 	// __Pixel Shader Buffers__
 	
@@ -218,6 +241,15 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Unmap(cameraBuffer, 0);
 	deviceContext->PSSetConstantBuffers(2, 1, &cameraBuffer);
 
+	// Send Tessellation Data
+	result = deviceContext->Map(tessellationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	TessellationBufferType* tessPtr = (TessellationBufferType*)mappedResource.pData;
+	tessPtr->tessellation = XMFLOAT4(1.0f,0.0f,0.0f,0.0f);
+	tessPtr->camera = XMFLOAT4(camera->getPosition().x, camera->getPosition().y, camera->getPosition().z, 1.0f);
+	tessPtr->cameraDir = XMFLOAT4(camera->getRotation().x, camera->getRotation().y, camera->getRotation().z, 1.0f);
+	deviceContext->Unmap(tessellationBuffer, 0);
+	deviceContext->HSSetConstantBuffers(0, 1, &tessellationBuffer);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 	// __Textures and Samplers__
 	
 	// Set shader texture and sampler resource in the pixel shader.
@@ -229,6 +261,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 	deviceContext->PSSetSamplers(1, 1, &shadowSampleState);
+
 }
 
 

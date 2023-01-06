@@ -19,6 +19,7 @@ public:
 	void setWaveDir(int id, XMFLOAT2 direction);
 
 private:
+	
 	ID3D11ShaderResourceView* m_normalMaps[2];
 	Wave* m_waves[4];
 };

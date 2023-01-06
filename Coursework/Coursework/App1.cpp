@@ -117,7 +117,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 2, *screenHeight / 2, *screenWidth / 2.7, -*screenHeight / 2.7);
 
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
-	water->setMesh(new PlaneMesh(renderer->getDevice(), renderer->getDeviceContext()));
+	water->setMesh(new TessellationPlane(renderer->getDevice()));
 
 	boatModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
 	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));

@@ -51,6 +51,9 @@
     <ClCompile Include="TextureShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="TessellationPlane.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
@@ -86,6 +89,9 @@
     <ClInclude Include="structsforuse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TessellationPlane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="water_ps.hlsl">
@@ -110,6 +116,12 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="texture_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="water_ds.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="water_hs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

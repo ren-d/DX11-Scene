@@ -12,6 +12,7 @@
 #include "ModelObject.h"
 #include "LightSource.h"
 #include "TextureShader.h"
+#include "TessellationPlane.h"
 class App1 : public BaseApplication
 {
 public:

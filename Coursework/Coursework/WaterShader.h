@@ -44,6 +44,13 @@ public:
         XMMATRIX lightProjectionMatrix[2];
     };
 
+    struct TessellationBufferType
+    {
+        XMFLOAT4 tessellation;
+        XMFLOAT4 camera;
+        XMFLOAT4 cameraDir;
+    };
+
     WaterShader(ID3D11Device* device, HWND hwnd);
     ~WaterShader();
 
@@ -60,6 +67,7 @@ public:
 
 private:
     void initShader(const wchar_t* vs, const wchar_t* ps);
+    void initShader(const wchar_t* vsFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* psFilename);
 
 private:
     ID3D11Buffer* matrixBuffer;
@@ -67,6 +75,7 @@ private:
     ID3D11Buffer* lightBuffer;
     ID3D11Buffer* cameraBuffer;
     ID3D11Buffer* shadowBuffer;
+    ID3D11Buffer* tessellationBuffer;
     ID3D11SamplerState* sampleState;
     ID3D11SamplerState* shadowSampleState;
 };
