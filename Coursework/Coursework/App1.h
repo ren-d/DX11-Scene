@@ -13,6 +13,7 @@
 #include "LightSource.h"
 #include "TextureShader.h"
 #include "TessellationPlane.h"
+#include "WaterDepthShader.h"
 class App1 : public BaseApplication
 {
 public:
@@ -42,6 +43,7 @@ private:
 	ModelObject* boat;
 	AModel* boatModel;
 	WaterShader* waterShader;
+	WaterDepthShader* waterDepthShader;
 	ModelShader* modelShader;
 	DepthShader* depthShader;
 	TextureShader* textureShader;

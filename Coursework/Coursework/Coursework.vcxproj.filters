@@ -54,6 +54,9 @@
     <ClCompile Include="TessellationPlane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WaterDepthShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
@@ -92,6 +95,9 @@
     <ClInclude Include="TessellationPlane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WaterDepthShader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="water_ps.hlsl">
@@ -122,6 +128,18 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="water_hs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="waterDepth_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="waterDepth_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="waterDepth_ds.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="waterDepth_hs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

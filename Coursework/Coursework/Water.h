@@ -3,7 +3,7 @@
 #include "Water.h"
 #include "WaterShader.h"
 #include "LightSource.h"
-
+#include "WaterDepthShader.h"
 class Water :  public SceneObject
 {
 public:
@@ -13,7 +13,7 @@ public:
 
 	void initWaves();
 	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[2], float timeInSeconds, Camera* camera);
-	void renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader, float timeInSeconds);
+	void renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterDepthShader* shader, float timeInSeconds, Camera* camera);
 
 	Wave* getWave(int id);
 	void setWaveDir(int id, XMFLOAT2 direction);

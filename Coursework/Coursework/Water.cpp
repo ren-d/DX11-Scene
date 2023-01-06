@@ -46,10 +46,10 @@ void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projec
 }
 
 // calculates depth map with waves applied
-void Water::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader, float timeInSeconds)
+void Water::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterDepthShader* shader, float timeInSeconds, Camera* camera)
 {
 	m_mesh->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection, m_waves, timeInSeconds);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, m_waves, timeInSeconds, camera);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 
 }

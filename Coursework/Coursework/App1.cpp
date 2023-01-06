@@ -127,6 +127,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 void App1::initShaders(HWND hwnd)
 {
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
+	waterDepthShader = new WaterDepthShader(renderer->getDevice(), hwnd);
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
@@ -221,7 +222,7 @@ void App1::depthpass()
 		XMMATRIX worldMatrix = renderer->getWorldMatrix();
 
 
-		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader, timeInSeconds);
+		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
 
 
 		worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
