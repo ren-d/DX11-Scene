@@ -214,13 +214,13 @@ void App1::depthpass()
 	for (int i = 0; i < 1; i++)
 	{
 		shadowMaps[0]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
-		lights[3]->generateViewMatrix();
+		lights[0]->generateViewMatrix();
 	
 		float fov = 2 * atan(tan(XMConvertToRadians(*lights[3]->getInnerCone()) / 2) / 1.0f);
 	
 		
-		XMMATRIX lightViewMatrix = lights[3]->getViewMatrix();
-		XMMATRIX lightProjectionMatrix  = XMMatrixPerspectiveFovLH(fov, 1, 15.0f, 30);
+		XMMATRIX lightViewMatrix = lights[0]->getViewMatrix();
+		XMMATRIX lightProjectionMatrix = lights[0]->getOrthoMatrix();
 		XMMATRIX worldMatrix = renderer->getWorldMatrix();
 
 		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
