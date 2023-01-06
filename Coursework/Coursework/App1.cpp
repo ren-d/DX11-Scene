@@ -220,14 +220,13 @@ void App1::depthpass()
 		XMMATRIX lightProjectionMatrix  = lights[0]->getOrthoMatrix();
 		XMMATRIX worldMatrix = renderer->getWorldMatrix();
 
-		worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
+
 		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader, timeInSeconds);
-		worldMatrix = renderer->getWorldMatrix();
 
-		worldMatrix = XMMatrixTranslation(400.f, 1.f, 500.f);
-		XMMATRIX scaleMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 
-		worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+		worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+		worldMatrix *= XMMatrixTranslation(60, 1, 40);
+
 		boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
 
 		renderer->setBackBufferRenderTarget();
@@ -244,13 +243,12 @@ void App1::basepass()
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
-	
-	worldMatrix = XMMatrixTranslation(-50.f, 0.f, -10.f);
+
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera);
 
-	worldMatrix = XMMatrixTranslation(400.f, 1.f, 500.f);
-	XMMATRIX scaleMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix = XMMatrixMultiply(worldMatrix, scaleMatrix);
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(60, 1, 40);
+
 	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps[0]);
 
 	
