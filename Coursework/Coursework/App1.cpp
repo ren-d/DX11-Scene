@@ -115,7 +115,7 @@ void App1::initTextures() // load textures
 void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise scene objects
 {
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 2, *screenHeight / 2, *screenWidth / 2.7, -*screenHeight / 2.7);
-
+	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
 
@@ -214,13 +214,14 @@ void App1::depthpass()
 	for (int i = 0; i < 1; i++)
 	{
 		shadowMaps[0]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
-		lights[0]->generateViewMatrix();
+		lights[3]->generateViewMatrix();
+	
+		float fov = 2 * atan(tan(XMConvertToRadians(*lights[3]->getInnerCone()) / 2) / 1.0f);
+	
 		
-
-		XMMATRIX lightViewMatrix = lights[0]->getViewMatrix();
-		XMMATRIX lightProjectionMatrix  = lights[0]->getOrthoMatrix();
+		XMMATRIX lightViewMatrix = lights[3]->getViewMatrix();
+		XMMATRIX lightProjectionMatrix  = XMMatrixPerspectiveFovLH(fov, 1, 15.0f, 30);
 		XMMATRIX worldMatrix = renderer->getWorldMatrix();
-
 
 		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
 
@@ -245,6 +246,7 @@ void App1::basepass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
+
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera);
 
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
@@ -252,6 +254,11 @@ void App1::basepass()
 
 	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps[0]);
 
+
+	worldMatrix = XMMatrixTranslation(lights[3]->getPosition().x, lights[3]->getPosition().y, lights[3]->getPosition().z);
+	sphere->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"water"));
+	textureShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
 	
 	if (displayShadowMaps)
 	{

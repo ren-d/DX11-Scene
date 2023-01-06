@@ -265,7 +265,7 @@ float4 main(InputType input) : SV_TARGET
     lightColour = calculateFinalLighting(4, input.normal, input.worldPosition, input.lightViewPos[0]);
     
     textureColour = texture0.Sample(Sampler0, input.tex);
-    return float4(input.tex.x, input.tex.y, 0.0f, 1.0f);
+
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
     return lightColour * textureColour;
 }
