@@ -18,6 +18,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	initSceneObjects(&screenWidth, &screenHeight);
 	initShaders(hwnd);
 	initGUI();
+
 }
 
 void App1::initShadowMaps()

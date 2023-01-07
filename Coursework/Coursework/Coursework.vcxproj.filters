@@ -19,6 +19,15 @@
     <Filter Include="Header Files\Shaders">
       <UniqueIdentifier>{4ac92590-2458-46b0-bcb2-ff5c26a6b21c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\DepthMapping">
+      <UniqueIdentifier>{112da8d4-5344-48a7-9657-6b9b2ef7ab9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Bloom">
+      <UniqueIdentifier>{8e54fa30-54e7-4449-b8a9-9f7d1526ec47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Bloom\GaussianBlur">
+      <UniqueIdentifier>{44042451-3857-4d79-8972-156a21fafff7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp">
@@ -55,6 +64,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WaterDepthShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="BrightnessMapShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalBlurShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="HorizontalBlurShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,6 +116,15 @@
     <ClInclude Include="WaterDepthShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="BrightnessMapShader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="HorizontalBlurShader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalBlurShader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="water_ps.hlsl">
@@ -112,12 +139,6 @@
     <FxCompile Include="model_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="depth_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="depth_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="texture_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
@@ -130,17 +151,41 @@
     <FxCompile Include="water_hs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="waterDepth_vs.hlsl">
-      <Filter>Resource Files</Filter>
+    <FxCompile Include="depth_ps.hlsl">
+      <Filter>Resource Files\DepthMapping</Filter>
     </FxCompile>
-    <FxCompile Include="waterDepth_ps.hlsl">
-      <Filter>Resource Files</Filter>
+    <FxCompile Include="depth_vs.hlsl">
+      <Filter>Resource Files\DepthMapping</Filter>
     </FxCompile>
     <FxCompile Include="waterDepth_ds.hlsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\DepthMapping</Filter>
     </FxCompile>
     <FxCompile Include="waterDepth_hs.hlsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\DepthMapping</Filter>
+    </FxCompile>
+    <FxCompile Include="waterDepth_ps.hlsl">
+      <Filter>Resource Files\DepthMapping</Filter>
+    </FxCompile>
+    <FxCompile Include="waterDepth_vs.hlsl">
+      <Filter>Resource Files\DepthMapping</Filter>
+    </FxCompile>
+    <FxCompile Include="brightnessMap_ps.hlsl">
+      <Filter>Resource Files\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="brightnessMap_vs.hlsl">
+      <Filter>Resource Files\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="horizontalBlur_vs.hlsl">
+      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
+    </FxCompile>
+    <FxCompile Include="horizontalBlur_ps.hlsl">
+      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
+    </FxCompile>
+    <FxCompile Include="verticalBlur_vs.hlsl">
+      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
+    </FxCompile>
+    <FxCompile Include="verticalBlur_ps.hlsl">
+      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

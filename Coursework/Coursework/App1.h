@@ -36,6 +36,12 @@ protected:
 	void gui();
 	void basepass();
 	void depthpass();
+	void downsample();
+	void brightnesspass();
+	void horizonalblurpass();
+	void verticalblurpass();
+	void upsample();
+	void finalpass();
 private:
 	static constexpr int MAX_LIGHTS = 4;
 

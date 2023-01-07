@@ -30,7 +30,7 @@ void TessellationPlane::initBuffers(ID3D11Device* device)
 	VertexType* vertices;
 	unsigned long* indices;
 	int index, i, j;
-	float poX, posZ, u, v, increment;
+	float posX, posZ, u, v, increment;
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	float resolution = 100.0f;
 
@@ -54,41 +54,41 @@ void TessellationPlane::initBuffers(ID3D11Device* device)
 		for (i = 0; i < (resolution - 1); i++)
 		{
 			// lower left
-			poX = (float)(i);
+			posX = (float)(i);
 			posZ = (float)(j + 1);
 
 
-			vertices[index].position = XMFLOAT3(poX, 0.0f, posZ);
+			vertices[index].position = XMFLOAT3(posX, 0.0f, posZ);
 			vertices[index].texture = XMFLOAT2(u, v + increment);
 			vertices[index].normal = XMFLOAT3(0.0, 1.0, 0.0);
 			indices[index] = index;
 			index++;
 
 			// Upper left.
-			poX = (float)i;
+			posX = (float)i;
 			posZ = (float)(j);
 
-			vertices[index].position = XMFLOAT3(poX, 0.0f, posZ);
+			vertices[index].position = XMFLOAT3(posX, 0.0f, posZ);
 			vertices[index].texture = XMFLOAT2(u, v);
 			vertices[index].normal = XMFLOAT3(0.0, 1.0, 0.0);
 			indices[index] = index;
 			index++;
 
 			// Upper right.
-			poX = (float)(i + 1);
+			posX = (float)(i + 1);
 			posZ = (float)(j);
 
-			vertices[index].position = XMFLOAT3(poX, 0.0f, posZ);
+			vertices[index].position = XMFLOAT3(posX, 0.0f, posZ);
 			vertices[index].texture = XMFLOAT2(u + increment, v);
 			vertices[index].normal = XMFLOAT3(0.0, 1.0, 0.0);
 			indices[index] = index;
 			index++;
 
 			// Bottom right
-			poX = (float)(i + 1);
+			posX = (float)(i + 1);
 			posZ = (float)(j + 1);
 
-			vertices[index].position = XMFLOAT3(poX, 0.0f, posZ);
+			vertices[index].position = XMFLOAT3(posX, 0.0f, posZ);
 			vertices[index].texture = XMFLOAT2(u + increment, v + increment);
 			vertices[index].normal = XMFLOAT3(0.0, 1.0, 0.0);
 			indices[index] = index;
