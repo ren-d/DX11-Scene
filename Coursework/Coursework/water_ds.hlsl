@@ -132,6 +132,10 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
     output.lightViewPos[0] = mul(float4(vertexPosition, 1.0f), worldMatrix);
     output.lightViewPos[0] = mul(output.lightViewPos[0], lightViewMatrix[0]);
     output.lightViewPos[0] = mul(output.lightViewPos[0], lightProjectionMatrix[0]);
+    
+    output.lightViewPos[1] = mul(float4(vertexPosition, 1.0f), worldMatrix);
+    output.lightViewPos[1] = mul(output.lightViewPos[1], lightViewMatrix[1]);
+    output.lightViewPos[1] = mul(output.lightViewPos[1], lightProjectionMatrix[1]);
         
     output.normal = mul(vertexnormal, (float3x3) worldMatrix);
 

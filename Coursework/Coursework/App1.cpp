@@ -24,7 +24,7 @@ void App1::initShadowMaps()
 {
 	const int shadowmapWidth = 10024;
 	const int shadowmapHeight = 10024;
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
 	}
@@ -211,28 +211,68 @@ bool App1::render()
 
 void App1::depthpass()
 {
-	for (int i = 0; i < 1; i++)
+	bool hasDirectional = false;
+	bool hasSpotlight = false;
+	XMMATRIX lightViewMatrix, lightProjectionMatrix, worldMatrix;
+	for (int i = 0; i < 4; i++)
 	{
-		shadowMaps[0]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
-		lights[0]->generateViewMatrix();
-	
-		float fov = 2 * atan(tan(XMConvertToRadians(*lights[3]->getInnerCone()) / 2) / 1.0f);
-	
+		switch (static_cast<LightSource::LType>(lights[i]->getLightType()))
+		{
+		case LightSource::LType::DIRECTIONAL:
+			if (hasDirectional)
+			{
+				break;
+			}
+			shadowMaps[0]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+			lights[i]->generateViewMatrix();
+
+
+
+			lightViewMatrix = lights[i]->getViewMatrix();
+			lightProjectionMatrix = lights[i]->getOrthoMatrix();
+			worldMatrix = renderer->getWorldMatrix();
+
+			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
+
+
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(60, 1, 40);
+
+			boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+
+			renderer->setBackBufferRenderTarget();
+			renderer->resetViewport();
+			hasDirectional = true;
+			break;
+		case LightSource::LType::SPOTLIGHT:
+			if (hasSpotlight)
+			{
+				break;
+			}
+			shadowMaps[1]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+			lights[i]->generateViewMatrix();
+			float fov = XMConvertToRadians(*lights[i]->getOuterCone()) * 2.0f;
+
+
+			XMMATRIX lightViewMatrix = lights[i]->getViewMatrix();
+			XMMATRIX lightProjectionMatrix = XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f);
+			XMMATRIX worldMatrix = renderer->getWorldMatrix();
+
+			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
+
+
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(60, 1, 40);
+
+			boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+
+			renderer->setBackBufferRenderTarget();
+			renderer->resetViewport();
+			hasSpotlight = true;
+			break;
+		}
 		
-		XMMATRIX lightViewMatrix = lights[0]->getViewMatrix();
-		XMMATRIX lightProjectionMatrix = lights[0]->getOrthoMatrix();
-		XMMATRIX worldMatrix = renderer->getWorldMatrix();
-
-		water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
-
-
-		worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-		worldMatrix *= XMMatrixTranslation(60, 1, 40);
-
-		boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-
-		renderer->setBackBufferRenderTarget();
-		renderer->resetViewport();
+		
 	}
 	
 
@@ -252,7 +292,7 @@ void App1::basepass()
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 	worldMatrix *= XMMatrixTranslation(60, 1, 40);
 
-	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps[0]);
+	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps);
 
 
 	worldMatrix = XMMatrixTranslation(lights[3]->getPosition().x, lights[3]->getPosition().y, lights[3]->getPosition().z);

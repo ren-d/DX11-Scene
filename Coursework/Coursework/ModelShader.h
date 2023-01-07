@@ -41,7 +41,7 @@ public:
         ID3D11DeviceContext* deviceContext, 
         const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, 
         ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, 
-        ShadowMap* depthMap,
+        ShadowMap* depthMaps[2],
         LightSource* lights[4], 
         Camera* camera
     );

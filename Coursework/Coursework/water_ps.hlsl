@@ -3,7 +3,7 @@
 Texture2D texture0 : register(t0);
 Texture2D normalMap : register(t1);
 Texture2D normalMap2 : register(t2);
-Texture2D depthMap : register(t3);
+Texture2D depthMaps[2] : register(t3);
 SamplerState Sampler0 : register(s0);
 SamplerState shadowSampler : register(s1);
 
@@ -119,13 +119,13 @@ float2 getProjectiveCoords(float4 lightViewPosition)
     return projTex;
 }
 
-float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float4 lightViewPos)
+float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float4 lightViewPos[2])
 {
     float4 lightColour[4];
     float distance,
      attenuation;
     float4 specular = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    
+    float2 pTexCoord;
     for (int i = 0; i < numberOfLights; i++)
     {
         distance = length(lightPosition[i].xyz - worldPosition);
@@ -133,16 +133,15 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
         switch (lightPosition[i].w) // light type is stored in the position w value
         {
             case 0: // directional light calculation
-                float2 pTexCoord;
-                pTexCoord = getProjectiveCoords(lightViewPos);
+                pTexCoord = getProjectiveCoords(lightViewPos[0]);
                 lightColour[i] = ambient;
                 // Shadow test. Is or isn't in shadow
                 if (hasDepthData(pTexCoord))
                 {
-        // Has depth map data
-                    if (!isInShadow(depthMap, pTexCoord, lightViewPos, 0.005))
+                    // Has depth map data
+                    if (!isInShadow(depthMaps[0], pTexCoord, lightViewPos[0], 0.005))
                     {
-            // is NOT in shadow, therefore light
+                         // is NOT in shadow, therefore light
 
                         lightColour[i] += calculateLighting(-lightDirection[i].xyz, normal, diffuseColour[i]);
  
@@ -151,8 +150,6 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                
                     
                 }
-                
-
                 break;
             
             // point light calculation
@@ -175,23 +172,29 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                 break;
             
             case 2: // Blinn-Phong Specular Calculation
-                specular = calculateSpecular(
-                    normalize(lightPosition[i].xyz - worldPosition),
-                    normal,
-                    normalize(cameraPosition.xyz - worldPosition),
-                    specularColour[i],
-                    specularPower[i].x
-                );
-            
+             
+                pTexCoord = getProjectiveCoords(lightViewPos[1]);
                 attenuation = calculateAttenuation(i, distance);
-            
-                float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
-                float intensity = calculateSpotlight(i, lightDir);
-            
-                
                 lightColour[i] = ambient * attenuation;
-                lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuation;
-                lightColour[i].rgb += (specular.rgb * attenuation) * intensity;
+                if (hasDepthData(pTexCoord))
+                {
+                    float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
+                    float intensity = calculateSpotlight(i, lightDir);
+                    if (!isInShadow(depthMaps[1], pTexCoord, lightViewPos[1], 0.005))
+                    {
+                        specular = calculateSpecular(
+                        normalize(lightPosition[i].xyz - worldPosition),
+                        normal,
+                        normalize(cameraPosition.xyz - worldPosition),
+                        specularColour[i],
+                        specularPower[i].x
+                    );
+
+                        lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuation;
+                        lightColour[i].rgb += (specular.rgb * attenuation) * intensity;
+                    }
+                }
+                
 
                 break;
             
@@ -262,7 +265,7 @@ float4 main(InputType input) : SV_TARGET
 
     
     
-    lightColour = calculateFinalLighting(4, input.normal, input.worldPosition, input.lightViewPos[0]);
+    lightColour = calculateFinalLighting(4, input.normal, input.worldPosition, input.lightViewPos);
     
     textureColour = texture0.Sample(Sampler0, input.tex);
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.

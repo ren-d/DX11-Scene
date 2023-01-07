@@ -193,15 +193,28 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	
 	deviceContext->Unmap(waterBuffer, 0);
 	deviceContext->DSSetConstantBuffers(1, 1, &waterBuffer);
+	
 
 	// Send Shadow Data
 	ShadowBufferType* shadowPtr;
 	result = deviceContext->Map(shadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	shadowPtr = (ShadowBufferType*)mappedResource.pData;
-	shadowPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[0]->getViewMatrix());
-	shadowPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[0]->getViewMatrix());
-	shadowPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
-	shadowPtr->lightProjectionMatrix[1] = XMMatrixTranspose(lights[0]->getOrthoMatrix());
+
+	for (int i = 0; i < 4; i++)
+	{
+		switch (lights[i]->getLightType())
+		{
+		case 0:
+			shadowPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
+			break;
+		case 2:
+			float fov = XMConvertToRadians(*lights[i]->getOuterCone() * 2.0f);
+			shadowPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[1] = XMMatrixTranspose(XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f));
+			break;
+		}
+	}
 	deviceContext->Unmap(shadowBuffer, 0);
 	deviceContext->DSSetConstantBuffers(2, 1, &shadowBuffer);
 
@@ -257,8 +270,8 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalMap[0]);
 	deviceContext->PSSetShaderResources(2, 1, &normalMap[1]);
-	ID3D11ShaderResourceView* depth = depthMaps[0]->getDepthMapSRV();
-	deviceContext->PSSetShaderResources(3, 1, &depth);
+	ID3D11ShaderResourceView* depth[] = { depthMaps[0]->getDepthMapSRV(), depthMaps[1]->getDepthMapSRV() };
+	deviceContext->PSSetShaderResources(3, 2, depth);
 
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 	deviceContext->PSSetSamplers(1, 1, &shadowSampleState);

@@ -42,9 +42,15 @@ OutputType main(InputType input)
     output.normal = mul(input.normal, (float3x3) worldMatrix);
     output.normal = normalize(output.normal);
     output.worldPosition = mul(input.position, worldMatrix).xyz;
-    output.lightViewPos[0] = mul(input.position, worldMatrix);
-    output.lightViewPos[0] = mul(output.lightViewPos[0], lightViewMatrix[0]);
-    output.lightViewPos[0] = mul(output.lightViewPos[0], lightProjectionMatrix[0]);
+    
+    for (int i = 0; i < 2; i++)
+    {
+        output.lightViewPos[i] = mul(input.position, worldMatrix);
+        output.lightViewPos[i] = mul(output.lightViewPos[i], lightViewMatrix[i]);
+        output.lightViewPos[i] = mul(output.lightViewPos[i], lightProjectionMatrix[i]);
+    }
+
+
     
 	// Store the texture coordinates for the pixel shader.
     output.tex = input.tex;

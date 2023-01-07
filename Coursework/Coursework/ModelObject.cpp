@@ -18,10 +18,10 @@ ModelObject::~ModelObject()
 
 
 
-void ModelObject::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, LightSource* lights[4], Camera* camera, ShadowMap* shadowMap)
+void ModelObject::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, LightSource* lights[4], Camera* camera, ShadowMap* shadowMaps[2])
 {
 
 	m_model->sendData(m_deviceContext);
-	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, m_normalMap, m_specMap, shadowMap, lights, camera);
+	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, m_normalMap, m_specMap, shadowMaps, lights, camera);
 	shader->render(m_deviceContext, m_model->getIndexCount());
 }
