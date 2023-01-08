@@ -35,7 +35,7 @@ void TessellationPlane::initBuffers(ID3D11Device* device)
 	float resolution = 100.0f;
 
 	// Calculate the number of vertices in the terrain mesh.
-	vertexCount = (resolution - 1) * (resolution - 1) * 6;
+	vertexCount = (resolution - 1) * (resolution - 1) * 4;
 
 
 	indexCount = vertexCount;

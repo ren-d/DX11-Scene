@@ -14,6 +14,7 @@
 #include "TextureShader.h"
 #include "TessellationPlane.h"
 #include "WaterDepthShader.h"
+#include "ComputeDownSample.h"
 class App1 : public BaseApplication
 {
 public:
@@ -53,11 +54,14 @@ private:
 	ModelShader* modelShader;
 	DepthShader* depthShader;
 	TextureShader* textureShader;
+	
 	OrthoMesh* orthoMesh;
 	Water* water;
 	SceneObject* cube;
 	SphereMesh* sphere;
 	LightSource* lights[MAX_LIGHTS];
+	ComputeDownSample* compDown;
+	RenderTexture* downSample, * renderTexture;
 	float lightOneColour[MAX_LIGHTS];
 	float lightTwoColour[MAX_LIGHTS];
 	float lightThreeColour[MAX_LIGHTS];

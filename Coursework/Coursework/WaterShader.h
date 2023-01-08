@@ -78,6 +78,9 @@ private:
     ID3D11Buffer* tessellationBuffer;
     ID3D11SamplerState* sampleState;
     ID3D11SamplerState* shadowSampleState;
+    ID3D11UnorderedAccessView* uav;
+    ID3D11Texture2D* tex;
+    ID3D11ShaderResourceView* srv;
 };
 
 

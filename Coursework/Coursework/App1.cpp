@@ -123,6 +123,9 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	boatModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
 	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
 	boat->setModel(boatModel);
+
+	downSample = new RenderTexture(renderer->getDevice(), *screenWidth / 2, *screenHeight / 2, SCREEN_NEAR, SCREEN_DEPTH);
+	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight , SCREEN_NEAR, SCREEN_DEPTH);
 }
 
 void App1::initShaders(HWND hwnd)
@@ -132,6 +135,7 @@ void App1::initShaders(HWND hwnd)
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
+	compDown = new ComputeDownSample(renderer->getDevice(), hwnd, 1200, 675);
 }
 
 void App1::initGUI() // Setup GUI Variables
@@ -193,19 +197,20 @@ bool App1::frame()
 bool App1::render()
 {
 	// Clear the scene. (default blue colour)
-	renderer->beginScene(0.39f, 0.58f, 0.92f, 1.0f);
+
 
 	// Generate the view matrix based on the camera's position.
-	camera->update();
 
-	basepass();
+
 	depthpass();
-
+	basepass();
+	downsample();
+	finalpass();
 	// Render GUI
-	gui();
+
 
 	// Present the rendered scene to the screen.
-	renderer->endScene();
+
 
 	return true;
 }
@@ -279,9 +284,24 @@ void App1::depthpass()
 
 }
 
-void App1::basepass()
+void App1::downsample()
 {
 
+
+
+	compDown->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView());
+	compDown->compute(renderer->getDeviceContext(), ceil(sWidth / 256.f), sHeight, 1);
+	compDown->unbind(renderer->getDeviceContext());
+
+
+}
+
+
+void App1::basepass()
+{
+	renderTexture->setRenderTarget(renderer->getDeviceContext());
+	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.39f, 0.58f, 0.92f, 1.0f);
+	camera->update();
 	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
@@ -314,8 +334,33 @@ void App1::basepass()
 		renderer->setZBuffer(true);
 	}
 	
-	
+	renderer->setBackBufferRenderTarget();
+	renderer->resetViewport();
+}
 
+
+void App1::finalpass()
+{
+	// Clear the scene. (default blue colour)
+	renderer->beginScene(0.39f, 0.58f, 0.92f, 1.0f);
+
+	// RENDER THE RENDER TEXTURE SCENE
+	// Requires 2D rendering and an ortho mesh.
+	renderer->setZBuffer(false);
+	XMMATRIX worldMatrix = renderer->getWorldMatrix();
+	XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
+	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
+
+	orthoMesh->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, compDown->getSRV());
+	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+	renderer->setZBuffer(true);
+
+	// Render GUI
+	gui();
+
+	// Present the rendered scene to the screen.
+	renderer->endScene();
 }
 
 
