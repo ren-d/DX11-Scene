@@ -124,7 +124,6 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
 	boat->setModel(boatModel);
 
-	downSample = new RenderTexture(renderer->getDevice(), *screenWidth / 2, *screenHeight / 2, SCREEN_NEAR, SCREEN_DEPTH);
 	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight , SCREEN_NEAR, SCREEN_DEPTH);
 }
 
@@ -135,7 +134,8 @@ void App1::initShaders(HWND hwnd)
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
-	compDown = new ComputeDownSample(renderer->getDevice(), hwnd, 1200, 675);
+	computeDownSample = new ComputeDownSample(renderer->getDevice(), hwnd, 1200, 675);
+	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, 1200, 675);
 }
 
 void App1::initGUI() // Setup GUI Variables
@@ -287,11 +287,14 @@ void App1::depthpass()
 void App1::downsample()
 {
 
+	computeBrightness->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView());
+	computeBrightness->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeBrightness->unbind(renderer->getDeviceContext());
 
+	computeDownSample->setShaderParameters(renderer->getDeviceContext(), computeBrightness->getSRV());
+	computeDownSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeDownSample->unbind(renderer->getDeviceContext());
 
-	compDown->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView());
-	compDown->compute(renderer->getDeviceContext(), ceil(sWidth / 256.f), sHeight, 1);
-	compDown->unbind(renderer->getDeviceContext());
 
 
 }
@@ -352,7 +355,7 @@ void App1::finalpass()
 	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
 
 	orthoMesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, compDown->getSRV());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, computeDownSample->getSRV());
 	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
 	renderer->setZBuffer(true);
 

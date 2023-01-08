@@ -1,24 +1,24 @@
-#include "ComputeDownSample.h"
+#include "ComputeBrightness.h"
 
-ComputeDownSample::ComputeDownSample(ID3D11Device* device, HWND hwnd, int w, int h) : BaseShader(device, hwnd)
+ComputeBrightness::ComputeBrightness(ID3D11Device* device, HWND hwnd, int w, int h) : BaseShader(device, hwnd)
 {
 	sWidth = w;
 	sHeight = h;
-	initShader(L"downSample_cs.cso", NULL);
+	initShader(L"brightnessMap_cs.cso", NULL);
 }
 
-ComputeDownSample::~ComputeDownSample()
+ComputeBrightness::~ComputeBrightness()
 {
 
 }
 
-void ComputeDownSample::initShader(const wchar_t* cfile, const wchar_t* blank)
+void ComputeBrightness::initShader(const wchar_t* cfile, const wchar_t* blank)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();
 }
 
-void ComputeDownSample::createOutputUAV()
+void ComputeBrightness::createOutputUAV()
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
@@ -51,13 +51,13 @@ void ComputeDownSample::createOutputUAV()
 	renderer->CreateShaderResourceView(m_tex, &srvDesc, &m_srvTexOutput);
 }
 
-void ComputeDownSample::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1)
+void ComputeBrightness::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1)
 {
 	dc->CSSetShaderResources(0, 1, &texture1);
 	dc->CSSetUnorderedAccessViews(0, 1, &m_uavAccess, 0);
 }
 
-void ComputeDownSample::unbind(ID3D11DeviceContext* dc)
+void ComputeBrightness::unbind(ID3D11DeviceContext* dc)
 {
 	ID3D11ShaderResourceView* nullSRV[] = { NULL };
 	dc->CSSetShaderResources(0, 1, nullSRV);

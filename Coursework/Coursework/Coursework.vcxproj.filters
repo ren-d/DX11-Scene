@@ -78,6 +78,9 @@
     <ClCompile Include="ComputeDownSample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ComputeBrightness.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
@@ -129,6 +132,9 @@
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ComputeDownSample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeBrightness.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -194,6 +200,9 @@
       <Filter>Resource Files\Bloom\GaussianBlur</Filter>
     </FxCompile>
     <FxCompile Include="downSample_cs.hlsl">
+      <Filter>Resource Files\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="brightnessMap_cs.hlsl">
       <Filter>Resource Files\Bloom</Filter>
     </FxCompile>
   </ItemGroup>
