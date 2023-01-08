@@ -16,6 +16,10 @@
 #include "WaterDepthShader.h"
 #include "ComputeDownSample.h"
 #include "ComputeBrightness.h"
+#include "HorizontalBlurShader.h"
+#include "VerticalBlurShader.h"
+#include "ComputeUpSample.h"
+#include "ComputeBlend.h"
 class App1 : public BaseApplication
 {
 public:
@@ -38,10 +42,9 @@ protected:
 	void gui();
 	void basepass();
 	void depthpass();
-	void downsample();
+	void computepass();
 	void brightnesspass();
-	void horizonalblurpass();
-	void verticalblurpass();
+
 	void upsample();
 	void finalpass();
 private:
@@ -56,14 +59,18 @@ private:
 	DepthShader* depthShader;
 	TextureShader* textureShader;
 	
-	OrthoMesh* orthoMesh;
+	OrthoMesh* orthoMesh, *orthoMesh2;
 	Water* water;
 	SceneObject* cube;
 	SphereMesh* sphere;
 	LightSource* lights[MAX_LIGHTS];
 	ComputeDownSample* computeDownSample;
 	ComputeBrightness* computeBrightness;
-	RenderTexture* renderTexture;
+	ComputeUpSample* computeUpSample;
+	ComputeBlend* computeBlend;
+	HorizontalBlurShader* horizonalBlurShader;
+	VerticalBlurShader* verticalBlurShader;
+	RenderTexture* renderTexture, *renderTexture2;
 	float lightOneColour[MAX_LIGHTS];
 	float lightTwoColour[MAX_LIGHTS];
 	float lightThreeColour[MAX_LIGHTS];

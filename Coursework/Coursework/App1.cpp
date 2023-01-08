@@ -116,6 +116,7 @@ void App1::initTextures() // load textures
 void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise scene objects
 {
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 2, *screenHeight / 2, *screenWidth / 2.7, -*screenHeight / 2.7);
+	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
 	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
@@ -124,7 +125,8 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
 	boat->setModel(boatModel);
 
-	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight , SCREEN_NEAR, SCREEN_DEPTH);
+	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+
 }
 
 void App1::initShaders(HWND hwnd)
@@ -136,6 +138,10 @@ void App1::initShaders(HWND hwnd)
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
 	computeDownSample = new ComputeDownSample(renderer->getDevice(), hwnd, 1200, 675);
 	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, 1200, 675);
+	horizonalBlurShader = new HorizontalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
+	verticalBlurShader = new VerticalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
+	computeUpSample = new ComputeUpSample(renderer->getDevice(), hwnd, 1200, 675);
+	computeBlend = new ComputeBlend(renderer->getDevice(), hwnd, 1200, 675);
 }
 
 void App1::initGUI() // Setup GUI Variables
@@ -204,7 +210,7 @@ bool App1::render()
 
 	depthpass();
 	basepass();
-	downsample();
+	computepass();
 	finalpass();
 	// Render GUI
 
@@ -284,7 +290,7 @@ void App1::depthpass()
 
 }
 
-void App1::downsample()
+void App1::computepass()
 {
 
 	computeBrightness->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView());
@@ -295,7 +301,38 @@ void App1::downsample()
 	computeDownSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeDownSample->unbind(renderer->getDeviceContext());
 
+	horizonalBlurShader->setShaderParameters(renderer->getDeviceContext(), computeDownSample->getSRV());
+	horizonalBlurShader->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+	horizonalBlurShader->unbind(renderer->getDeviceContext());
 
+	verticalBlurShader->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader->getSRV());
+	verticalBlurShader->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+	verticalBlurShader->unbind(renderer->getDeviceContext());
+
+	computeUpSample->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader->getSRV());
+	computeUpSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeUpSample->unbind(renderer->getDeviceContext());
+
+	horizonalBlurShader->setShaderParameters(renderer->getDeviceContext(), computeUpSample->getSRV());
+	horizonalBlurShader->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+	horizonalBlurShader->unbind(renderer->getDeviceContext());
+
+	verticalBlurShader->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader->getSRV());
+	verticalBlurShader->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+	verticalBlurShader->unbind(renderer->getDeviceContext());
+
+
+	horizonalBlurShader->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader->getSRV());
+	horizonalBlurShader->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+	horizonalBlurShader->unbind(renderer->getDeviceContext());
+
+	verticalBlurShader->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader->getSRV());
+	verticalBlurShader->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+	verticalBlurShader->unbind(renderer->getDeviceContext());
+
+	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader->getSRV());
+	computeBlend->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeBlend->unbind(renderer->getDeviceContext());
 
 }
 
@@ -354,9 +391,9 @@ void App1::finalpass()
 	XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
 	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
 
-	orthoMesh->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, computeDownSample->getSRV());
-	textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
+	orthoMesh2->sendData(renderer->getDeviceContext());
+	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, computeBlend->getSRV());
+	textureShader->render(renderer->getDeviceContext(), orthoMesh2->getIndexCount());
 	renderer->setZBuffer(true);
 
 	// Render GUI

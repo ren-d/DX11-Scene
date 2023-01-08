@@ -75,10 +75,16 @@
     <ClCompile Include="HorizontalBlurShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="ComputeDownSample.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ComputeBrightness.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeDownSample.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeUpSample.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeBlend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -132,9 +138,15 @@
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ComputeDownSample.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ComputeBrightness.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeUpSample.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeBlend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -187,22 +199,22 @@
     <FxCompile Include="brightnessMap_vs.hlsl">
       <Filter>Resource Files\Bloom</Filter>
     </FxCompile>
-    <FxCompile Include="horizontalBlur_vs.hlsl">
-      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
-    </FxCompile>
-    <FxCompile Include="horizontalBlur_ps.hlsl">
-      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
-    </FxCompile>
-    <FxCompile Include="verticalBlur_vs.hlsl">
-      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
-    </FxCompile>
-    <FxCompile Include="verticalBlur_ps.hlsl">
-      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
-    </FxCompile>
     <FxCompile Include="downSample_cs.hlsl">
       <Filter>Resource Files\Bloom</Filter>
     </FxCompile>
     <FxCompile Include="brightnessMap_cs.hlsl">
+      <Filter>Resource Files\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="horizontalBlur_cs.hlsl">
+      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
+    </FxCompile>
+    <FxCompile Include="verticalBlur_cs.hlsl">
+      <Filter>Resource Files\Bloom\GaussianBlur</Filter>
+    </FxCompile>
+    <FxCompile Include="upSample_cs.hlsl">
+      <Filter>Resource Files\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="computeBlendTextures_cs.hlsl">
       <Filter>Resource Files\Bloom</Filter>
     </FxCompile>
   </ItemGroup>

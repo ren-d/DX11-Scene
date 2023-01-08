@@ -5,13 +5,14 @@
 using namespace std;
 using namespace DirectX;
 
-class VerticalBlurShader : public BaseShader
+class ComputeBlend :
+	public BaseShader
 {
 public:
-	VerticalBlurShader(ID3D11Device* device, HWND hwnd, int w, int h);
-	~VerticalBlurShader();
+	ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h);
+	~ComputeBlend();
 
-	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1);
+	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2);
 	void createOutputUAV();
 	ID3D11ShaderResourceView* getSRV() { return m_srvTexOutput; };
 	void unbind(ID3D11DeviceContext* dc);
@@ -19,6 +20,7 @@ public:
 
 private:
 	void initShader(const wchar_t* cfile, const wchar_t* blank);
+
 	ID3D11ShaderResourceView* srv;
 	ID3D11UnorderedAccessView* uav;
 
@@ -29,5 +31,5 @@ private:
 
 	int sWidth;
 	int sHeight;
-
 };
+

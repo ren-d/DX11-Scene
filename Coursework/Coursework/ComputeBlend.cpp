@@ -1,24 +1,24 @@
-#include "HorizontalBlurShader.h"
+#include "ComputeBlend.h"
 
-HorizontalBlurShader::HorizontalBlurShader(ID3D11Device* device, HWND hwnd, int w, int h) : BaseShader(device, hwnd)
+ComputeBlend::ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h) : BaseShader(device, hwnd)
 {
 	sWidth = w;
 	sHeight = h;
-	initShader(L"horizontalBlur_cs.cso", NULL);
+	initShader(L"computeBlendTextures_cs.cso", NULL);
 }
 
-HorizontalBlurShader::~HorizontalBlurShader()
+ComputeBlend::~ComputeBlend()
 {
 
 }
 
-void HorizontalBlurShader::initShader(const wchar_t* cfile, const wchar_t* blank)
+void ComputeBlend::initShader(const wchar_t* cfile, const wchar_t* blank)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();
 }
 
-void HorizontalBlurShader::createOutputUAV()
+void ComputeBlend::createOutputUAV()
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
@@ -51,13 +51,14 @@ void HorizontalBlurShader::createOutputUAV()
 	renderer->CreateShaderResourceView(m_tex, &srvDesc, &m_srvTexOutput);
 }
 
-void HorizontalBlurShader::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1)
+void ComputeBlend::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2)
 {
 	dc->CSSetShaderResources(0, 1, &texture1);
+	dc->CSSetShaderResources(1, 1, &texture2);
 	dc->CSSetUnorderedAccessViews(0, 1, &m_uavAccess, 0);
 }
 
-void HorizontalBlurShader::unbind(ID3D11DeviceContext* dc)
+void ComputeBlend::unbind(ID3D11DeviceContext* dc)
 {
 	ID3D11ShaderResourceView* nullSRV[] = { NULL };
 	dc->CSSetShaderResources(0, 1, nullSRV);

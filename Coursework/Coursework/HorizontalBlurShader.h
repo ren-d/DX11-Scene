@@ -1,6 +1,3 @@
-// Horizontal blur shader handler
-// Loads horizontal blur shaders (vs and ps)
-// Passes screen width to shaders, for sample coordinate calculation
 #pragma once
 
 #include "DXF.h"
@@ -10,25 +7,28 @@ using namespace DirectX;
 
 class HorizontalBlurShader : public BaseShader
 {
-private:
-	struct ScreenSizeBufferType
-	{
-		float screenWidth;
-		XMFLOAT3 padding;
-	};
-
 public:
-
-	HorizontalBlurShader(ID3D11Device* device, HWND hwnd);
+	HorizontalBlurShader(ID3D11Device* device, HWND hwnd, int w, int h);
 	~HorizontalBlurShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, float width);
+	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1);
+	void createOutputUAV();
+	ID3D11ShaderResourceView* getSRV() { return m_srvTexOutput; };
+	void unbind(ID3D11DeviceContext* dc);
+
 
 private:
-	void initShader(const wchar_t* vs, const wchar_t* ps);
+	void initShader(const wchar_t* cfile, const wchar_t* blank);
 
-private:
-	ID3D11Buffer* matrixBuffer;
-	ID3D11SamplerState* sampleState;
-	ID3D11Buffer* screenSizeBuffer;
+	ID3D11ShaderResourceView* srv;
+	ID3D11UnorderedAccessView* uav;
+
+	// texture set
+	ID3D11Texture2D* m_tex;
+	ID3D11UnorderedAccessView* m_uavAccess;
+	ID3D11ShaderResourceView* m_srvTexOutput;
+
+	int sWidth;
+	int sHeight;
+
 };

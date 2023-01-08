@@ -5,11 +5,12 @@
 using namespace std;
 using namespace DirectX;
 
-class VerticalBlurShader : public BaseShader
+class ComputeUpSample :
+	public BaseShader
 {
 public:
-	VerticalBlurShader(ID3D11Device* device, HWND hwnd, int w, int h);
-	~VerticalBlurShader();
+	ComputeUpSample(ID3D11Device* device, HWND hwnd, int w, int h);
+	~ComputeUpSample();
 
 	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1);
 	void createOutputUAV();
@@ -19,6 +20,7 @@ public:
 
 private:
 	void initShader(const wchar_t* cfile, const wchar_t* blank);
+
 	ID3D11ShaderResourceView* srv;
 	ID3D11UnorderedAccessView* uav;
 
@@ -29,5 +31,5 @@ private:
 
 	int sWidth;
 	int sHeight;
-
 };
+

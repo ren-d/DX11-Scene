@@ -1,122 +1,71 @@
-// Vertical blur shader
-#include "verticalblurshader.h"
+#include "VerticalBlurShader.h"
 
-
-VerticalBlurShader::VerticalBlurShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+VerticalBlurShader::VerticalBlurShader(ID3D11Device* device, HWND hwnd, int w, int h) : BaseShader(device, hwnd)
 {
-	initShader(L"verticalBlur_vs.cso", L"verticalBlur_ps.cso");
+	sWidth = w;
+	sHeight = h;
+	initShader(L"verticalBlur_cs.cso", NULL);
 }
-
 
 VerticalBlurShader::~VerticalBlurShader()
 {
-	if (sampleState)
-	{
-		sampleState->Release();
-		sampleState = 0;
-	}
-	if (matrixBuffer)
-	{
-		matrixBuffer->Release();
-		matrixBuffer = 0;
-	}
-	if (layout)
-	{
-		layout->Release();
-		layout = 0;
-	}
-	if (screenSizeBuffer)
-	{
-		screenSizeBuffer->Release();
-		screenSizeBuffer = 0;
-	}
 
-	//Release base shader components
-	BaseShader::~BaseShader();
 }
 
-
-void VerticalBlurShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilename)
+void VerticalBlurShader::initShader(const wchar_t* cfile, const wchar_t* blank)
 {
-	D3D11_BUFFER_DESC matrixBufferDesc;
-	D3D11_SAMPLER_DESC samplerDesc;
-	D3D11_BUFFER_DESC screenSizeBufferDesc;
-
-	// Load (+ compile) shader files
-	loadVertexShader(vsFilename);
-	loadPixelShader(psFilename);
-
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
-	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
-
-	// Create a texture sampler state description.
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 1;
-	samplerDesc.BorderColor[1] = 1;
-	samplerDesc.BorderColor[2] = 1;
-	samplerDesc.BorderColor[3] = 1;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	renderer->CreateSamplerState(&samplerDesc, &sampleState);
-
-	// Setup the description of the screen size.
-	screenSizeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	screenSizeBufferDesc.ByteWidth = sizeof(ScreenSizeBufferType);
-	screenSizeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	screenSizeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	screenSizeBufferDesc.MiscFlags = 0;
-	screenSizeBufferDesc.StructureByteStride = 0;
-	renderer->CreateBuffer(&screenSizeBufferDesc, NULL, &screenSizeBuffer);
-
+	loadComputeShader(cfile);
+	createOutputUAV();
 }
 
-
-void VerticalBlurShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, float height)
+void VerticalBlurShader::createOutputUAV()
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBufferType* dataPtr;
-	XMMATRIX tworld, tview, tproj;
+	D3D11_TEXTURE2D_DESC textureDesc;
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+	textureDesc.Width = sWidth;
+	textureDesc.Height = sHeight;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+	m_tex = 0;
+	renderer->CreateTexture2D(&textureDesc, 0, &m_tex);
 
-	// Transpose the matrices to prepare them for the shader.
-	tworld = XMMatrixTranspose(worldMatrix);
-	tview = XMMatrixTranspose(viewMatrix);
-	tproj = XMMatrixTranspose(projectionMatrix);
+	D3D11_UNORDERED_ACCESS_VIEW_DESC descUAV;
+	ZeroMemory(&descUAV, sizeof(descUAV));
+	descUAV.Format = DXGI_FORMAT_R32G32B32A32_FLOAT; ;// DXGI_FORMAT_UNKNOWN;
+	descUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	descUAV.Texture2D.MipSlice = 0;
+	renderer->CreateUnorderedAccessView(m_tex, &descUAV, &m_uavAccess);
 
-	deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
-	dataPtr->world = tworld;// worldMatrix;
-	dataPtr->view = tview;
-	dataPtr->projection = tproj;
-	deviceContext->Unmap(matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0, 1, &matrixBuffer);
-
-	//Additional
-	// Send light data to pixel shader
-	ScreenSizeBufferType* widthPtr;
-	deviceContext->Map(screenSizeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	widthPtr = (ScreenSizeBufferType*)mappedResource.pData;
-	widthPtr->screenHeight = height;
-	widthPtr->padding = XMFLOAT3(1.0f, 1.f, 1.f);
-	deviceContext->Unmap(screenSizeBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &screenSizeBuffer);
-
-	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-	deviceContext->PSSetSamplers(0, 1, &sampleState);
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = textureDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	renderer->CreateShaderResourceView(m_tex, &srvDesc, &m_srvTexOutput);
 }
 
+void VerticalBlurShader::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1)
+{
+	dc->CSSetShaderResources(0, 1, &texture1);
+	dc->CSSetUnorderedAccessViews(0, 1, &m_uavAccess, 0);
+}
 
+void VerticalBlurShader::unbind(ID3D11DeviceContext* dc)
+{
+	ID3D11ShaderResourceView* nullSRV[] = { NULL };
+	dc->CSSetShaderResources(0, 1, nullSRV);
 
+	// Unbind output from compute shader
+	ID3D11UnorderedAccessView* nullUAV[] = { NULL };
+	dc->CSSetUnorderedAccessViews(0, 1, nullUAV, 0);
 
+	// Disable Compute Shader
+	dc->CSSetShader(nullptr, nullptr, 0);
+}
