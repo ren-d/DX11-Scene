@@ -12,6 +12,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
+	bloomIntensity = 0.1f;
+	bloomThreshold = 1.0f;
 	initShadowMaps();
 	initLighting();
 	initTextures();
@@ -23,12 +25,14 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 void App1::initShadowMaps()
 {
-	const int shadowmapWidth = 10024;
-	const int shadowmapHeight = 10024;
+	const int shadowmapWidth = 1280;
+	const int shadowmapHeight = 720;
 	for (int i = 0; i < 4; i++)
 	{
 		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
 	}
+
+
 }
 
 void App1::initLighting()	// Initalise scene lighting.
@@ -140,6 +144,8 @@ void App1::initShaders(HWND hwnd)
 	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, 1200, 675);
 	horizonalBlurShader = new HorizontalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
 	verticalBlurShader = new VerticalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
+	horizonalBlurShader2 = new HorizontalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
+	verticalBlurShader2 = new VerticalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
 	computeUpSample = new ComputeUpSample(renderer->getDevice(), hwnd, 1200, 675);
 	computeBlend = new ComputeBlend(renderer->getDevice(), hwnd, 1200, 675);
 }
@@ -293,7 +299,7 @@ void App1::depthpass()
 void App1::computepass()
 {
 
-	computeBrightness->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView());
+	computeBrightness->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), bloomThreshold);
 	computeBrightness->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeBrightness->unbind(renderer->getDeviceContext());
 
@@ -309,28 +315,22 @@ void App1::computepass()
 	verticalBlurShader->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
 	verticalBlurShader->unbind(renderer->getDeviceContext());
 
+
+
 	computeUpSample->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader->getSRV());
 	computeUpSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeUpSample->unbind(renderer->getDeviceContext());
 
-	horizonalBlurShader->setShaderParameters(renderer->getDeviceContext(), computeUpSample->getSRV());
-	horizonalBlurShader->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
-	horizonalBlurShader->unbind(renderer->getDeviceContext());
 
-	verticalBlurShader->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader->getSRV());
-	verticalBlurShader->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
-	verticalBlurShader->unbind(renderer->getDeviceContext());
+	horizonalBlurShader2->setShaderParameters(renderer->getDeviceContext(), computeUpSample->getSRV());
+	horizonalBlurShader2->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+	horizonalBlurShader2->unbind(renderer->getDeviceContext());
 
+	verticalBlurShader2->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader2->getSRV());
+	verticalBlurShader2->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+	verticalBlurShader2->unbind(renderer->getDeviceContext());
 
-	horizonalBlurShader->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader->getSRV());
-	horizonalBlurShader->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
-	horizonalBlurShader->unbind(renderer->getDeviceContext());
-
-	verticalBlurShader->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader->getSRV());
-	verticalBlurShader->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
-	verticalBlurShader->unbind(renderer->getDeviceContext());
-
-	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader->getSRV());
+	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader2->getSRV(), bloomIntensity);
 	computeBlend->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeBlend->unbind(renderer->getDeviceContext());
 
@@ -340,7 +340,7 @@ void App1::computepass()
 void App1::basepass()
 {
 	renderTexture->setRenderTarget(renderer->getDeviceContext());
-	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.39f, 0.58f, 0.92f, 1.0f);
+	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 	camera->update();
 	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
@@ -527,6 +527,12 @@ void App1::gui()
 		lights[0]->update();
 
 		
+	}
+
+	if (ImGui::CollapsingHeader("Post Processing"))
+	{
+		ImGui::SliderFloat("bloom intensity", &bloomIntensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("bloom threshold", &bloomThreshold, 0.0f, 1.0f);
 	}
 	
 	// Render UI

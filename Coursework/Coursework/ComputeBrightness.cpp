@@ -16,6 +16,17 @@ void ComputeBrightness::initShader(const wchar_t* cfile, const wchar_t* blank)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();
+
+	D3D11_BUFFER_DESC thresholdBufferDesc;
+
+	thresholdBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	thresholdBufferDesc.ByteWidth = sizeof(ThresholdBufferType);
+	thresholdBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	thresholdBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	thresholdBufferDesc.MiscFlags = 0;
+	thresholdBufferDesc.StructureByteStride = 0;
+
+	renderer->CreateBuffer(&thresholdBufferDesc, 0, &thresholdBuffer);
 }
 
 void ComputeBrightness::createOutputUAV()
@@ -51,8 +62,19 @@ void ComputeBrightness::createOutputUAV()
 	renderer->CreateShaderResourceView(m_tex, &srvDesc, &m_srvTexOutput);
 }
 
-void ComputeBrightness::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1)
+void ComputeBrightness::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, float threshold)
 {
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+	ThresholdBufferType* threshPtr;
+	dc->Map(thresholdBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	threshPtr = (ThresholdBufferType*)mappedResource.pData;
+	threshPtr->threshold = XMFLOAT4(threshold, 0, 0, 0);
+
+
+	dc->Unmap(thresholdBuffer, 0);
+	dc->CSSetConstantBuffers(0, 1, &thresholdBuffer);
+
 	dc->CSSetShaderResources(0, 1, &texture1);
 	dc->CSSetUnorderedAccessViews(0, 1, &m_uavAccess, 0);
 }

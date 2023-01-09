@@ -16,14 +16,26 @@ void ComputeBlend::initShader(const wchar_t* cfile, const wchar_t* blank)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();
+
+	D3D11_BUFFER_DESC intensityBufferDesc;
+
+	intensityBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	intensityBufferDesc.ByteWidth = sizeof(IntensityBufferType);
+	intensityBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	intensityBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	intensityBufferDesc.MiscFlags = 0;
+	intensityBufferDesc.StructureByteStride = 0;
+
+
+	renderer->CreateBuffer(&intensityBufferDesc, NULL, &intensityBuffer);
 }
 
 void ComputeBlend::createOutputUAV()
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
-	textureDesc.Width = sWidth;
-	textureDesc.Height = sHeight;
+	textureDesc.Width = sWidth / 1.1;
+	textureDesc.Height = sHeight / 1.1;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -49,10 +61,22 @@ void ComputeBlend::createOutputUAV()
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
 	renderer->CreateShaderResourceView(m_tex, &srvDesc, &m_srvTexOutput);
+
 }
 
-void ComputeBlend::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2)
+void ComputeBlend::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, float intensity)
 {
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+	IntensityBufferType* intenPtr;
+	dc->Map(intensityBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	intenPtr = (IntensityBufferType*)mappedResource.pData;
+	intenPtr->intensity = XMFLOAT4(intensity,0,0,0);
+
+
+	dc->Unmap(intensityBuffer, 0);
+	dc->CSSetConstantBuffers(0, 1, &intensityBuffer);
+
 	dc->CSSetShaderResources(0, 1, &texture1);
 	dc->CSSetShaderResources(1, 1, &texture2);
 	dc->CSSetUnorderedAccessViews(0, 1, &m_uavAccess, 0);

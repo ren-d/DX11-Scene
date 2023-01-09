@@ -68,8 +68,8 @@ private:
 	ComputeBrightness* computeBrightness;
 	ComputeUpSample* computeUpSample;
 	ComputeBlend* computeBlend;
-	HorizontalBlurShader* horizonalBlurShader;
-	VerticalBlurShader* verticalBlurShader;
+	HorizontalBlurShader* horizonalBlurShader, * horizonalBlurShader2;
+	VerticalBlurShader* verticalBlurShader, * verticalBlurShader2;
 	RenderTexture* renderTexture, *renderTexture2;
 	float lightOneColour[MAX_LIGHTS];
 	float lightTwoColour[MAX_LIGHTS];
@@ -90,6 +90,7 @@ private:
 	float waveThreeDir[2];
 	float waveFourDir[2];
 	
+	float bloomIntensity, bloomThreshold;
 };
 
 #endif

@@ -9,10 +9,15 @@ class ComputeBrightness :
 	public BaseShader
 {
 public:
+
+	struct ThresholdBufferType
+	{
+		XMFLOAT4 threshold;
+	};
 	ComputeBrightness(ID3D11Device* device, HWND hwnd, int w, int h);
 	~ComputeBrightness();
 
-	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1);
+	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, float threshold);
 	void createOutputUAV();
 	ID3D11ShaderResourceView* getSRV() { return m_srvTexOutput; };
 	void unbind(ID3D11DeviceContext* dc);
@@ -28,7 +33,7 @@ private:
 	ID3D11Texture2D* m_tex;
 	ID3D11UnorderedAccessView* m_uavAccess;
 	ID3D11ShaderResourceView* m_srvTexOutput;
-
+	ID3D11Buffer* thresholdBuffer;
 	int sWidth;
 	int sHeight;
 };
