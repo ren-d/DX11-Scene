@@ -14,6 +14,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	bloomIntensity = 0.1f;
 	bloomThreshold = 1.0f;
+	waterTessellation = 1.0f;
+	viewMode = 1;
 	initShadowMaps();
 	initLighting();
 	initTextures();
@@ -45,7 +47,7 @@ void App1::initLighting()	// Initalise scene lighting.
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[0]->setPosition(59.f, 36.f, 65.0f);
 	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[0]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[0]->setDiffuseColour(0.4f, 0.4f, 0.7f, 1.0f);
 	lights[0]->setDirection(-0.450f, -0.7f, 0.0f);
 	lights[0]->setSpecularPower(100.0f);
 	lights[0]->setConstantFactor(1.0f);
@@ -121,7 +123,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 {
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 2, *screenHeight / 2, *screenWidth / 2.7, -*screenHeight / 2.7);
 	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
-	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	cube = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
 
@@ -140,7 +142,8 @@ void App1::initShaders(HWND hwnd)
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
-	computeDownSample = new ComputeDownSample(renderer->getDevice(), hwnd, 1200, 675);
+	colourShader = new ColourShader(renderer->getDevice(), hwnd);
+	computeDownSample = new ComputeDownSample(renderer->getDevice(), hwnd, 1200 , 675);
 	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, 1200, 675);
 	horizonalBlurShader = new HorizontalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
 	verticalBlurShader = new VerticalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
@@ -148,6 +151,8 @@ void App1::initShaders(HWND hwnd)
 	verticalBlurShader2 = new VerticalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
 	computeUpSample = new ComputeUpSample(renderer->getDevice(), hwnd, 1200, 675);
 	computeBlend = new ComputeBlend(renderer->getDevice(), hwnd, 1200, 675);
+	computeDownSample2 = new ComputeDownSample(renderer->getDevice(), hwnd, 1200, 675);
+	computeUpSample2 = new ComputeUpSample(renderer->getDevice(), hwnd, 1200, 675);
 }
 
 void App1::initGUI() // Setup GUI Variables
@@ -214,11 +219,30 @@ bool App1::render()
 	// Generate the view matrix based on the camera's position.
 
 
-	depthpass();
-	basepass();
-	computepass();
-	finalpass();
-	// Render GUI
+	switch (viewMode)
+	{
+	case 1:
+		depthpass();
+		renderTexture->setRenderTarget(renderer->getDeviceContext());
+		renderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 0.0f, 0.0f);
+		basepass();
+		computepass();
+		finalpass();
+
+		break;
+	default:
+		renderer->beginScene(0.39f, 0.58f, 0.92f, 1.0f);
+		depthpass();
+		basepass();
+		// Render GUI
+		gui();
+
+		// Present the rendered scene to the screen.
+		renderer->endScene();
+		break;
+	}
+
+
 
 
 	// Present the rendered scene to the screen.
@@ -316,13 +340,13 @@ void App1::computepass()
 	verticalBlurShader->unbind(renderer->getDeviceContext());
 
 
+	computeDownSample2->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader->getSRV());
+	computeDownSample2->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeDownSample2->unbind(renderer->getDeviceContext());
 
-	computeUpSample->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader->getSRV());
-	computeUpSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
-	computeUpSample->unbind(renderer->getDeviceContext());
 
 
-	horizonalBlurShader2->setShaderParameters(renderer->getDeviceContext(), computeUpSample->getSRV());
+	horizonalBlurShader2->setShaderParameters(renderer->getDeviceContext(), computeDownSample2->getSRV());
 	horizonalBlurShader2->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
 	horizonalBlurShader2->unbind(renderer->getDeviceContext());
 
@@ -330,7 +354,17 @@ void App1::computepass()
 	verticalBlurShader2->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
 	verticalBlurShader2->unbind(renderer->getDeviceContext());
 
-	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader2->getSRV(), bloomIntensity);
+
+	computeUpSample->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader2->getSRV());
+	computeUpSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeUpSample->unbind(renderer->getDeviceContext());
+
+
+	computeUpSample2->setShaderParameters(renderer->getDeviceContext(), computeUpSample->getSRV());
+	computeUpSample2->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeUpSample2->unbind(renderer->getDeviceContext());
+
+	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), computeUpSample2->getSRV(), bloomIntensity);
 	computeBlend->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeBlend->unbind(renderer->getDeviceContext());
 
@@ -339,8 +373,8 @@ void App1::computepass()
 
 void App1::basepass()
 {
-	renderTexture->setRenderTarget(renderer->getDeviceContext());
-	renderTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+
 	camera->update();
 	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
@@ -348,7 +382,7 @@ void App1::basepass()
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
 
-	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera);
+	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera, waterTessellation, viewMode);
 
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 	worldMatrix *= XMMatrixTranslation(60, 1, 40);
@@ -356,10 +390,14 @@ void App1::basepass()
 	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps);
 
 
-	worldMatrix = XMMatrixTranslation(lights[3]->getPosition().x, lights[3]->getPosition().y, lights[3]->getPosition().z);
-	sphere->sendData(renderer->getDeviceContext());
-	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"water"));
-	textureShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
+	for (int i = 0; i < 4; i++)
+	{
+		worldMatrix = XMMatrixTranslation(lights[i]->getPosition().x, lights[i]->getPosition().y, lights[i]->getPosition().z);
+		cube->sendData(renderer->getDeviceContext());
+		colourShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, lights[i]->getDiffuseColour());
+		colourShader->render(renderer->getDeviceContext(), cube->getIndexCount());
+	}
+
 	
 	if (displayShadowMaps)
 	{
@@ -375,7 +413,7 @@ void App1::basepass()
 	}
 	
 	renderer->setBackBufferRenderTarget();
-	renderer->resetViewport();
+
 }
 
 
@@ -415,9 +453,14 @@ void App1::gui()
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
 
+	const char* LIST_ITEMS[] = { "Base", "Shaders", "UV", "Normals" };
+
+	ImGui::ListBox("View Mode", &viewMode, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 4);
+
 	// Water GUI
 	if (ImGui::CollapsingHeader("water"))
 	{
+		ImGui::SliderFloat("Tessellation", &waterTessellation, 0, 20);
 		if (ImGui::CollapsingHeader("wave 1"))
 		{
 			ImGui::SliderFloat2("Direction1", waveOneDir, -1.0f, 1.0f);
@@ -449,7 +492,7 @@ void App1::gui()
 	}
 
 	// Lighting GUI
-	const char* LIST_ITEMS[] = { "Directional", "Point", "Spot" };
+	const char* LIGHT_ITEMS[] = { "Directional", "Point", "Spot" };
 	if(ImGui::CollapsingHeader("lights"))
 	{
 		ImGui::ColorEdit4("ambient", lights[0]->getAmbientColourFloatArray());
@@ -486,7 +529,7 @@ void App1::gui()
 			{
 				
 				int currentSelection = (int)lights[i]->getLightType();
-				ImGui::ListBox(listboxName.c_str() , &currentSelection, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 3);
+				ImGui::ListBox(listboxName.c_str() , &currentSelection, LIGHT_ITEMS, IM_ARRAYSIZE(LIGHT_ITEMS), 3);
 				switch (currentSelection)
 				{
 				case 0:

@@ -12,6 +12,12 @@ class WaterShader :
 {
     
 public:
+
+    struct MiscParamType
+    {
+        XMFLOAT4 viewMode;
+    };
+
     // Buffer Type structs
     struct WaterBufferType
     {
@@ -62,7 +68,9 @@ public:
         float timeInSeconds, 
         LightSource* lights[4], 
         Wave* waves[4], 
-        Camera* camera
+        Camera* camera,
+        float tessellation, 
+        int viewMode
     );
 
 private:
@@ -76,6 +84,7 @@ private:
     ID3D11Buffer* cameraBuffer;
     ID3D11Buffer* shadowBuffer;
     ID3D11Buffer* tessellationBuffer;
+    ID3D11Buffer* miscParamBuffer;
     ID3D11SamplerState* sampleState;
     ID3D11SamplerState* shadowSampleState;
     ID3D11UnorderedAccessView* uav;

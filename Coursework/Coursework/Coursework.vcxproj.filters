@@ -87,6 +87,9 @@
     <ClCompile Include="ComputeBlend.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="ColourShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="ComputeBlend.h">
       <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ColourShader.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -216,6 +222,12 @@
     </FxCompile>
     <FxCompile Include="computeBlendTextures_cs.hlsl">
       <Filter>Resource Files\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="colour_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="colour_ps.hlsl">
+      <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

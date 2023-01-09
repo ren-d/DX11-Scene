@@ -140,6 +140,16 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 
 	renderer->CreateBuffer(&tessellationBufferDesc, NULL, &tessellationBuffer);
 
+	D3D11_BUFFER_DESC miscParamBufferDesc;
+	miscParamBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	miscParamBufferDesc.ByteWidth = sizeof(MiscParamType);
+	miscParamBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	miscParamBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	miscParamBufferDesc.MiscFlags = 0;
+	miscParamBufferDesc.StructureByteStride = 0;
+
+	renderer->CreateBuffer(&miscParamBufferDesc, NULL, &miscParamBuffer);
+
 }
 
 void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* psFilename)
@@ -152,7 +162,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* hsFilenam
 	loadDomainShader(dsFilename);
 }
 
-void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float timeInSeconds, LightSource* lights[4], Wave* waves[4], Camera* camera)
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float timeInSeconds, LightSource* lights[4], Wave* waves[4], Camera* camera, float tessellation, int viewMode)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -257,13 +267,20 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	// Send Tessellation Data
 	result = deviceContext->Map(tessellationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	TessellationBufferType* tessPtr = (TessellationBufferType*)mappedResource.pData;
-	tessPtr->tessellation = XMFLOAT4(1.0f,0.0f,0.0f,0.0f);
+	tessPtr->tessellation = XMFLOAT4(tessellation,0.0f,0.0f,0.0f);
 	tessPtr->camera = XMFLOAT4(camera->getPosition().x, camera->getPosition().y, camera->getPosition().z, 1.0f);
 	tessPtr->cameraDir = XMFLOAT4(camera->getRotation().x, camera->getRotation().y, camera->getRotation().z, 1.0f);
 	deviceContext->Unmap(tessellationBuffer, 0);
 	deviceContext->HSSetConstantBuffers(0, 1, &tessellationBuffer);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
 
+
+	result = deviceContext->Map(miscParamBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	MiscParamType* miscParamPtr = (MiscParamType*)mappedResource.pData;
+	miscParamPtr->viewMode = XMFLOAT4(viewMode, 0.0f, 0.0f, 0.0f);
+
+	deviceContext->Unmap(miscParamBuffer, 0);
+	deviceContext->PSSetConstantBuffers(3, 1, &miscParamBuffer);
 	// __Textures and Samplers__
 	
 	// Set shader texture and sampler resource in the pixel shader.

@@ -27,6 +27,11 @@ cbuffer CameraBuffer : register(b2)
     float4 cameraDirection;
 }
 
+cbuffer MiscParamBuffer : register(b3)
+{
+    float4 viewMode;
+}
+
 struct InputType
 {
     float4 position : SV_POSITION;
@@ -264,10 +269,27 @@ float4 main(InputType input) : SV_TARGET
     float3 newNormals;
 
     
+    switch (viewMode.x)
+    {
+        case 0:
+       
+        case 1:
+            lightColour = calculateFinalLighting(4, input.normal, input.worldPosition, input.lightViewPos);
     
-    lightColour = calculateFinalLighting(4, input.normal, input.worldPosition, input.lightViewPos);
-    
-    textureColour = texture0.Sample(Sampler0, input.tex);
+            textureColour = texture0.Sample(Sampler0, input.tex);
+
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
-    return lightColour * textureColour;
+            return lightColour * textureColour;
+            break;
+        case 2:
+            return float4(input.tex.x, input.tex.y, 0.0f, 1.0f);
+            break;
+        case 3:
+            return float4(input.normal.x, input.normal.y, input.normal.z, 1.0f);
+            break;
+    }
+   
+    
+    return float4(1.0f, 0.0f, 1.0f, 1.0f);
+
 }

@@ -20,6 +20,7 @@
 #include "VerticalBlurShader.h"
 #include "ComputeUpSample.h"
 #include "ComputeBlend.h"
+#include "ColourShader.h"
 class App1 : public BaseApplication
 {
 public:
@@ -58,15 +59,15 @@ private:
 	ModelShader* modelShader;
 	DepthShader* depthShader;
 	TextureShader* textureShader;
-	
+	ColourShader* colourShader;
 	OrthoMesh* orthoMesh, *orthoMesh2;
 	Water* water;
-	SceneObject* cube;
-	SphereMesh* sphere;
+
+	CubeMesh* cube;
 	LightSource* lights[MAX_LIGHTS];
-	ComputeDownSample* computeDownSample;
+	ComputeDownSample* computeDownSample, *computeDownSample2;
 	ComputeBrightness* computeBrightness;
-	ComputeUpSample* computeUpSample;
+	ComputeUpSample* computeUpSample, *computeUpSample2;
 	ComputeBlend* computeBlend;
 	HorizontalBlurShader* horizonalBlurShader, * horizonalBlurShader2;
 	VerticalBlurShader* verticalBlurShader, * verticalBlurShader2;
@@ -79,7 +80,8 @@ private:
 
 	ShadowMap* shadowMaps[4];
 	bool displayShadowMaps;
-
+	
+	int viewMode;
 	
 	float timeInSeconds;
 
@@ -90,7 +92,7 @@ private:
 	float waveThreeDir[2];
 	float waveFourDir[2];
 	
-	float bloomIntensity, bloomThreshold;
+	float bloomIntensity, bloomThreshold, waterTessellation;
 };
 
 #endif
