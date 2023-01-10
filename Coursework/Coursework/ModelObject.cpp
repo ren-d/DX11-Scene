@@ -18,7 +18,7 @@ ModelObject::~ModelObject()
 
 
 
-void ModelObject::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, LightSource* lights[4], Camera* camera, ShadowMap* shadowMaps[2], int viewMode)
+void ModelObject::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ModelShader* shader, LightSource* lights[4], Camera* camera, ShadowMap* shadowMaps[4], int viewMode)
 {
 
 	m_model->sendData(m_deviceContext);

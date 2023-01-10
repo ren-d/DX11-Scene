@@ -34,8 +34,8 @@ public:
 
     struct ShadowBufferType
     {
-        XMMATRIX lightViewMatrix[2];
-        XMMATRIX lightProjectionMatrix[2];
+        XMMATRIX lightViewMatrix[4];
+        XMMATRIX lightProjectionMatrix[4];
     };
 
     
@@ -47,7 +47,7 @@ public:
         ID3D11DeviceContext* deviceContext, 
         const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, 
         ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, 
-        ShadowMap* depthMaps[2],
+        ShadowMap* depthMaps[4],
         LightSource* lights[4], 
         Camera* camera,
         int viewMode

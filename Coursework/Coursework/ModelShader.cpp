@@ -82,7 +82,7 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	renderer->CreateBuffer(&cameraBufferDesc, NULL, &cameraBuffer);
 
 	shadowBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	shadowBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	shadowBufferDesc.ByteWidth = sizeof(ShadowBufferType);
 	shadowBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	shadowBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	shadowBufferDesc.MiscFlags = 0;
@@ -131,7 +131,7 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, ShadowMap* depthMaps[2], LightSource* lights[4], Camera* camera, int viewMode)
+void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, ShadowMap* depthMaps[4], LightSource* lights[4], Camera* camera, int viewMode)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -166,8 +166,13 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 		switch (lights[i]->getLightType())
 		{
 		case 0:
-			shadowPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[i]->getViewMatrix());
-			shadowPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
+			shadowPtr->lightViewMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			break;
+		case 1:
+			// CHANGE
+			shadowPtr->lightViewMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[i] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
 			break;
 		case 2:
 			float fov = XMConvertToRadians(*lights[i]->getOuterCone() * 2.0f);
@@ -224,8 +229,9 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalTexture);
 	deviceContext->PSSetShaderResources(2, 1, &specTexture);
-	ID3D11ShaderResourceView* depth[] = { depthMaps[0]->getDepthMapSRV(), depthMaps[1]->getDepthMapSRV() };
-	deviceContext->PSSetShaderResources(3, 2, depth);
+
+	ID3D11ShaderResourceView* depth[] = { depthMaps[0]->getDepthMapSRV(), depthMaps[1]->getDepthMapSRV(), depthMaps[2]->getDepthMapSRV(), depthMaps[3]->getDepthMapSRV() };
+	deviceContext->PSSetShaderResources(3, 4, depth);
 
 
 	deviceContext->PSSetSamplers(0, 1, &sampleState);

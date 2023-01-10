@@ -97,7 +97,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 
 	D3D11_BUFFER_DESC shadowBufferDesc;
 	shadowBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	shadowBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	shadowBufferDesc.ByteWidth = sizeof(ShadowBufferType);
 	shadowBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	shadowBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	shadowBufferDesc.MiscFlags = 0;
@@ -162,7 +162,7 @@ void WaterShader::initShader(const wchar_t* vsFilename, const wchar_t* hsFilenam
 	loadDomainShader(dsFilename);
 }
 
-void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[2], float timeInSeconds, LightSource* lights[4], Wave* waves[4], Camera* camera, float tessellation, int viewMode)
+void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], ShadowMap* depthMaps[4], float timeInSeconds, LightSource* lights[4], Wave* waves[4], Camera* camera, float tessellation, int viewMode)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -215,13 +215,18 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 		switch (lights[i]->getLightType())
 		{
 		case 0:
-			shadowPtr->lightViewMatrix[0] = XMMatrixTranspose(lights[i]->getViewMatrix());
-			shadowPtr->lightProjectionMatrix[0] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
+			shadowPtr->lightViewMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[i] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
+			break;
+		case 1:
+			// CHANGE
+			shadowPtr->lightViewMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[i] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
 			break;
 		case 2:
 			float fov = XMConvertToRadians(*lights[i]->getOuterCone() * 2.0f);
-			shadowPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[i]->getViewMatrix());
-			shadowPtr->lightProjectionMatrix[1] = XMMatrixTranspose(XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f));
+			shadowPtr->lightViewMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[i] = XMMatrixTranspose(XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f));
 			break;
 		}
 	}
@@ -287,8 +292,8 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalMap[0]);
 	deviceContext->PSSetShaderResources(2, 1, &normalMap[1]);
-	ID3D11ShaderResourceView* depth[] = { depthMaps[0]->getDepthMapSRV(), depthMaps[1]->getDepthMapSRV() };
-	deviceContext->PSSetShaderResources(3, 2, depth);
+	ID3D11ShaderResourceView* depth[] = { depthMaps[0]->getDepthMapSRV(), depthMaps[1]->getDepthMapSRV(), depthMaps[2]->getDepthMapSRV(), depthMaps[3]->getDepthMapSRV() };
+	deviceContext->PSSetShaderResources(3,4, depth);
 
 	deviceContext->PSSetSamplers(0, 1, &sampleState);
 	deviceContext->PSSetSamplers(1, 1, &shadowSampleState);

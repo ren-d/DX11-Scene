@@ -12,7 +12,7 @@ public:
 	~Water();
 
 	void initWaves();
-	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[2], float timeInSeconds, Camera* camera, float tessellation, int viewMode);
+	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[4], float timeInSeconds, Camera* camera, float tessellation, int viewMode);
 	void renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterDepthShader* shader, float timeInSeconds, Camera* camera);
 
 	Wave* getWave(int id);

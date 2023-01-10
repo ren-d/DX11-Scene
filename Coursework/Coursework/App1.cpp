@@ -251,13 +251,14 @@ bool App1::render()
 		renderer->beginScene(0.39f, 0.58f, 0.92f, 1.0f);
 		depthpass();
 		basepass();
-		// Render GUI
-		gui();
-
-		// Present the rendered scene to the screen.
-		renderer->endScene();
+		
 		break;
 	}
+
+	gui();
+
+	// Present the rendered scene to the screen.
+	renderer->endScene();
 
 
 
@@ -270,19 +271,14 @@ bool App1::render()
 
 void App1::depthpass()
 {
-	bool hasDirectional = false;
-	bool hasSpotlight = false;
+
 	XMMATRIX lightViewMatrix, lightProjectionMatrix, worldMatrix;
 	for (int i = 0; i < 4; i++)
 	{
 		switch (static_cast<LightSource::LType>(lights[i]->getLightType()))
 		{
 		case LightSource::LType::DIRECTIONAL:
-			if (hasDirectional)
-			{
-				break;
-			}
-			shadowMaps[0]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+			shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 			lights[i]->generateViewMatrix();
 
 
@@ -301,14 +297,32 @@ void App1::depthpass()
 
 			renderer->setBackBufferRenderTarget();
 			renderer->resetViewport();
-			hasDirectional = true;
+
+			break;
+		case LightSource::LType::POINT:
+			shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+			lights[i]->generateViewMatrix();
+
+
+
+			lightViewMatrix = lights[i]->getViewMatrix();
+			lightProjectionMatrix = lights[i]->getOrthoMatrix();
+			worldMatrix = renderer->getWorldMatrix();
+
+			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
+
+
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(60, 1, 40);
+
+			boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+
+			renderer->setBackBufferRenderTarget();
+			renderer->resetViewport();
 			break;
 		case LightSource::LType::SPOTLIGHT:
-			if (hasSpotlight)
-			{
-				break;
-			}
-			shadowMaps[1]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+                         
+			shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 			lights[i]->generateViewMatrix();
 			float fov = XMConvertToRadians(*lights[i]->getOuterCone()) * 2.0f;
 
@@ -327,7 +341,6 @@ void App1::depthpass()
 
 			renderer->setBackBufferRenderTarget();
 			renderer->resetViewport();
-			hasSpotlight = true;
 			break;
 		}
 		
@@ -436,7 +449,7 @@ void App1::basepass()
 		XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
 		XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
 		orthoMesh->sendData(renderer->getDeviceContext());
-		textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[0]->getDepthMapSRV());
+		textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[2]->getDepthMapSRV());
 		textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
 		renderer->setZBuffer(true);
 	}
@@ -464,10 +477,7 @@ void App1::finalpass()
 	renderer->setZBuffer(true);
 
 	// Render GUI
-	gui();
 
-	// Present the rendered scene to the screen.
-	renderer->endScene();
 }
 
 

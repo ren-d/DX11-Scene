@@ -17,8 +17,8 @@ cbuffer WaveBuffer : register(b1)
 
 cbuffer ShadowBuffer : register(b2)
 {
-    matrix lightViewMatrix[2];
-    matrix lightProjectionMatrix[2];
+    matrix lightViewMatrix[4];
+    matrix lightProjectionMatrix[4];
 }
 
 struct ConstantOutputType
@@ -43,7 +43,7 @@ struct OutputType
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAl;
-    float4 lightViewPos[2] : TEXCOORD1;
+    float4 lightViewPos[4] : TEXCOORD1;
 };
 
 static float PI = 3.14159265f;
@@ -129,13 +129,14 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
     output.position = mul(output.position, projectionMatrix);
     
     
-    output.lightViewPos[0] = mul(float4(vertexPosition, 1.0f), worldMatrix);
-    output.lightViewPos[0] = mul(output.lightViewPos[0], lightViewMatrix[0]);
-    output.lightViewPos[0] = mul(output.lightViewPos[0], lightProjectionMatrix[0]);
+    for (int i = 0; i < 4; i++)
+    {
+        output.lightViewPos[i] = mul(float4(vertexPosition, 1.0f), worldMatrix);
+        output.lightViewPos[i] = mul(output.lightViewPos[i], lightViewMatrix[i]);
+        output.lightViewPos[i] = mul(output.lightViewPos[i], lightProjectionMatrix[i]);
     
-    output.lightViewPos[1] = mul(float4(vertexPosition, 1.0f), worldMatrix);
-    output.lightViewPos[1] = mul(output.lightViewPos[1], lightViewMatrix[1]);
-    output.lightViewPos[1] = mul(output.lightViewPos[1], lightProjectionMatrix[1]);
+    }
+
         
     output.normal = mul(vertexnormal, (float3x3) worldMatrix);
 
