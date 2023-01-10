@@ -63,14 +63,14 @@ private:
 	OrthoMesh* orthoMesh, *orthoMesh2;
 	Water* water;
 
-	CubeMesh* cube;
+	SphereMesh* sphere;
 	LightSource* lights[MAX_LIGHTS];
-	ComputeDownSample* computeDownSample, *computeDownSample2;
+	ComputeDownSample* computeDownSample[3];
 	ComputeBrightness* computeBrightness;
-	ComputeUpSample* computeUpSample, *computeUpSample2;
+	ComputeUpSample* computeUpSample[3];
 	ComputeBlend* computeBlend;
-	HorizontalBlurShader* horizonalBlurShader, * horizonalBlurShader2;
-	VerticalBlurShader* verticalBlurShader, * verticalBlurShader2;
+	HorizontalBlurShader* horizonalBlurShader[4];
+	VerticalBlurShader* verticalBlurShader[4];
 	RenderTexture* renderTexture, *renderTexture2;
 	float lightOneColour[MAX_LIGHTS];
 	float lightTwoColour[MAX_LIGHTS];

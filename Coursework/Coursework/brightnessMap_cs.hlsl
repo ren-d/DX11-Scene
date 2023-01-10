@@ -11,20 +11,21 @@ cbuffer ThresholdBuffer : register(b0)
 void main(uint3 DispatchThreadID : SV_DispatchThreadID)
 {
     uint2 inPixel = uint2(DispatchThreadID.x, DispatchThreadID.y);
+    float3 luminance = float3(0.2126, 0.7152, 0.0722);
     
-    float4 Old = float4(inputTexture[inPixel].rgb, 1.0f);
-    float brightnees = dot(Old.rgb, float3(0.2126, 0.7152, 0.0722));
+    float pixelBrightness = (dot(inputTexture[inPixel].rgb, luminance));
     
-
-    if (brightnees > threshold.x)
+    bool isPastThreshold = pixelBrightness > threshold.x;
+    
+    switch (isPastThreshold)
     {
-        outputTex[inPixel] = inputTexture[inPixel];
+        case true:
+            outputTex[inPixel] = inputTexture[inPixel];
+            break;
+        case false:
+            outputTex[inPixel] = float4(0, 0, 0, 0);
+            break;
     }
-    else
-    {
-        outputTex[inPixel] = float4(0, 0, 0, 0);
 
-    }
-    
         
 }

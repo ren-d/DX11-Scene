@@ -123,7 +123,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 {
 	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 2, *screenHeight / 2, *screenWidth / 2.7, -*screenHeight / 2.7);
 	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
-	cube = new CubeMesh(renderer->getDevice(), renderer->getDeviceContext());
+	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
 
@@ -143,16 +143,33 @@ void App1::initShaders(HWND hwnd)
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
 	colourShader = new ColourShader(renderer->getDevice(), hwnd);
-	computeDownSample = new ComputeDownSample(renderer->getDevice(), hwnd, 1200 , 675);
-	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, 1200, 675);
-	horizonalBlurShader = new HorizontalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
-	verticalBlurShader = new VerticalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
-	horizonalBlurShader2 = new HorizontalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
-	verticalBlurShader2 = new VerticalBlurShader(renderer->getDevice(), hwnd, 1200, 675);
-	computeUpSample = new ComputeUpSample(renderer->getDevice(), hwnd, 1200, 675);
-	computeBlend = new ComputeBlend(renderer->getDevice(), hwnd, 1200, 675);
-	computeDownSample2 = new ComputeDownSample(renderer->getDevice(), hwnd, 1200, 675);
-	computeUpSample2 = new ComputeUpSample(renderer->getDevice(), hwnd, 1200, 675);
+
+
+
+
+	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, sWidth, sHeight);
+
+	computeDownSample[0] = new ComputeDownSample(renderer->getDevice(), hwnd, ceil(sWidth/2) , ceil(sHeight/2));
+	computeDownSample[1] = new ComputeDownSample(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
+	computeDownSample[2] = new ComputeDownSample(renderer->getDevice(), hwnd, ceil(sWidth / 6), ceil(sHeight / 6));
+
+	computeUpSample[0] = new ComputeUpSample(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
+	computeUpSample[1] = new ComputeUpSample(renderer->getDevice(), hwnd, ceil(sWidth / 2), ceil(sHeight / 2));
+	computeUpSample[2] = new ComputeUpSample(renderer->getDevice(), hwnd, sWidth, sHeight);
+
+	horizonalBlurShader[0] = new HorizontalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 6), ceil(sHeight / 6));
+	verticalBlurShader[0] = new VerticalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 6), ceil(sHeight / 6));
+	horizonalBlurShader[1] = new HorizontalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
+	verticalBlurShader[1] = new VerticalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
+	horizonalBlurShader[2] = new HorizontalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 2), ceil(sHeight / 2));
+	verticalBlurShader[2] = new VerticalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 2), ceil(sHeight / 2));
+	horizonalBlurShader[3] = new HorizontalBlurShader(renderer->getDevice(), hwnd, sWidth, sHeight);
+	verticalBlurShader[3] = new VerticalBlurShader(renderer->getDevice(), hwnd, sWidth, sHeight);
+
+
+	computeBlend = new ComputeBlend(renderer->getDevice(), hwnd, sWidth, sHeight);
+
+
 }
 
 void App1::initGUI() // Setup GUI Variables
@@ -327,44 +344,56 @@ void App1::computepass()
 	computeBrightness->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeBrightness->unbind(renderer->getDeviceContext());
 
-	computeDownSample->setShaderParameters(renderer->getDeviceContext(), computeBrightness->getSRV());
-	computeDownSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
-	computeDownSample->unbind(renderer->getDeviceContext());
 
-	horizonalBlurShader->setShaderParameters(renderer->getDeviceContext(), computeDownSample->getSRV());
-	horizonalBlurShader->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
-	horizonalBlurShader->unbind(renderer->getDeviceContext());
-
-	verticalBlurShader->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader->getSRV());
-	verticalBlurShader->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
-	verticalBlurShader->unbind(renderer->getDeviceContext());
-
-
-	computeDownSample2->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader->getSRV());
-	computeDownSample2->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
-	computeDownSample2->unbind(renderer->getDeviceContext());
-
+	for (int i = 0; i < 3; i++)
+	{
+		if (i == 0)
+		{
+			computeDownSample[0]->setShaderParameters(renderer->getDeviceContext(), computeBrightness->getSRV());
+			computeDownSample[0]->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+			computeDownSample[0]->unbind(renderer->getDeviceContext());
+		}
+		else
+		{
+			computeDownSample[i]->setShaderParameters(renderer->getDeviceContext(), computeDownSample[i-1]->getSRV());
+			computeDownSample[i]->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+			computeDownSample[i]->unbind(renderer->getDeviceContext());
+		}
 
 
-	horizonalBlurShader2->setShaderParameters(renderer->getDeviceContext(), computeDownSample2->getSRV());
-	horizonalBlurShader2->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
-	horizonalBlurShader2->unbind(renderer->getDeviceContext());
 
-	verticalBlurShader2->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader2->getSRV());
-	verticalBlurShader2->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
-	verticalBlurShader2->unbind(renderer->getDeviceContext());
+	}
+
+	horizonalBlurShader[0]->setShaderParameters(renderer->getDeviceContext(), computeDownSample[2]->getSRV());
+	horizonalBlurShader[0]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+	horizonalBlurShader[0]->unbind(renderer->getDeviceContext());
+
+	verticalBlurShader[0]->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader[0]->getSRV());
+	verticalBlurShader[0]->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+	verticalBlurShader[0]->unbind(renderer->getDeviceContext());
+
+	for (int i = 0; i < 3; i++)
+	{
+
+		computeUpSample[i]->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader[i]->getSRV());
+		computeUpSample[i]->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+		computeUpSample[i]->unbind(renderer->getDeviceContext());
+
+		horizonalBlurShader[i+1]->setShaderParameters(renderer->getDeviceContext(), computeUpSample[i]->getSRV());
+		horizonalBlurShader[i+1]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+		horizonalBlurShader[i+1]->unbind(renderer->getDeviceContext());
+
+		verticalBlurShader[i+1]->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader[i+1]->getSRV());
+		verticalBlurShader[i+1]->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+		verticalBlurShader[i+1]->unbind(renderer->getDeviceContext());
 
 
-	computeUpSample->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader2->getSRV());
-	computeUpSample->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
-	computeUpSample->unbind(renderer->getDeviceContext());
 
+	}
 
-	computeUpSample2->setShaderParameters(renderer->getDeviceContext(), computeUpSample->getSRV());
-	computeUpSample2->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
-	computeUpSample2->unbind(renderer->getDeviceContext());
+	
 
-	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), computeUpSample2->getSRV(), bloomIntensity);
+	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader[3]->getSRV(), bloomIntensity);
 	computeBlend->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeBlend->unbind(renderer->getDeviceContext());
 
@@ -393,9 +422,9 @@ void App1::basepass()
 	for (int i = 0; i < 4; i++)
 	{
 		worldMatrix = XMMatrixTranslation(lights[i]->getPosition().x, lights[i]->getPosition().y, lights[i]->getPosition().z);
-		cube->sendData(renderer->getDeviceContext());
+		sphere->sendData(renderer->getDeviceContext());
 		colourShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, lights[i]->getDiffuseColour());
-		colourShader->render(renderer->getDeviceContext(), cube->getIndexCount());
+		colourShader->render(renderer->getDeviceContext(), sphere->getIndexCount());
 	}
 
 	
@@ -456,6 +485,7 @@ void App1::gui()
 	{
 		viewMode = 0;
 	}
+
 	const char* LIST_ITEMS[] = { "Base", "Shaders", "UV", "Normals" };
 
 	ImGui::ListBox("View Mode", &viewMode, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 4);

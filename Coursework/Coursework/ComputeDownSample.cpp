@@ -16,6 +16,8 @@ void ComputeDownSample::initShader(const wchar_t* cfile, const wchar_t* blank)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();
+
+
 }
 
 void ComputeDownSample::createOutputUAV()
