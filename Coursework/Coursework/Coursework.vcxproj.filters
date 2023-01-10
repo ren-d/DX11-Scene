@@ -153,7 +153,7 @@
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ColourShader.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

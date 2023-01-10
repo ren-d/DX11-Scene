@@ -117,10 +117,21 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	renderer->CreateSamplerState(&samplerDesc, &shadowSampleState);
 
 
+	D3D11_BUFFER_DESC miscParamBufferDesc;
+	miscParamBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	miscParamBufferDesc.ByteWidth = sizeof(MiscParamType);
+	miscParamBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	miscParamBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	miscParamBufferDesc.MiscFlags = 0;
+	miscParamBufferDesc.StructureByteStride = 0;
+
+	renderer->CreateBuffer(&miscParamBufferDesc, NULL, &miscParamBuffer);
+
+
 }
 
 
-void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, ShadowMap* depthMaps[2], LightSource* lights[4], Camera* camera)
+void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, ShadowMap* depthMaps[2], LightSource* lights[4], Camera* camera, int viewMode)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -201,6 +212,14 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 
 	deviceContext->Unmap(cameraBuffer, 0);
 	deviceContext->PSSetConstantBuffers(2, 1, &cameraBuffer);
+
+	result = deviceContext->Map(miscParamBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	MiscParamType* miscParamPtr = (MiscParamType*)mappedResource.pData;
+	miscParamPtr->viewMode = XMFLOAT4(viewMode, 0.0f, 0.0f, 0.0f);
+
+	deviceContext->Unmap(miscParamBuffer, 0);
+	deviceContext->PSSetConstantBuffers(3, 1, &miscParamBuffer);
+
 	// Set shader texture and sampler resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	deviceContext->PSSetShaderResources(1, 1, &normalTexture);

@@ -7,6 +7,11 @@ class ModelShader :
 
 public:
 
+    struct MiscParamType
+    {
+        XMFLOAT4 viewMode;
+    };
+
 
     struct LightBufferType
     {
@@ -33,6 +38,7 @@ public:
         XMMATRIX lightProjectionMatrix[2];
     };
 
+    
 
     ModelShader(ID3D11Device* device, HWND hwnd);
     ~ModelShader();
@@ -43,7 +49,8 @@ public:
         ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalTexture, ID3D11ShaderResourceView* specTexture, 
         ShadowMap* depthMaps[2],
         LightSource* lights[4], 
-        Camera* camera
+        Camera* camera,
+        int viewMode
     );
 
 private:
@@ -54,6 +61,7 @@ private:
     ID3D11Buffer* lightBuffer;
     ID3D11Buffer* cameraBuffer;
     ID3D11Buffer* shadowBuffer;
+    ID3D11Buffer* miscParamBuffer;
     ID3D11SamplerState* sampleState;
     ID3D11SamplerState* shadowSampleState;
 };

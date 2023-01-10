@@ -387,7 +387,7 @@ void App1::basepass()
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 	worldMatrix *= XMMatrixTranslation(60, 1, 40);
 
-	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps);
+	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 
 
 	for (int i = 0; i < 4; i++)
@@ -452,7 +452,10 @@ void App1::gui()
 	// Build UI
 	ImGui::Text("FPS: %.2f", timer->getFPS());
 	ImGui::Checkbox("Wireframe mode", &wireframeToggle);
-
+	if (wireframeToggle)
+	{
+		viewMode = 0;
+	}
 	const char* LIST_ITEMS[] = { "Base", "Shaders", "UV", "Normals" };
 
 	ImGui::ListBox("View Mode", &viewMode, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 4);
