@@ -10,15 +10,15 @@ class ComputeBlend :
 {
 public:
 
-	struct IntensityBufferType
+	struct BlendingBufferType
 	{
-		XMFLOAT4 intensity;
+		XMFLOAT4 blending;
 	};
 
 	ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h);
 	~ComputeBlend();
 
-	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, float intensity);
+	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, float intensity, float gamma);
 	void createOutputUAV();
 	ID3D11ShaderResourceView* getSRV() { return m_srvTexOutput; };
 	void unbind(ID3D11DeviceContext* dc);
@@ -35,7 +35,7 @@ private:
 	ID3D11UnorderedAccessView* m_uavAccess;
 	ID3D11ShaderResourceView* m_srvTexOutput;
 
-	ID3D11Buffer* intensityBuffer;
+	ID3D11Buffer* blendBuffer;
 	int sWidth;
 	int sHeight;
 };

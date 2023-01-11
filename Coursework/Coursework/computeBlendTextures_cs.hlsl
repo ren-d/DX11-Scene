@@ -4,7 +4,7 @@ RWTexture2D<float4> outputTex : register(u0);
 
 cbuffer IntensityBuffer : register(b0)
 {
-    float4 intensity;
+    float4 blending;
 };
 
 [numthreads(8, 1, 1)]
@@ -15,9 +15,9 @@ void main(uint3 DispatchThreadID : SV_DispatchThreadID)
     float4 bloomColour = inputTexture2[inPixel];
     float4 baseColour = float4(1,1,1,1);
     
-    float4 finalColour = hdrColour + (bloomColour * intensity.x);
+    float4 finalColour = hdrColour + (bloomColour * blending.x);
     
-    finalColour = pow(finalColour, baseColour / 2.2f);
+    finalColour = pow(finalColour, baseColour / blending.y);
     
     outputTex[inPixel] = finalColour;
 

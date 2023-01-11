@@ -17,17 +17,17 @@ void ComputeBlend::initShader(const wchar_t* cfile, const wchar_t* blank)
 	loadComputeShader(cfile);
 	createOutputUAV();
 
-	D3D11_BUFFER_DESC intensityBufferDesc;
+	D3D11_BUFFER_DESC blendBufferDesc;
 
-	intensityBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	intensityBufferDesc.ByteWidth = sizeof(IntensityBufferType);
-	intensityBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	intensityBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	intensityBufferDesc.MiscFlags = 0;
-	intensityBufferDesc.StructureByteStride = 0;
+	blendBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	blendBufferDesc.ByteWidth = sizeof(BlendingBufferType);
+	blendBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	blendBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	blendBufferDesc.MiscFlags = 0;
+	blendBufferDesc.StructureByteStride = 0;
 
 
-	renderer->CreateBuffer(&intensityBufferDesc, NULL, &intensityBuffer);
+	renderer->CreateBuffer(&blendBufferDesc, NULL, &blendBuffer);
 }
 
 void ComputeBlend::createOutputUAV()
@@ -64,18 +64,18 @@ void ComputeBlend::createOutputUAV()
 
 }
 
-void ComputeBlend::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, float intensity)
+void ComputeBlend::setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, float intensity, float gamma)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-	IntensityBufferType* intenPtr;
-	dc->Map(intensityBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	intenPtr = (IntensityBufferType*)mappedResource.pData;
-	intenPtr->intensity = XMFLOAT4(intensity,0,0,0);
+	BlendingBufferType* intenPtr;
+	dc->Map(blendBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	intenPtr = (BlendingBufferType*)mappedResource.pData;
+	intenPtr->blending = XMFLOAT4(intensity,gamma,0,0);
 
 
-	dc->Unmap(intensityBuffer, 0);
-	dc->CSSetConstantBuffers(0, 1, &intensityBuffer);
+	dc->Unmap(blendBuffer, 0);
+	dc->CSSetConstantBuffers(0, 1, &blendBuffer);
 
 	dc->CSSetShaderResources(0, 1, &texture1);
 	dc->CSSetShaderResources(1, 1, &texture2);

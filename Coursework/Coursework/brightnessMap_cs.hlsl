@@ -7,7 +7,7 @@ cbuffer ThresholdBuffer : register(b0)
 };
 
 
-[numthreads(16,16, 1)]
+[numthreads(8,1, 1)]
 void main(uint3 DispatchThreadID : SV_DispatchThreadID)
 {
     uint2 inPixel = uint2(DispatchThreadID.x, DispatchThreadID.y);

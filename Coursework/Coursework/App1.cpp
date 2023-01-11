@@ -12,10 +12,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	// Call super/parent init function (required!)
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
-	bloomIntensity = 0.1f;
-	bloomThreshold = 1.0f;
-	waterTessellation = 1.0f;
-	viewMode = 1;
+
 	initShadowMaps();
 	initLighting();
 	initTextures();
@@ -191,6 +188,12 @@ void App1::initGUI() // Setup GUI Variables
 	waveThreeDir[1] = water->getWave(2)->direction.y;
 	waveFourDir[0] = water->getWave(3)->direction.x;
 	waveFourDir[1] = water->getWave(3)->direction.y;
+
+	bloomIntensity = 0.1f;
+	bloomThreshold = 1.0f;
+	bloomGamma = 1.2f;
+	waterTessellation = 1.0f;
+	viewMode = 1;
 }
 
 App1::~App1()
@@ -420,7 +423,7 @@ void App1::computepass()
 
 	
 
-	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader[3]->getSRV(), bloomIntensity);
+	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader[3]->getSRV(), bloomIntensity, bloomGamma);
 	computeBlend->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
 	computeBlend->unbind(renderer->getDeviceContext());
 
@@ -631,8 +634,11 @@ void App1::gui()
 
 	if (ImGui::CollapsingHeader("Post Processing"))
 	{
-		ImGui::SliderFloat("bloom intensity", &bloomIntensity, 0.0f, 1.0f);
 		ImGui::SliderFloat("bloom threshold", &bloomThreshold, 0.0f, 1.0f);
+		ImGui::SliderFloat("bloom intensity", &bloomIntensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("bloom gamma", &bloomGamma, 0.0f, 3.0f);
+		
+
 	}
 	
 	// Render UI

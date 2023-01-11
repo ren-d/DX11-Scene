@@ -94,7 +94,7 @@ private:
 	float waveThreeDir[2];
 	float waveFourDir[2];
 	
-	float bloomIntensity, bloomThreshold, waterTessellation;
+	float bloomIntensity, bloomThreshold, bloomGamma, waterTessellation;
 };
 
 #endif
