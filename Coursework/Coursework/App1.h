@@ -50,7 +50,8 @@ protected:
 	void finalpass();
 private:
 	static constexpr int MAX_LIGHTS = 4;
-
+	static constexpr int MAX_DEPTH_MAPS_PER_LIGHT = 6;
+	static constexpr int MAX_DEPTH_MAPS = 24;
 	SceneObject* waterMesh;
 	ModelObject* boat;
 	AModel* boatModel;
@@ -78,7 +79,8 @@ private:
 	float lightFourColour[MAX_LIGHTS];
 	float ambientColour[MAX_LIGHTS];
 
-	ShadowMap* shadowMaps[4];
+	XMFLOAT3 directions[MAX_DEPTH_MAPS_PER_LIGHT];
+	ShadowMap* shadowMaps[MAX_DEPTH_MAPS];
 	bool displayShadowMaps;
 	
 	int viewMode;

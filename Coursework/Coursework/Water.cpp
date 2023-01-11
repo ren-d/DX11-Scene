@@ -37,7 +37,7 @@ Water::~Water()
 
 }
 
-void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[4], float timeInSeconds, Camera* camera, float tessellation, int viewMode)
+void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[24], float timeInSeconds, Camera* camera, float tessellation, int viewMode)
 {
 
 	m_mesh->sendData(m_deviceContext);

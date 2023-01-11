@@ -27,14 +27,21 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 void App1::initShadowMaps()
 {
-	const int shadowmapWidth = 1280;
-	const int shadowmapHeight = 720;
-	for (int i = 0; i < 4; i++)
+	const int shadowmapWidth = 1024;
+	const int shadowmapHeight = 1024;
+
+	int maxShadowMaps = MAX_LIGHTS * MAX_DEPTH_MAPS_PER_LIGHT;
+	for (int i = 0; i < maxShadowMaps; i++)
 	{
 		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
 	}
 
-
+	directions[0] = XMFLOAT3(1, 0, 0);
+	directions[1] = XMFLOAT3(-1, 0, 0);
+	directions[2] = XMFLOAT3(0, 1, 0);
+	directions[3] = XMFLOAT3(0, -1, 0);
+	directions[4] = XMFLOAT3(0, 0, 1);
+	directions[5] = XMFLOAT3(0, 0, -1);
 }
 
 void App1::initLighting()	// Initalise scene lighting.
@@ -76,7 +83,7 @@ void App1::initLighting()	// Initalise scene lighting.
 
 	lights[2] = new LightSource();
 	lights[2]->setLightType(LightSource::LType::POINT);
-	lights[2]->setPosition(0.2, 0.2, 0.2);
+	lights[2]->setPosition(67, 3.2, 38.2);
 	lights[2]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
@@ -273,12 +280,12 @@ void App1::depthpass()
 {
 
 	XMMATRIX lightViewMatrix, lightProjectionMatrix, worldMatrix;
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		switch (static_cast<LightSource::LType>(lights[i]->getLightType()))
 		{
 		case LightSource::LType::DIRECTIONAL:
-			shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+			shadowMaps[i * MAX_DEPTH_MAPS_PER_LIGHT]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 			lights[i]->generateViewMatrix();
 
 
@@ -300,29 +307,36 @@ void App1::depthpass()
 
 			break;
 		case LightSource::LType::POINT:
-			shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
-			lights[i]->generateViewMatrix();
+			for (int j = 0; j < MAX_DEPTH_MAPS_PER_LIGHT; j++)
+			{
+				int indexshadow = (i * MAX_DEPTH_MAPS_PER_LIGHT ) + j;
+				shadowMaps[indexshadow]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+
+				lights[i]->setDirection(directions[j].x, directions[j].y, directions[j].z);
+				lights[i]->generateViewMatrix();
+				lights[i]->generateProjectionMatrix(1.0f, 100.f);
+				
+
+				lightViewMatrix = lights[i]->getViewMatrix();
+				lightProjectionMatrix = lights[i]->getProjectionMatrix();
+				worldMatrix = renderer->getWorldMatrix();
+
+				water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
 
 
+				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+				worldMatrix *= XMMatrixTranslation(60, 1, 40);
 
-			lightViewMatrix = lights[i]->getViewMatrix();
-			lightProjectionMatrix = lights[i]->getOrthoMatrix();
-			worldMatrix = renderer->getWorldMatrix();
+				boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
 
-			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
-
-
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(60, 1, 40);
-
-			boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-
-			renderer->setBackBufferRenderTarget();
-			renderer->resetViewport();
+				renderer->setBackBufferRenderTarget();
+				renderer->resetViewport();
+			}
+			
 			break;
 		case LightSource::LType::SPOTLIGHT:
                          
-			shadowMaps[i]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
+			shadowMaps[i * MAX_DEPTH_MAPS_PER_LIGHT]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 			lights[i]->generateViewMatrix();
 			float fov = XMConvertToRadians(*lights[i]->getOuterCone()) * 2.0f;
 
@@ -449,7 +463,7 @@ void App1::basepass()
 		XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
 		XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
 		orthoMesh->sendData(renderer->getDeviceContext());
-		textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[2]->getDepthMapSRV());
+		textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[(2*6)+3]->getDepthMapSRV());
 		textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
 		renderer->setZBuffer(true);
 	}

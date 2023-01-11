@@ -46,8 +46,8 @@ public:
 
     struct ShadowBufferType
     {
-        XMMATRIX lightViewMatrix[4];
-        XMMATRIX lightProjectionMatrix[4];
+        XMMATRIX lightViewMatrix[24];
+        XMMATRIX lightProjectionMatrix[24];
     };
 
     struct TessellationBufferType
@@ -64,7 +64,7 @@ public:
         ID3D11DeviceContext* deviceContext, 
         const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, 
         ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap[2], 
-        ShadowMap* depthMaps[4], 
+        ShadowMap* depthMaps[24], 
         float timeInSeconds, 
         LightSource* lights[4], 
         Wave* waves[4], 

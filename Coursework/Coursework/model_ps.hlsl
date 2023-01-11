@@ -1,7 +1,7 @@
 Texture2D texture0 : register(t0);
 Texture2D textureNormalMap : register(t1);
 Texture2D textureSpecMap : register(t2);
-Texture2D depthMaps[4] : register(t3);
+Texture2D depthMaps[24] : register(t3);
 
 SamplerState Sampler0 : register(s0);
 SamplerState shadowSampler : register(s1);
@@ -44,7 +44,7 @@ struct InputType
     float3 worldPosition : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
-    float4 lightViewPos[4] : TEXCOORD1;
+    float4 lightViewPos[24] : TEXCOORD1;
 };
 
 // calculate direction lighting
@@ -126,7 +126,7 @@ float2 getProjectiveCoords(float4 lightViewPosition)
     projTex += float2(0.5f, 0.5f);
     return projTex;
 }
-float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float4 specularMap, float4 lightViewPos[4])
+float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPosition, float4 specularMap, float4 lightViewPos[24])
 {
     float4 lightColour[4];
     float distance,
@@ -142,13 +142,13 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
         {
             case 0: // directional light calculation
                 
-                pTexCoord = getProjectiveCoords(lightViewPos[i]);
+                pTexCoord = getProjectiveCoords(lightViewPos[i*6]);
                 lightColour[i] = ambient;
                 // Shadow test. Is or isn't in shadow
                 if (hasDepthData(pTexCoord))
                 {
                     // Has depth map data
-                    if (!isInShadow(depthMaps[0], pTexCoord, lightViewPos[i], 0.005))
+                    if (!isInShadow(depthMaps[i*6], pTexCoord, lightViewPos[i*6], 0.005))
                     {
                          // is NOT in shadow, therefore light
 
@@ -183,14 +183,14 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
             
             case 2: // Blinn-Phong Specular Calculation
 
-                pTexCoord = getProjectiveCoords(lightViewPos[i]);
+                pTexCoord = getProjectiveCoords(lightViewPos[i*6]);
                 attenuation = calculateAttenuation(i, distance);
                 lightColour[i] = ambient * attenuation;
                 if (hasDepthData(pTexCoord))
                 {
                     float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
                     float intensity = calculateSpotlight(i, lightDir);
-                    if (!isInShadow(depthMaps[i], pTexCoord, lightViewPos[i], 0.005))
+                    if (!isInShadow(depthMaps[i*6], pTexCoord, lightViewPos[i*6], 0.005))
                     {
                         specular = calculateSpecular(
                         normalize(lightPosition[i].xyz - worldPosition),
