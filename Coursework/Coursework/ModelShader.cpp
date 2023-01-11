@@ -161,27 +161,38 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	ShadowBufferType* shadowPtr;
 	result = deviceContext->Map(shadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	shadowPtr = (ShadowBufferType*)mappedResource.pData;
+	XMFLOAT3 directions[6];
+	directions[0] = XMFLOAT3(1, 0, 0);
+	directions[1] = XMFLOAT3(-1, 0, 0);
+	directions[2] = XMFLOAT3(0, 1, 0);
+	directions[3] = XMFLOAT3(0, -1, 0);
+	directions[4] = XMFLOAT3(0, 0, 1);
+	directions[5] = XMFLOAT3(0, 0, -1);
 	for (int i = 0; i < 4; i++)
 	{
 		switch (lights[i]->getLightType())
 		{
 		case 0:
-			shadowPtr->lightViewMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
-			shadowPtr->lightProjectionMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightViewMatrix[i * 6] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[i * 6] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
 			break;
 		case 1:
-			// CHANGE
-			shadowPtr->lightViewMatrix[i] = XMMatrixTranspose(lights[i]->getViewMatrix());
-			shadowPtr->lightProjectionMatrix[i] = XMMatrixTranspose(lights[i]->getOrthoMatrix());
+			for (int j = 0; j < 6; j++)
+			{
+				lights[i]->setDirection(directions[j].x, directions[j].y, directions[j].z);
+				lights[i]->generateViewMatrix();
+				shadowPtr->lightViewMatrix[(i * 6) + j] = XMMatrixTranspose(lights[i]->getViewMatrix());
+				shadowPtr->lightProjectionMatrix[(i * 6) + j] = XMMatrixTranspose(lights[i]->getProjectionMatrix());
+			}
+
 			break;
 		case 2:
 			float fov = XMConvertToRadians(*lights[i]->getOuterCone() * 2.0f);
-			shadowPtr->lightViewMatrix[1] = XMMatrixTranspose(lights[i]->getViewMatrix());
-			shadowPtr->lightProjectionMatrix[1] = XMMatrixTranspose(XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f));
+			shadowPtr->lightViewMatrix[i * 6] = XMMatrixTranspose(lights[i]->getViewMatrix());
+			shadowPtr->lightProjectionMatrix[i * 6] = XMMatrixTranspose(XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f));
 			break;
 		}
 	}
-
 	deviceContext->Unmap(shadowBuffer, 0);
 	deviceContext->VSSetConstantBuffers(1, 1, &shadowBuffer);
 
@@ -230,8 +241,12 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->PSSetShaderResources(1, 1, &normalTexture);
 	deviceContext->PSSetShaderResources(2, 1, &specTexture);
 
-	ID3D11ShaderResourceView* depth[] = { depthMaps[0]->getDepthMapSRV(), depthMaps[1]->getDepthMapSRV(), depthMaps[2]->getDepthMapSRV(), depthMaps[3]->getDepthMapSRV() };
-	deviceContext->PSSetShaderResources(3, 4, depth);
+	ID3D11ShaderResourceView* depth[24];
+	for (int i = 0; i < 24; i++)
+	{
+		depth[i] = depthMaps[i]->getDepthMapSRV();
+	}
+	deviceContext->PSSetShaderResources(3, 24, depth);
 
 
 	deviceContext->PSSetSamplers(0, 1, &sampleState);

@@ -175,7 +175,7 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                     if (hasDepthData(pTexCoord))
                     {
                     // Has depth map data
-                        if (!isInShadow(depthMaps[shadowIndex], pTexCoord, lightViewPos[shadowIndex], 0.005f))
+                        if (!isInShadow(depthMaps[shadowIndex], pTexCoord, lightViewPos[shadowIndex], 0.020))
                         {
                          // is NOT in shadow, therefore light
 

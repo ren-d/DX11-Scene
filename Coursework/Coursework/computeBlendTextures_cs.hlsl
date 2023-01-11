@@ -7,7 +7,7 @@ cbuffer IntensityBuffer : register(b0)
     float4 blending;
 };
 
-[numthreads(8, 1, 1)]
+[numthreads(8, 8, 1)]
 void main(uint3 DispatchThreadID : SV_DispatchThreadID)
 {
     uint2 inPixel = uint2(DispatchThreadID.x, DispatchThreadID.y);

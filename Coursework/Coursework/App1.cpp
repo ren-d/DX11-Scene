@@ -369,24 +369,29 @@ void App1::depthpass()
 
 void App1::computepass()
 {
+	float groupSizeX;
+	float groupSizeY;
 
 	computeBrightness->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), bloomThreshold);
-	computeBrightness->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeBrightness->compute(renderer->getDeviceContext(), ceil((float)sWidth/8), ceil((float)sHeight/8), 1);
 	computeBrightness->unbind(renderer->getDeviceContext());
 
 
 	for (int i = 0; i < 3; i++)
 	{
+		
 		if (i == 0)
 		{
-			computeDownSample[0]->setShaderParameters(renderer->getDeviceContext(), computeBrightness->getSRV());
-			computeDownSample[0]->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
-			computeDownSample[0]->unbind(renderer->getDeviceContext());
+			computeDownSample[i]->setShaderParameters(renderer->getDeviceContext(), computeBrightness->getSRV());
+			computeDownSample[i]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 8), ceil((float)sHeight / 8), 1);
+			computeDownSample[i]->unbind(renderer->getDeviceContext());
 		}
 		else
 		{
+			groupSizeX = ceil((float)(sWidth / (2 * i)) / 8);
+			groupSizeY = ceil((float)(sHeight / (2 * i)) / 8);
 			computeDownSample[i]->setShaderParameters(renderer->getDeviceContext(), computeDownSample[i-1]->getSRV());
-			computeDownSample[i]->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+			computeDownSample[i]->compute(renderer->getDeviceContext(), groupSizeX, groupSizeY, 1);
 			computeDownSample[i]->unbind(renderer->getDeviceContext());
 		}
 
@@ -404,9 +409,11 @@ void App1::computepass()
 
 	for (int i = 0; i < 3; i++)
 	{
+		groupSizeX = ceil((float)(sWidth / (6 - (2 * i))) / 8);
+		groupSizeY = ceil((float)(sWidth / (6 - (2 * i))) / 8);
 
 		computeUpSample[i]->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader[i]->getSRV());
-		computeUpSample[i]->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+		computeUpSample[i]->compute(renderer->getDeviceContext(), groupSizeX, groupSizeY, 1);
 		computeUpSample[i]->unbind(renderer->getDeviceContext());
 
 		horizonalBlurShader[i+1]->setShaderParameters(renderer->getDeviceContext(), computeUpSample[i]->getSRV());
@@ -424,7 +431,7 @@ void App1::computepass()
 	
 
 	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader[3]->getSRV(), bloomIntensity, bloomGamma);
-	computeBlend->compute(renderer->getDeviceContext(), sWidth, sHeight, 1);
+	computeBlend->compute(renderer->getDeviceContext(), ceil((float)sWidth / 8), ceil((float)sHeight / 8), 1);
 	computeBlend->unbind(renderer->getDeviceContext());
 
 }

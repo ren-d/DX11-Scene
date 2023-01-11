@@ -34,8 +34,8 @@ public:
 
     struct ShadowBufferType
     {
-        XMMATRIX lightViewMatrix[4];
-        XMMATRIX lightProjectionMatrix[4];
+        XMMATRIX lightViewMatrix[24];
+        XMMATRIX lightProjectionMatrix[24];
     };
 
     

@@ -174,10 +174,28 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                     specularPower[i].x
                 );
                 attenuation = calculateAttenuation(i, distance);
-            
                 lightColour[i] = ambient * attenuation;
-                lightColour[i] += calculateLighting(distance, normal, diffuseColour[i]) * attenuation;
-                lightColour[i].rgb += specular.rgb * attenuation;
+                for (int j = 0; j < 6; j++)
+                {
+                    int shadowIndex = (i * 6) + j;
+                    pTexCoord = getProjectiveCoords(lightViewPos[shadowIndex]);
+                    if (hasDepthData(pTexCoord))
+                    {
+                    // Has depth map data
+                        if (!isInShadow(depthMaps[shadowIndex], pTexCoord, lightViewPos[shadowIndex], 0.005f))
+                        {
+                         // is NOT in shadow, therefore light
+
+                            
+                          
+                            lightColour[i] += calculateLighting(float3(lightPosition[i].xyz - worldPosition), normal, diffuseColour[i]) * attenuation;
+                            lightColour[i].rgb += specular.rgb * attenuation;
+                
+ 
+                        }
+                    
+                    }
+                }
                 
                 break;
             
