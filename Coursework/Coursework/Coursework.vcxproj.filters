@@ -28,6 +28,12 @@
     <Filter Include="Resource Files\Bloom\GaussianBlur">
       <UniqueIdentifier>{44042451-3857-4d79-8972-156a21fafff7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Particles">
+      <UniqueIdentifier>{34641e1a-be6b-42ac-b449-030177a8ea77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Objects">
+      <UniqueIdentifier>{00c85011-beb7-4f2e-94db-8525b25d57a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App1.cpp">
@@ -88,6 +94,12 @@
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ColourShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,32 +167,14 @@
     <ClInclude Include="ColourShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="water_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="water_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="model_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="model_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="texture_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="texture_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="water_ds.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="water_hs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
     <FxCompile Include="depth_ps.hlsl">
       <Filter>Resource Files\DepthMapping</Filter>
     </FxCompile>
@@ -223,11 +217,44 @@
     <FxCompile Include="computeBlendTextures_cs.hlsl">
       <Filter>Resource Files\Bloom</Filter>
     </FxCompile>
-    <FxCompile Include="colour_vs.hlsl">
-      <Filter>Resource Files</Filter>
+    <FxCompile Include="particle_gs.hlsl">
+      <Filter>Resource Files\Particles</Filter>
+    </FxCompile>
+    <FxCompile Include="particle_vs.hlsl">
+      <Filter>Resource Files\Particles</Filter>
+    </FxCompile>
+    <FxCompile Include="particle_ps.hlsl">
+      <Filter>Resource Files\Particles</Filter>
     </FxCompile>
     <FxCompile Include="colour_ps.hlsl">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="colour_vs.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="model_ps.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="model_vs.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="texture_ps.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="texture_vs.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="water_ds.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="water_hs.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="water_ps.hlsl">
+      <Filter>Resource Files\Objects</Filter>
+    </FxCompile>
+    <FxCompile Include="water_vs.hlsl">
+      <Filter>Resource Files\Objects</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

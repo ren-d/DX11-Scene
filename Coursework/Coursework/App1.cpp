@@ -121,6 +121,7 @@ void App1::initTextures() // load textures
 	textureMgr->loadTexture(L"crate", L"res/models/boatColor.png");
 	textureMgr->loadTexture(L"crateBump", L"res/models/boatNormal.png");
 	textureMgr->loadTexture(L"crateSpec", L"res/models/boatMetallic.png");
+	textureMgr->loadTexture(L"snow", L"res/snowParticle.png");
 }
 
 void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise scene objects
@@ -136,6 +137,10 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	boat->setModel(boatModel);
 
 	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+
+	
+	snow = new ParticleSystem(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"snow"));
+	snow->setMesh(new PointMesh(renderer->getDevice(), renderer->getDeviceContext()));
 
 }
 
@@ -447,7 +452,14 @@ void App1::basepass()
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
+	XMFLOAT3 cmpos = XMFLOAT3(camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+	XMFLOAT3 thepos = XMFLOAT3(0, 0, 0);
+	float angle = atan2(thepos.x - cmpos.x, thepos.z - cmpos.z) * (180 / 3.1415);
+	float rot = XMConvertToRadians(angle);
+	worldMatrix = XMMatrixMultiply(worldMatrix,XMMatrixRotationY(rot));
+	snow->render(worldMatrix, viewMatrix, projectionMatrix, particleShader);
 
+	worldMatrix = renderer->getWorldMatrix();
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera, waterTessellation, viewMode);
 
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);

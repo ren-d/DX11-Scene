@@ -22,13 +22,13 @@ struct OutputType
     float3 normal : NORMAL;
 };
 
-[maxvertexcount(4)]
+[maxvertexcount(6)]
 void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
 {
     OutputType output;
 	
 	// Move the vertex away from the point position
-    output.position = input[0].position + float4(0.0, 1.0, 0.0, 0.0);
+    output.position = input[0].position + float4(-1.0, -1.0, 0.0, 0.0);
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
@@ -38,7 +38,7 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     triStream.Append(output);
 
 	// Move the vertex away from the point position
-    output.position = input[0].position + float4(-1.0, 0.0, 0.0, 0.0);
+    output.position = input[0].position + float4(1.0, -1.0, 0.0, 0.0);
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
@@ -48,7 +48,7 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     triStream.Append(output);
 
 	// Move the vertex away from the point position
-    output.position = input[0].position + float4(1.0, 0.0, 1.0, 0.0);
+    output.position = input[0].position + float4(1.0, 1.0, 0.0, 0.0);
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
@@ -57,7 +57,9 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     output.normal = normalize(output.normal);
     triStream.Append(output);
     
-    output.position = input[0].position + float4(0.0, 1.0, 1.0, 0.0);
+
+    triStream.RestartStrip();
+    output.position = input[0].position + float4(1.0, 1.0, 0.0, 0.0);
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
@@ -66,7 +68,6 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     output.normal = normalize(output.normal);
     triStream.Append(output);
 
-	// Move the vertex away from the point position
     output.position = input[0].position + float4(-1.0, 1.0, 0.0, 0.0);
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
@@ -75,9 +76,8 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     output.normal = mul(input[0].normal, (float3x3) worldMatrix);
     output.normal = normalize(output.normal);
     triStream.Append(output);
-
-	// Move the vertex away from the point position
-    output.position = input[0].position + float4(1.0, 0.0, 0.0, 0.0);
+    
+    output.position = input[0].position + float4(-1.0, -1.0, 0.0, 0.0);
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
@@ -85,6 +85,6 @@ void main(point InputType input[1], inout TriangleStream<OutputType> triStream)
     output.normal = mul(input[0].normal, (float3x3) worldMatrix);
     output.normal = normalize(output.normal);
     triStream.Append(output);
-
+    
     triStream.RestartStrip();
 }
