@@ -51,7 +51,7 @@ void App1::initLighting()	// Initalise scene lighting.
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
 	lights[0]->setPosition(59.f, 36.f, 65.0f);
 	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[0]->setDiffuseColour(0.4f, 0.4f, 0.7f, 1.0f);
+	lights[0]->setDiffuseColour(0.2f, 0.2f, 0.3f, 1.0f);
 	lights[0]->setDirection(-0.450f, -0.7f, 0.0f);
 	lights[0]->setSpecularPower(100.0f);
 	lights[0]->setConstantFactor(1.0f);
@@ -64,10 +64,10 @@ void App1::initLighting()	// Initalise scene lighting.
 
 	lights[1] = new LightSource();
 	lights[1]->setLightType(LightSource::LType::POINT);
-	lights[1]->setPosition(1.0, 1.0, 30);
+	lights[1]->setPosition(22, 4.0, 65);
 	lights[1]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	lights[1]->setDiffuseColour(1.0f, 0.0f, 1.0f, 1.0f);
+	lights[1]->setDiffuseColour(0.0f, 0.9f, 1.0f, 1.0f);
 	lights[1]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[1]->setSpecularPower(100.0f);
 	lights[1]->setConstantFactor(1.0f);
@@ -80,10 +80,10 @@ void App1::initLighting()	// Initalise scene lighting.
 
 	lights[2] = new LightSource();
 	lights[2]->setLightType(LightSource::LType::POINT);
-	lights[2]->setPosition(67, 3.2, 38.2);
+	lights[2]->setPosition(59.7, 4, 38);
 	lights[2]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	lights[2]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
+	lights[2]->setDiffuseColour(0.0f, 1.0f, 0.0f, 1.0f);
 	lights[2]->setSpecularPower(100.0f);
 	lights[2]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[2]->setConstantFactor(1.0f);
@@ -96,11 +96,11 @@ void App1::initLighting()	// Initalise scene lighting.
 
 	lights[3] = new LightSource();
 	lights[3]->setLightType(LightSource::LType::SPOTLIGHT);
-	lights[3]->setPosition(30, 25.0f, 30);
+	lights[3]->setPosition(30, 13, 33);
 	lights[3]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
-	lights[3]->setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[3]->setDirection(0.0f, -1.0f, 0.0f);
+	lights[3]->setDiffuseColour(1.0f, 1.0f, 0.0f, 1.0f);
+	lights[3]->setDirection(0.0f, -1.0f, 0.132f);
 	lights[3]->setSpecularPower(100.0f);
 	lights[3]->setConstantFactor(1.0f);
 	lights[3]->setLinearFactor(0.014f);
@@ -223,9 +223,9 @@ void App1::initGUI() // Setup GUI Variables
 	waveFourDir[0] = water->getWave(3)->direction.x;
 	waveFourDir[1] = water->getWave(3)->direction.y;
 
-	bloomIntensity = 0.1f;
-	bloomThreshold = 1.0f;
-	bloomGamma = 1.2f;
+	bloomIntensity = 0.8f;
+	bloomThreshold = 0.45f;
+	bloomGamma = 1.1f;
 	waterTessellation = 1.0f;
 	viewMode = 1;
 
@@ -233,6 +233,8 @@ void App1::initGUI() // Setup GUI Variables
 	{
 		displayShadowMaps[i] = false;
 	}
+
+	calmWaters = false;
 }
 
 App1::~App1()
@@ -283,8 +285,24 @@ bool App1::render()
 
 
 	// Generate the view matrix based on the camera's position.
+	if (calmWaters)
+	{
+		water->getWave(0)->steepness = 0.0f;
+		water->getWave(1)->steepness = 0.0f;
+		water->getWave(2)->steepness = 0.0f;
+		isToggled = false;
+	}
+	else if(!isToggled && !calmWaters)
+	{
 
+		water->getWave(0)->steepness = 0.264f;
 
+		water->getWave(1)->steepness = 0.236f;
+
+		water->getWave(2)->steepness = 0.402f;
+		isToggled = true;
+
+	}
 	switch (viewMode)
 	{
 	case 1:
@@ -683,6 +701,7 @@ void App1::gui()
 	// Water GUI
 	if (ImGui::CollapsingHeader("water"))
 	{
+		ImGui::Checkbox("calm waters", &calmWaters);
 		ImGui::SliderFloat("Tessellation", &waterTessellation, 0, 20);
 		if (ImGui::CollapsingHeader("wave 1"))
 		{

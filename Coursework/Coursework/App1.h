@@ -82,7 +82,7 @@ private:
 	XMFLOAT3 directions[MAX_DEPTH_MAPS_PER_LIGHT];
 	ShadowMap* shadowMaps[MAX_DEPTH_MAPS];
 	bool displayShadowMaps[MAX_LIGHTS];
-	
+	bool calmWaters, isToggled;
 	int viewMode;
 	
 	float timeInSeconds;
