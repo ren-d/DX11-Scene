@@ -204,7 +204,7 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                 {
                     float3 lightDir = normalize(lightPosition[i].xyz - worldPosition);
                     float intensity = calculateSpotlight(i, lightDir);
-                    if (!isInShadow(depthMaps[i * 6], pTexCoord, lightViewPos[i*6], 0.005))
+                    if (!isInShadow(depthMaps[i * 6], pTexCoord, lightViewPos[i * 6], 0.020))
                     {
                         specular = calculateSpecular(
                         normalize(lightPosition[i].xyz - worldPosition),

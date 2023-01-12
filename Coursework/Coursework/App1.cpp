@@ -118,25 +118,59 @@ void App1::initTextures() // load textures
 	textureMgr->loadTexture(L"water", L"res/water.png");
 	textureMgr->loadTexture(L"normal1", L"res/models/waternormal1.png");
 	textureMgr->loadTexture(L"normal2", L"res/models/waternormal2.png");
-	textureMgr->loadTexture(L"crate", L"res/models/boatColor.png");
-	textureMgr->loadTexture(L"crateBump", L"res/models/boatNormal.png");
-	textureMgr->loadTexture(L"crateSpec", L"res/models/boatMetallic.png");
+	textureMgr->loadTexture(L"boatDiffuse", L"res/models/boatColor.png");
+	textureMgr->loadTexture(L"boatNormal", L"res/models/boatNormal.png");
+	textureMgr->loadTexture(L"boatSpec", L"res/models/boatMetallic.png");
+
+	textureMgr->loadTexture(L"crateDiffuse", L"res/models/Crate_color.png");
+	textureMgr->loadTexture(L"crateNormal", L"res/models/Crate_normal.png");
+	textureMgr->loadTexture(L"crate", L"res/models/boatMetallic.png");
+
+
+	textureMgr->loadTexture(L"woodBarrelDiffuse", L"res/models/wooden_crate_barrel_BaseColor.jpg");
+	textureMgr->loadTexture(L"woodBarrelNormal", L"res/models/wooden_crate_barrel_Normal.jpg");
+	textureMgr->loadTexture(L"woodBarrelSpec", L"res/models/wooden_crate_barrel_Metallic.jpg");
 }
 
 void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise scene objects
 {
-	orthoMesh = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 2, *screenHeight / 2, *screenWidth / 2.7, -*screenHeight / 2.7);
+	for (int i = 0; i < MAX_LIGHTS; i++)
+	{
+		int index = (i * MAX_DEPTH_MAPS_PER_LIGHT);
+		shadowOrthos[index] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 2.2, *screenHeight / 2.2);
+		shadowOrthos[index+1] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 3.0, *screenHeight / 2.2);
+		shadowOrthos[index+2] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 4.78, *screenHeight / 2.2);
+		shadowOrthos[index+3] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 11.18, *screenHeight / 2.2);
+		shadowOrthos[index+4] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, *screenWidth / 30.2, *screenHeight / 2.2);
+		shadowOrthos[index+5] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, *screenWidth / 6.5, *screenHeight / 2.2);
+	}
+	
 	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
 	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
 
 	boatModel = new AModel(renderer->getDevice(), "res/models/boat.fbx");
-	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crate"), textureMgr->getTexture(L"crateBump"), textureMgr->getTexture(L"crateSpec"));
+	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"boatDiffuse"), textureMgr->getTexture(L"boatNormal"), textureMgr->getTexture(L"boatSpec"));
 	boat->setModel(boatModel);
 
 	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
+	crateModel = new AModel(renderer->getDevice(), "res/models/Crate.fbx");
+	crate = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crateDiffuse"), textureMgr->getTexture(L"crateNormal"), textureMgr->getTexture(L"crate"));
+	crate->setModel(crateModel);
+
+	barrelModel = new AModel(renderer->getDevice(), "res/models/barrel.fbx");
+	barrel = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
+	barrel->setModel(barrelModel);
+
+	woodenBoxModel = new AModel(renderer->getDevice(), "res/models/woodenBox.fbx");
+	woodenBox = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
+	woodenBox->setModel(woodenBoxModel);
+
+	kegModel = new AModel(renderer->getDevice(), "res/models/keg.fbx");
+	keg = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
+	keg->setModel(kegModel);
 }
 
 void App1::initShaders(HWND hwnd)
@@ -194,6 +228,11 @@ void App1::initGUI() // Setup GUI Variables
 	bloomGamma = 1.2f;
 	waterTessellation = 1.0f;
 	viewMode = 1;
+
+	for (int i = 0; i < MAX_LIGHTS; i++)
+	{
+		displayShadowMaps[i] = false;
+	}
 }
 
 App1::~App1()
@@ -279,6 +318,12 @@ bool App1::render()
 	return true;
 }
 
+void App1::renderSceneObjects()
+{
+
+}
+
+
 void App1::depthpass()
 {
 
@@ -298,6 +343,32 @@ void App1::depthpass()
 			worldMatrix = renderer->getWorldMatrix();
 
 			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
+
+			worldMatrix *= XMMatrixTranslation(20, 1, 70);
+			crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(30, 1, 40);
+			barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(50, 2, 20);
+			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(70, 2, 70);
+			keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix *= XMMatrixScaling(2, 2, 2);
+			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
+			worldMatrix *= XMMatrixTranslation(-10, 1, 60);
+			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix *= XMMatrixScaling(2, 2, 2);
+			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
+			worldMatrix *= XMMatrixTranslation(110, 1, 60);
+			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
 
 
 			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
@@ -325,7 +396,31 @@ void App1::depthpass()
 				worldMatrix = renderer->getWorldMatrix();
 
 				water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
+				worldMatrix *= XMMatrixTranslation(20, 1, 70);
+				crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+				worldMatrix = renderer->getWorldMatrix();
+				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+				worldMatrix *= XMMatrixTranslation(30, 1, 40);
+				barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+				worldMatrix = renderer->getWorldMatrix();
+				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+				worldMatrix *= XMMatrixTranslation(50, 2, 20);
+				woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+				worldMatrix *= XMMatrixTranslation(70, 2, 70);
+				keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+				worldMatrix = renderer->getWorldMatrix();
+				worldMatrix *= XMMatrixScaling(2, 2, 2);
+				worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
+				worldMatrix *= XMMatrixTranslation(-10, 1, 60);
+				woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
 
+				worldMatrix = renderer->getWorldMatrix();
+				worldMatrix *= XMMatrixScaling(2, 2, 2);
+				worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
+				worldMatrix *= XMMatrixTranslation(110, 1, 60);
+				woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+				worldMatrix = renderer->getWorldMatrix();
 
 				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 				worldMatrix *= XMMatrixTranslation(60, 1, 40);
@@ -349,7 +444,33 @@ void App1::depthpass()
 			XMMATRIX worldMatrix = renderer->getWorldMatrix();
 
 			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
+			worldMatrix *= XMMatrixTranslation(20, 1, 70);
+			crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(30, 1, 40);
+			barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
 
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(50, 2, 20);
+			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+			worldMatrix *= XMMatrixTranslation(70, 2, 70);
+			keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix *= XMMatrixScaling(2, 2, 2);
+			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
+			worldMatrix *= XMMatrixTranslation(-10, 1, 60);
+			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+
+			worldMatrix = renderer->getWorldMatrix();
+			worldMatrix *= XMMatrixScaling(2, 2, 2);
+			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
+			worldMatrix *= XMMatrixTranslation(110, 1, 60);
+			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			worldMatrix = renderer->getWorldMatrix();
 
 			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 			worldMatrix *= XMMatrixTranslation(60, 1, 40);
@@ -449,12 +570,38 @@ void App1::basepass()
 
 
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera, waterTessellation, viewMode);
+	
+	worldMatrix *= XMMatrixTranslation(20, 1, 70);
+	crate->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(30, 1, 40);
+	barrel->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
+	worldMatrix = renderer->getWorldMatrix();
 
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(50, 2, 20);
+	woodenBox->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(70, 2, 70);
+	keg->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
+	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
 	worldMatrix *= XMMatrixTranslation(60, 1, 40);
 
 	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix *= XMMatrixScaling(2,2,2);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
+	worldMatrix *= XMMatrixTranslation(-10, 1, 60);
+	woodenBox->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix *= XMMatrixScaling(2, 2, 2);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
+	worldMatrix *= XMMatrixTranslation(110, 1, 60);
+	woodenBox->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -465,18 +612,27 @@ void App1::basepass()
 	}
 
 	
-	if (displayShadowMaps)
+	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
-		worldMatrix = renderer->getWorldMatrix();
+		if (displayShadowMaps[i])
+		{
+			worldMatrix = renderer->getWorldMatrix();
 
-		renderer->setZBuffer(false);
-		XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
-		XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
-		orthoMesh->sendData(renderer->getDeviceContext());
-		textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[(2*6)+3]->getDepthMapSRV());
-		textureShader->render(renderer->getDeviceContext(), orthoMesh->getIndexCount());
-		renderer->setZBuffer(true);
+			renderer->setZBuffer(false);
+			XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
+			XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
+			for (int j = 0; j < MAX_DEPTH_MAPS_PER_LIGHT; j++)
+			{
+				int index = (i * MAX_DEPTH_MAPS_PER_LIGHT) + j;
+				shadowOrthos[index]->sendData(renderer->getDeviceContext());
+				textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, shadowMaps[index]->getDepthMapSRV());
+				textureShader->render(renderer->getDeviceContext(), shadowOrthos[index]->getIndexCount());
+			}
+
+			renderer->setZBuffer(true);
+		}
 	}
+
 	
 	renderer->setBackBufferRenderTarget();
 
@@ -563,11 +719,12 @@ void App1::gui()
 	if(ImGui::CollapsingHeader("lights"))
 	{
 		ImGui::ColorEdit4("ambient", lights[0]->getAmbientColourFloatArray());
-		ImGui::Checkbox("display shadow maps", &displayShadowMaps);
+		
 
 		for (int i = 0; i < MAX_LIGHTS; i++)
 		{
 			std::string mainHeaderName = "light ";
+			std::string shadowMapName = "display shadow map ";
 			std::string listboxName = "light type ";
 			std::string positionName = "position ";
 			std::string directionName = "direction ";
@@ -581,6 +738,7 @@ void App1::gui()
 			std::string indexAsString = std::to_string(i);
 
 			mainHeaderName += indexAsString;
+			shadowMapName += indexAsString;
 			listboxName += indexAsString;
 			positionName += indexAsString;
 			directionName += indexAsString;
@@ -594,9 +752,23 @@ void App1::gui()
 
 			if (ImGui::CollapsingHeader(mainHeaderName.c_str()))
 			{
-				
+				ImGui::Checkbox(shadowMapName.c_str(), &displayShadowMaps[i]);
+				if (displayShadowMaps[i])
+				{
+					for (int j = 0; j < MAX_LIGHTS; j++)
+					{
+						if (i != j)
+						{
+							displayShadowMaps[j] = false;
+						}
+
+					}
+				}
+
 				int currentSelection = (int)lights[i]->getLightType();
 				ImGui::ListBox(listboxName.c_str() , &currentSelection, LIGHT_ITEMS, IM_ARRAYSIZE(LIGHT_ITEMS), 3);
+
+
 				switch (currentSelection)
 				{
 				case 0:

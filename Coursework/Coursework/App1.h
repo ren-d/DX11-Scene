@@ -45,7 +45,7 @@ protected:
 	void depthpass();
 	void computepass();
 	void brightnesspass();
-
+	void renderSceneObjects();
 	void upsample();
 	void finalpass();
 private:
@@ -53,15 +53,15 @@ private:
 	static constexpr int MAX_DEPTH_MAPS_PER_LIGHT = 6;
 	static constexpr int MAX_DEPTH_MAPS = 24;
 	SceneObject* waterMesh;
-	ModelObject* boat;
-	AModel* boatModel;
+	ModelObject* boat, *crate, *barrel, *woodenBox, * keg;
+	AModel* boatModel, *crateModel, *barrelModel, * woodenBoxModel, *kegModel;
 	WaterShader* waterShader;
 	WaterDepthShader* waterDepthShader;
 	ModelShader* modelShader;
 	DepthShader* depthShader;
 	TextureShader* textureShader;
 	ColourShader* colourShader;
-	OrthoMesh* orthoMesh, *orthoMesh2;
+	OrthoMesh* shadowOrthos[MAX_DEPTH_MAPS], *orthoMesh2;
 	Water* water;
 
 	SphereMesh* sphere;
@@ -81,7 +81,7 @@ private:
 
 	XMFLOAT3 directions[MAX_DEPTH_MAPS_PER_LIGHT];
 	ShadowMap* shadowMaps[MAX_DEPTH_MAPS];
-	bool displayShadowMaps;
+	bool displayShadowMaps[MAX_LIGHTS];
 	
 	int viewMode;
 	
