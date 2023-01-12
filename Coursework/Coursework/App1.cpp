@@ -147,7 +147,7 @@ void App1::initShaders(HWND hwnd)
 	depthShader = new DepthShader(renderer->getDevice(), hwnd);
 	textureShader = new TextureShader(renderer->getDevice(), hwnd);
 	colourShader = new ColourShader(renderer->getDevice(), hwnd);
-
+	particleShader = new ParticleShader(renderer->getDevice(), hwnd);
 
 
 

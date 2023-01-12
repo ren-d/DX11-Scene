@@ -21,6 +21,7 @@
 #include "ComputeUpSample.h"
 #include "ComputeBlend.h"
 #include "ColourShader.h"
+#include "ParticleShader.h"
 class App1 : public BaseApplication
 {
 public:
@@ -63,7 +64,7 @@ private:
 	ColourShader* colourShader;
 	OrthoMesh* orthoMesh, *orthoMesh2;
 	Water* water;
-
+	ParticleShader* particleShader;
 	SphereMesh* sphere;
 	LightSource* lights[MAX_LIGHTS];
 	ComputeDownSample* computeDownSample[3];
