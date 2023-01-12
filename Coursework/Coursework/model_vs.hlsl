@@ -1,6 +1,5 @@
-// texture vertex shader
-// Basic shader for rendering textured geometry
 
+// buffers
 cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
@@ -43,6 +42,7 @@ OutputType main(InputType input)
     output.normal = normalize(output.normal);
     output.worldPosition = mul(input.position, worldMatrix).xyz;
     
+    // used for shadow calculations
     for (int i = 0; i < 24; i++)
     {
         output.lightViewPos[i] = mul(input.position, worldMatrix);

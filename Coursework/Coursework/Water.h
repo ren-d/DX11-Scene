@@ -1,3 +1,6 @@
+// Water Scene Object class
+// used for all water calculations and rendering
+
 #pragma once
 #include "SceneObject.h"
 #include "Water.h"
@@ -12,9 +15,12 @@ public:
 	~Water();
 
 	void initWaves();
+
+	// rendering 
 	void render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[24], float timeInSeconds, Camera* camera, float tessellation, int viewMode);
 	void renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterDepthShader* shader, float timeInSeconds, Camera* camera);
 
+	// Wave Variables
 	Wave* getWave(int id);
 	void setWaveDir(int id, XMFLOAT2 direction);
 

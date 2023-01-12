@@ -66,9 +66,6 @@
     <ClCompile Include="WaterDepthShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="BrightnessMapShader.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="VerticalBlurShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
@@ -101,9 +98,6 @@
     <ClInclude Include="Water.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LightHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ModelObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -129,9 +123,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WaterDepthShader.h">
-      <Filter>Header Files\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="BrightnessMapShader.h">
       <Filter>Header Files\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="HorizontalBlurShader.h">
@@ -198,12 +189,6 @@
     </FxCompile>
     <FxCompile Include="waterDepth_vs.hlsl">
       <Filter>Resource Files\DepthMapping</Filter>
-    </FxCompile>
-    <FxCompile Include="brightnessMap_ps.hlsl">
-      <Filter>Resource Files\Bloom</Filter>
-    </FxCompile>
-    <FxCompile Include="brightnessMap_vs.hlsl">
-      <Filter>Resource Files\Bloom</Filter>
     </FxCompile>
     <FxCompile Include="downSample_cs.hlsl">
       <Filter>Resource Files\Bloom</Filter>

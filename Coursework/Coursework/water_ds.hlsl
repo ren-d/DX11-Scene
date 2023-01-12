@@ -89,21 +89,23 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
     float3 vertexPosition, vertexnormal;
     OutputType output;
  
-    // Determine the position of the new vertex.
-	// Invert the y and Z components of uvwCoord as these coords are generated in UV space and therefore y is positive downward.
-	// Alternatively you can set the output topology of the hull shader to cw instead of ccw (or vice versa).
+    // correctly changes new vertex to its correct position
     float3 v1 = lerp(patch[0].position, patch[1].position, uvwCoord.y);
     float3 v2 = lerp(patch[3].position, patch[2].position, uvwCoord.y);
     vertexPosition = lerp(v1, v2, uvwCoord.x);
     
+    // correctly changes new normal to its correct value
     float3 n1 = lerp(patch[0].normal, patch[1].normal, uvwCoord.y);
     float3 n2 = lerp(patch[3].normal, patch[2].normal, uvwCoord.y);
     vertexnormal = lerp(n1, n2, uvwCoord.x);
     
+    // correctly changes new tex coord to its correct value
     float2 t1 = lerp(patch[0].tex, patch[1].tex, uvwCoord.y);
     float2 t2 = lerp(patch[3].tex, patch[2].tex, uvwCoord.y);
     float2 texCoord = lerp(t1, t2, uvwCoord.x);
     
+    
+    // gersner waves
     float3 waterPoint = vertexPosition;
     float3 tangent = float3(1, 0, 0);
     float3 binormal = float3(0, 0, 1);
@@ -129,6 +131,8 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
     output.position = mul(output.position, projectionMatrix);
     
     
+    
+    // used for shadow calculations
     for (int i = 0; i < 24; i++)
     {
         output.lightViewPos[i] = mul(float4(vertexPosition, 1.0f), worldMatrix);
@@ -142,7 +146,6 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
 
     output.tangent = mul(tangent, (float3x3) worldMatrix);
  
-    
     output.binormal = mul(binormal, (float3x3) worldMatrix);
 
 

@@ -1,3 +1,7 @@
+// Water Depth Map Shader
+// used to create a depth map of a tesselated and animated object
+// used for shadow mapping
+
 #pragma once
 #include "DXF.h"
 #include "structsforuse.h"
@@ -7,6 +11,7 @@ class WaterDepthShader :
 {
 public:
 
+	// buffer definitions (for size calculation)
 	struct WaterBufferType
 	{
 		XMFLOAT4 waves[4];

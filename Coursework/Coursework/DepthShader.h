@@ -1,3 +1,7 @@
+// Depth Map Shader
+// used to create a depth map of a static object
+// used for shadow mapping
+
 #pragma once
 #include "DXF.h"
 #include "structsforuse.h"

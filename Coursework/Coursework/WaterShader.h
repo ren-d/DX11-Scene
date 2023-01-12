@@ -1,3 +1,6 @@
+// Water Shader
+// used for tessellating, animation, vertex transformation, lighting the water object inside the scene
+
 #pragma once
 #include "DXF.h"
 #include "LightSource.h"
@@ -13,6 +16,7 @@ class WaterShader :
     
 public:
 
+    // buffer definitions (for size calculation)
     struct MiscParamType
     {
         XMFLOAT4 viewMode;
@@ -85,11 +89,13 @@ private:
     ID3D11Buffer* shadowBuffer;
     ID3D11Buffer* tessellationBuffer;
     ID3D11Buffer* miscParamBuffer;
+
     ID3D11SamplerState* sampleState;
     ID3D11SamplerState* shadowSampleState;
-    ID3D11UnorderedAccessView* uav;
-    ID3D11Texture2D* tex;
-    ID3D11ShaderResourceView* srv;
+
+
+
+
 };
 
 

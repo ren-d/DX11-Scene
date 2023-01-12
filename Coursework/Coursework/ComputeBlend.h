@@ -1,3 +1,6 @@
+// Compute Blend Shader
+// used to blend 2 textures together
+// used for bloom calculation
 #pragma once
 
 #include "DXF.h"
@@ -10,6 +13,7 @@ class ComputeBlend :
 {
 public:
 
+	// buffer definitions (for size calculation)
 	struct BlendingBufferType
 	{
 		XMFLOAT4 blending;
@@ -27,6 +31,8 @@ public:
 private:
 	void initShader(const wchar_t* cfile, const wchar_t* blank);
 
+	ID3D11Buffer* blendBuffer;
+
 	ID3D11ShaderResourceView* srv;
 	ID3D11UnorderedAccessView* uav;
 
@@ -35,7 +41,7 @@ private:
 	ID3D11UnorderedAccessView* m_uavAccess;
 	ID3D11ShaderResourceView* m_srvTexOutput;
 
-	ID3D11Buffer* blendBuffer;
+
 	int sWidth;
 	int sHeight;
 };

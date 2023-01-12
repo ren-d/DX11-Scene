@@ -145,7 +145,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 		shadowOrthos[index+5] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, *screenWidth / 6.5, *screenHeight / 2.2);
 	}
 	
-	orthoMesh2 = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
+	mainScene = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
 	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
@@ -669,9 +669,9 @@ void App1::finalpass()
 	XMMATRIX orthoMatrix = renderer->getOrthoMatrix();  // ortho matrix for 2D rendering
 	XMMATRIX orthoViewMatrix = camera->getOrthoViewMatrix();	// Default camera position for orthographic rendering
 
-	orthoMesh2->sendData(renderer->getDeviceContext());
+	mainScene->sendData(renderer->getDeviceContext());
 	textureShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, orthoViewMatrix, orthoMatrix, computeBlend->getSRV());
-	textureShader->render(renderer->getDeviceContext(), orthoMesh2->getIndexCount());
+	textureShader->render(renderer->getDeviceContext(), mainScene->getIndexCount());
 	renderer->setZBuffer(true);
 
 	// Render GUI

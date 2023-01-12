@@ -1,3 +1,6 @@
+// Compute Vertical Blur shader
+// used to apply a Gaussian Blur
+// used for bloom effect
 #pragma once
 
 #include "DXF.h"

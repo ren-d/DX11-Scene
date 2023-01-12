@@ -1,3 +1,4 @@
+// copied plane class from PlaneMesh and changed topology to work with tessellation
 #pragma once
 #include "DXF.h"
 class TessellationPlane :

@@ -1,6 +1,8 @@
 // Tessellation domain shader
 // After tessellation the domain shader processes the all the vertices
 
+
+// buffers
 cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
@@ -33,6 +35,7 @@ struct OutputType
     float4 depthPosition : TEXCOORD;
 };
 
+// const values for gersner waves
 static float PI = 3.14159265f;
 static float GRAVITY = 9.8f;
 float3 GerstnerWave(float4 wave, float3 position, inout float3 tangent, inout float3 binormal)
@@ -76,15 +79,14 @@ OutputType main(ConstantOutputType input, float2 uvwCoord : SV_DomainLocation, c
     float3 vertexPosition, vertexnormal;
     OutputType output;
  
-    // Determine the position of the new vertex.
-	// Invert the y and Z components of uvwCoord as these coords are generated in UV space and therefore y is positive downward.
-	// Alternatively you can set the output topology of the hull shader to cw instead of ccw (or vice versa).
+    
+    // correctly changes new vertex to its correct position
     float3 v1 = lerp(patch[0].position, patch[1].position, uvwCoord.y);
     float3 v2 = lerp(patch[3].position, patch[2].position, uvwCoord.y);
     vertexPosition = lerp(v1, v2, uvwCoord.x);
     
 
-    
+    // gersner waves
     float3 waterPoint = vertexPosition;
     float3 tangent = float3(1, 0, 0);
     float3 binormal = float3(0, 0, 1);

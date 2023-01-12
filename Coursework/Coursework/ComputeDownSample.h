@@ -1,3 +1,6 @@
+// Compute Down Sample shader
+// used to change size of texture to sWidth, sHeight
+// used for bloom effect
 #pragma once
 
 #include "DXF.h"

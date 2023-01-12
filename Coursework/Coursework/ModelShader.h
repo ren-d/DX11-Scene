@@ -1,3 +1,6 @@
+// Model Shader
+// used for rendering imported models with, normal maps, specular maps and lighting
+
 #pragma once
 #include "BaseShader.h"
 #include "LightSource.h"
@@ -6,7 +9,7 @@ class ModelShader :
 {
 
 public:
-
+    // buffer definitions (for size calculation)
     struct MiscParamType
     {
         XMFLOAT4 viewMode;
@@ -62,6 +65,7 @@ private:
     ID3D11Buffer* cameraBuffer;
     ID3D11Buffer* shadowBuffer;
     ID3D11Buffer* miscParamBuffer;
+
     ID3D11SamplerState* sampleState;
     ID3D11SamplerState* shadowSampleState;
 };

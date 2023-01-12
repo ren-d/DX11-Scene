@@ -1,4 +1,4 @@
-
+// basic colour shader
 cbuffer ColourBuffer : register(b0)
 {
     float4 colour;

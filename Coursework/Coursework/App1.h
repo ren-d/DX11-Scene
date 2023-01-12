@@ -21,14 +21,17 @@
 #include "ComputeUpSample.h"
 #include "ComputeBlend.h"
 #include "ColourShader.h"
+
+// main application
 class App1 : public BaseApplication
 {
 public:
 	
 	App1();
 	~App1();
-	void init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN);
 
+	// initialising
+	void init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN);
 	void initShadowMaps();
 	void initLighting();
 	void initTextures();
@@ -41,60 +44,70 @@ public:
 protected:
 	bool render();
 	void gui();
+
+	// render passes
 	void basepass();
 	void depthpass();
 	void computepass();
-	void brightnesspass();
 	void renderSceneObjects();
-	void upsample();
 	void finalpass();
+
 private:
-	static constexpr int MAX_LIGHTS = 4;
-	static constexpr int MAX_DEPTH_MAPS_PER_LIGHT = 6;
-	static constexpr int MAX_DEPTH_MAPS = 24;
-	SceneObject* waterMesh;
+
+
+	// Models and Objects
+	AModel* boatModel, * crateModel, * barrelModel, * woodenBoxModel, * kegModel;
+	SphereMesh* sphere;
+	Water* water;
 	ModelObject* boat, *crate, *barrel, *woodenBox, * keg;
-	AModel* boatModel, *crateModel, *barrelModel, * woodenBoxModel, *kegModel;
+	
+
+	// Shaders
 	WaterShader* waterShader;
 	WaterDepthShader* waterDepthShader;
 	ModelShader* modelShader;
 	DepthShader* depthShader;
 	TextureShader* textureShader;
 	ColourShader* colourShader;
-	OrthoMesh* shadowOrthos[MAX_DEPTH_MAPS], *orthoMesh2;
-	Water* water;
 
-	SphereMesh* sphere;
-	LightSource* lights[MAX_LIGHTS];
+	// Compute Shaders
 	ComputeDownSample* computeDownSample[3];
 	ComputeBrightness* computeBrightness;
 	ComputeUpSample* computeUpSample[3];
 	ComputeBlend* computeBlend;
 	HorizontalBlurShader* horizonalBlurShader[4];
 	VerticalBlurShader* verticalBlurShader[4];
-	RenderTexture* renderTexture, *renderTexture2;
-	float lightOneColour[MAX_LIGHTS];
-	float lightTwoColour[MAX_LIGHTS];
-	float lightThreeColour[MAX_LIGHTS];
-	float lightFourColour[MAX_LIGHTS];
-	float ambientColour[MAX_LIGHTS];
 
+
+	// Lighting
+	static constexpr int MAX_LIGHTS = 4;
+	static constexpr int MAX_DEPTH_MAPS_PER_LIGHT = 6;
+	static constexpr int MAX_DEPTH_MAPS = 24;
 	XMFLOAT3 directions[MAX_DEPTH_MAPS_PER_LIGHT];
+
 	ShadowMap* shadowMaps[MAX_DEPTH_MAPS];
-	bool displayShadowMaps[MAX_LIGHTS];
-	bool calmWaters, isToggled;
-	int viewMode;
-	
-	float timeInSeconds;
+
+	LightSource* lights[MAX_LIGHTS];
+
+
+
+	RenderTexture* renderTexture, * renderTexture2;
+
 
 	// GUI variables
+	float timeInSeconds;
+	bool calmWaters, isToggled;
+	float bloomIntensity, bloomThreshold, bloomGamma, waterTessellation;
+	OrthoMesh* shadowOrthos[MAX_DEPTH_MAPS], * mainScene;
+	int viewMode;
 	float lightdir[3];
 	float waveOneDir[2];
 	float waveTwoDir[2];
 	float waveThreeDir[2];
 	float waveFourDir[2];
+	bool displayShadowMaps[MAX_LIGHTS];
 	
-	float bloomIntensity, bloomThreshold, bloomGamma, waterTessellation;
+
 };
 
 #endif

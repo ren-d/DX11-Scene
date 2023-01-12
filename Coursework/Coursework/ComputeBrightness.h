@@ -1,4 +1,7 @@
 #pragma once
+// Brightness Map Compute Shader class
+// takes a texture and returns only the brightest values
+// used for bloom calculations
 
 #include "DXF.h"
 
@@ -10,6 +13,7 @@ class ComputeBrightness :
 {
 public:
 
+	// buffer definitions (for size calculation)
 	struct ThresholdBufferType
 	{
 		XMFLOAT4 threshold;
@@ -26,6 +30,8 @@ public:
 private:
 	void initShader(const wchar_t* cfile, const wchar_t* blank);
 
+	ID3D11Buffer* thresholdBuffer;
+
 	ID3D11ShaderResourceView* srv;
 	ID3D11UnorderedAccessView* uav;
 
@@ -33,7 +39,7 @@ private:
 	ID3D11Texture2D* m_tex;
 	ID3D11UnorderedAccessView* m_uavAccess;
 	ID3D11ShaderResourceView* m_srvTexOutput;
-	ID3D11Buffer* thresholdBuffer;
+
 	int sWidth;
 	int sHeight;
 };

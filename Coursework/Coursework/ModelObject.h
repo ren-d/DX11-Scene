@@ -1,3 +1,6 @@
+// Model Object class
+// used to make rendering models easier
+
 #pragma once
 #include "SceneObject.h"
 #include "ModelShader.h"

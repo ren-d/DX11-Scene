@@ -1,3 +1,5 @@
+// Basic Texture Shader
+// used for rendering a basic mesh only affected by a texture
 #pragma once
 
 #include "BaseShader.h"
