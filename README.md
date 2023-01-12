@@ -1,6 +1,6 @@
 # DirectX 11 Scene
 ### Project Plan
-To create a small scene with gerstner waves and a lighthouse, showcasing multiple lighting types, vertex manipulation, shadow mapping and a multitude of post processing shaders using DirectX11
+To create a small scene with gerstner waves and objects, showcasing multiple lighting types, vertex manipulation, shadow mapping and post processing shaders using DirectX11
 
 ## Coding Standards
 
