@@ -31,12 +31,34 @@ SceneObject::SceneObject(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
 SceneObject::~SceneObject()
 {
+	if (m_deviceContext)
+	{
+		m_deviceContext->Release();
+		m_deviceContext = 0;
+	}
+
+	if (m_device)
+	{
+		m_device->Release();
+		m_device = 0;
+	}
+
+	if (m_texture)
+	{
+		m_texture->Release();
+		m_texture = 0;
+	}
+
+	delete m_mesh;
+	delete m_model;
+
 
 }
 
 void SceneObject::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, DepthShader* shader)
 {
 	// checks if object is a mesh or model
+	// easy wrapper for rendering
 	if (m_mesh != nullptr)
 	{
 		m_mesh->sendData(m_deviceContext);
@@ -94,7 +116,7 @@ void SceneObject::setModel(AModel* model)
 	m_model = model;
 }
 
-void SceneObject::buildTransformations(XMMATRIX& world)
+void SceneObject::buildTransformations(XMMATRIX& world) // Ignore, is not used in this project.
 {
 	XMMATRIX translation = XMMatrixTranslation(m_translation.x, m_translation.y, m_translation.z);
 	XMMATRIX rotationX = XMMatrixRotationX(m_rotX);

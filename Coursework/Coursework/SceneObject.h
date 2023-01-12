@@ -32,16 +32,17 @@ public:
 
 protected:
     ID3D11DeviceContext* m_deviceContext;
+    ID3D11Device* m_device;
+    ID3D11ShaderResourceView* m_texture;
 
     BaseMesh* m_mesh;
     AModel* m_model;
-    ID3D11Device* m_device;
+
 
     float m_rotX, m_rotY, m_rotZ;
     XMFLOAT3 m_translation, m_scale;
     XMMATRIX m_transformMatrix;
 
-    ID3D11ShaderResourceView* m_texture;
     
 };
 

@@ -21,6 +21,21 @@ WaterDepthShader::~WaterDepthShader()
 		layout = 0;
 	}
 
+	// Release the layout.
+	if (waterBuffer)
+	{
+		waterBuffer->Release();
+		waterBuffer = 0;
+	}
+
+	// Release the layout.
+	if (tessellationBuffer)
+	{
+		tessellationBuffer->Release();
+		tessellationBuffer = 0;
+	}
+
+
 	//Release base shader components
 	BaseShader::~BaseShader();
 }

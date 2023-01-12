@@ -9,7 +9,64 @@ ComputeBrightness::ComputeBrightness(ID3D11Device* device, HWND hwnd, int w, int
 
 ComputeBrightness::~ComputeBrightness()
 {
+	// release heap allocated data
 
+	if (matrixBuffer)
+	{
+		matrixBuffer->Release();
+		matrixBuffer = 0;
+	}
+
+	
+	if (layout)
+	{
+		layout->Release();
+		layout = 0;
+	}
+
+	if (thresholdBuffer)
+	{
+		thresholdBuffer->Release();
+		thresholdBuffer = 0;
+	}
+
+
+	if (srv)
+	{
+		srv->Release();
+		srv = 0;
+	}
+
+
+	if (uav)
+	{
+		uav->Release();
+		uav = 0;
+	}
+
+
+	if (m_tex)
+	{
+		m_tex->Release();
+		m_tex = 0;
+	}
+
+
+	if (m_uavAccess)
+	{
+		m_uavAccess->Release();
+		m_uavAccess = 0;
+	}
+
+
+	if (m_srvTexOutput)
+	{
+		m_srvTexOutput->Release();
+		m_srvTexOutput = 0;
+	}
+
+	//Release base shader components
+	BaseShader::~BaseShader();
 }
 
 void ComputeBrightness::initShader(const wchar_t* cfile, const wchar_t* blank)
@@ -17,6 +74,7 @@ void ComputeBrightness::initShader(const wchar_t* cfile, const wchar_t* blank)
 	loadComputeShader(cfile);
 	createOutputUAV();
 
+	// buffer descriptions
 	D3D11_BUFFER_DESC thresholdBufferDesc;
 
 	thresholdBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -29,7 +87,7 @@ void ComputeBrightness::initShader(const wchar_t* cfile, const wchar_t* blank)
 	renderer->CreateBuffer(&thresholdBufferDesc, 0, &thresholdBuffer);
 }
 
-void ComputeBrightness::createOutputUAV()
+void ComputeBrightness::createOutputUAV() // create unordered acces view 
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
@@ -66,6 +124,7 @@ void ComputeBrightness::setShaderParameters(ID3D11DeviceContext* dc, ID3D11Shade
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 
+	// set constant buffers
 	ThresholdBufferType* threshPtr;
 	dc->Map(thresholdBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	threshPtr = (ThresholdBufferType*)mappedResource.pData;

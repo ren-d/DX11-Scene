@@ -7,25 +7,60 @@ WaterShader::WaterShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, h
 
 WaterShader::~WaterShader()
 {
-	// Release the sampler state.
+
 	if (sampleState)
 	{
 		sampleState->Release();
 		sampleState = 0;
 	}
 
-	// Release the matrix constant buffer.
 	if (matrixBuffer)
 	{
 		matrixBuffer->Release();
 		matrixBuffer = 0;
 	}
 
-	// Release the layout.
 	if (layout)
 	{
 		layout->Release();
 		layout = 0;
+	}
+
+	if (waterBuffer)
+	{
+		waterBuffer->Release();
+		waterBuffer = 0;
+	}
+
+	if (lightBuffer)
+	{
+		lightBuffer->Release();
+		lightBuffer = 0;
+	}
+	if (cameraBuffer)
+	{
+		cameraBuffer->Release();
+		cameraBuffer = 0;
+	}
+	if (shadowBuffer)
+	{
+		shadowBuffer->Release();
+		shadowBuffer = 0;
+	}
+	if (tessellationBuffer)
+	{
+		tessellationBuffer->Release();
+		tessellationBuffer = 0;
+	}
+	if (miscParamBuffer)
+	{
+		miscParamBuffer->Release();
+		miscParamBuffer = 0;
+	}
+	if (shadowSampleState)
+	{
+		shadowSampleState->Release();
+		shadowSampleState = 0;
 	}
 
 	//Release base shader components
@@ -179,7 +214,7 @@ void WaterShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	// Send matrix data
 	result = deviceContext->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
-	dataPtr->world = tworld;// worldMatrix;
+	dataPtr->world = tworld;
 	dataPtr->view = tview;
 	dataPtr->projection = tproj;
 	deviceContext->Unmap(matrixBuffer, 0);

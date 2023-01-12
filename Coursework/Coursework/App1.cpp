@@ -6,6 +6,68 @@ App1::App1()
 {
 
 }
+App1::~App1()
+{
+	// Run base application deconstructor
+	BaseApplication::~BaseApplication();
+
+	// delete heap allocated Models & Objects
+	delete boatModel;
+	boatModel = 0;
+	delete crateModel;
+	crateModel = 0;
+	delete barrelModel;
+	barrelModel = 0;
+	delete woodenBoxModel;
+	woodenBoxModel = 0;
+	delete kegModel;
+	kegModel = 0;
+
+	delete sphere;
+	sphere = 0;
+	delete water;
+	water = 0;
+	delete boat;
+	boat = 0;
+	delete crate;
+	crate = 0;
+	delete barrel;
+	barrel = 0;
+	delete keg;
+	keg = 0;
+
+	// delete heap allocated shaders
+	delete waterShader;
+	waterShader = 0;
+	delete waterDepthShader;
+	waterDepthShader = 0;
+	delete modelShader;
+	modelShader = 0;
+	delete depthShader;
+	depthShader = 0;
+	delete textureShader;
+	textureShader = 0;
+	delete colourShader;
+	colourShader = 0;
+
+	// delete heap allocated Compute Shaders
+	delete[] computeDownSample;
+	delete[] computeUpSample;
+	delete[] horizonalBlurShader;
+	delete[] verticalBlurShader;
+	delete computeBrightness;
+	delete computeBlend;
+
+	// delete heap allocated lighting data
+	delete[] shadowMaps;
+	delete[] lights;
+	
+
+	//GUI and others
+	delete[] shadowOrthos;
+	delete renderTexture;
+}
+
 
 void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight, Input* in, bool VSYNC, bool FULL_SCREEN)
 {
@@ -13,6 +75,7 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 	BaseApplication::init(hinstance, hwnd, screenWidth, screenHeight, in, VSYNC, FULL_SCREEN);
 
 
+	//init
 	initShadowMaps();
 	initLighting();
 	initTextures();
@@ -24,8 +87,8 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 void App1::initShadowMaps()
 {
-	const int shadowmapWidth = 1024;
-	const int shadowmapHeight = 1024;
+	const int shadowmapWidth = 2048;
+	const int shadowmapHeight = 2048;
 
 	int maxShadowMaps = MAX_LIGHTS * MAX_DEPTH_MAPS_PER_LIGHT;
 	for (int i = 0; i < maxShadowMaps; i++)
@@ -33,6 +96,7 @@ void App1::initShadowMaps()
 		shadowMaps[i] = new ShadowMap(renderer->getDevice(), shadowmapWidth, shadowmapHeight);
 	}
 
+	// directions to be used in point light shadowmap calculations
 	directions[0] = XMFLOAT3(1, 0, 0);
 	directions[1] = XMFLOAT3(-1, 0, 0);
 	directions[2] = XMFLOAT3(0, 1, 0);
@@ -46,6 +110,7 @@ void App1::initLighting()	// Initalise scene lighting.
 
 	const int sceneWidth = 200;
 	const int sceneHeight = 200;
+
 	lights[0] = new LightSource();
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
 	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
@@ -134,6 +199,7 @@ void App1::initTextures() // load textures
 
 void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise scene objects
 {
+	// shadowmap orthos definitions
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		int index = (i * MAX_DEPTH_MAPS_PER_LIGHT);
@@ -145,6 +211,8 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 		shadowOrthos[index+5] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, *screenWidth / 6.5, *screenHeight / 2.2);
 	}
 	
+
+	// main object & model definitions
 	mainScene = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
 	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
 	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
@@ -175,6 +243,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 
 void App1::initShaders(HWND hwnd)
 {
+
 	waterShader = new WaterShader(renderer->getDevice(), hwnd);
 	waterDepthShader = new WaterDepthShader(renderer->getDevice(), hwnd);
 	modelShader = new ModelShader(renderer->getDevice(), hwnd);
@@ -183,7 +252,9 @@ void App1::initShaders(HWND hwnd)
 	colourShader = new ColourShader(renderer->getDevice(), hwnd);
 
 
-
+	// compute shaders  
+	// (sWidth / x) and (sHeight / x) 
+	// is in regards to the output texture size
 
 	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, sWidth, sHeight);
 
@@ -237,12 +308,7 @@ void App1::initGUI() // Setup GUI Variables
 	calmWaters = false;
 }
 
-App1::~App1()
-{
-	// Run base application deconstructor
-	BaseApplication::~BaseApplication();
 
-}
 
 void App1::updateInput() // update variables based on the GUI input
 {
@@ -281,10 +347,8 @@ bool App1::frame()
 
 bool App1::render()
 {
-	// Clear the scene. (default blue colour)
 
-
-	// Generate the view matrix based on the camera's position.
+	// Wave Settings
 	if (calmWaters)
 	{
 		water->getWave(0)->steepness = 0.0f;
@@ -303,6 +367,9 @@ bool App1::render()
 		isToggled = true;
 
 	}
+
+
+	// viewmode ensures that switching between shaders and non shaders is easy (helps with wireframe)
 	switch (viewMode)
 	{
 	case 1:
@@ -324,27 +391,72 @@ bool App1::render()
 
 	gui();
 
-	// Present the rendered scene to the screen.
+
 	renderer->endScene();
-
-
-
-
-	// Present the rendered scene to the screen.
 
 
 	return true;
 }
 
-void App1::renderSceneObjects()
-{
 
+void App1::renderDepthScene(XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, XMMATRIX worldMatrix)
+{
+	// renders depth values
+	water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera); // render water
+
+	worldMatrix *= XMMatrixTranslation(20, 1, 70);
+	crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render crate
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(30, 1, 40);
+	barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render barrel
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(50, 2, 20);
+	woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render woodbox
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(70, 2, 70);
+	keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render keg
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix *= XMMatrixScaling(2, 2, 2);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
+	worldMatrix *= XMMatrixTranslation(-10, 1, 60);
+	woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render woodbox (LARGE)
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix *= XMMatrixScaling(2, 2, 2);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
+	worldMatrix *= XMMatrixTranslation(110, 1, 60);
+	woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render woodbox (LARGE)
+
+	worldMatrix = renderer->getWorldMatrix();
+	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
+	worldMatrix *= XMMatrixTranslation(60, 1, 40);
+	boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render boat
 }
 
 
 void App1::depthpass()
 {
+	// renders depthmap to depth buffer based on light type
 
+	// NOTE: i*MAX_DEPTHS_PER_LIGHT refers to the max amount of depht maps per light
+	// this means that each light is set to have 6 depth maps
+	// the stored depth map is fragmented so that
+	// light[0] = depthmap[0]...[5]
+	// light[1] = depthmap[6]...[11]
+	// light[2] = depthmap[12]...[17]
+	// light[3] = depthmap[18]...[23]
+
+
+	// directional lights: 1 depth map
+	// point lights: 6 depth maps
+	// spot lights: 1 depth map
 	XMMATRIX lightViewMatrix, lightProjectionMatrix, worldMatrix;
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
@@ -354,52 +466,18 @@ void App1::depthpass()
 			shadowMaps[i * MAX_DEPTH_MAPS_PER_LIGHT]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 			lights[i]->generateViewMatrix();
 
-
-
 			lightViewMatrix = lights[i]->getViewMatrix();
 			lightProjectionMatrix = lights[i]->getOrthoMatrix();
 			worldMatrix = renderer->getWorldMatrix();
 
-			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
-
-			worldMatrix *= XMMatrixTranslation(20, 1, 70);
-			crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(30, 1, 40);
-			barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(50, 2, 20);
-			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(70, 2, 70);
-			keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix *= XMMatrixScaling(2, 2, 2);
-			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
-			worldMatrix *= XMMatrixTranslation(-10, 1, 60);
-			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix *= XMMatrixScaling(2, 2, 2);
-			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
-			worldMatrix *= XMMatrixTranslation(110, 1, 60);
-			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = renderer->getWorldMatrix();
-
-
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(60, 1, 40);
-
-			boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			renderDepthScene(lightViewMatrix, lightProjectionMatrix, worldMatrix);
 
 			renderer->setBackBufferRenderTarget();
 			renderer->resetViewport();
 
 			break;
 		case LightSource::LType::POINT:
-			for (int j = 0; j < MAX_DEPTH_MAPS_PER_LIGHT; j++)
+			for (int j = 0; j < MAX_DEPTH_MAPS_PER_LIGHT; j++) // renders to 6 depth maps for point light cubemap
 			{
 				int indexshadow = (i * MAX_DEPTH_MAPS_PER_LIGHT ) + j;
 				shadowMaps[indexshadow]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
@@ -408,42 +486,11 @@ void App1::depthpass()
 				lights[i]->generateViewMatrix();
 				lights[i]->generateProjectionMatrix(1.0f, 100.f);
 				
-
 				lightViewMatrix = lights[i]->getViewMatrix();
 				lightProjectionMatrix = lights[i]->getProjectionMatrix();
 				worldMatrix = renderer->getWorldMatrix();
 
-				water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
-				worldMatrix *= XMMatrixTranslation(20, 1, 70);
-				crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-				worldMatrix = renderer->getWorldMatrix();
-				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-				worldMatrix *= XMMatrixTranslation(30, 1, 40);
-				barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-				worldMatrix = renderer->getWorldMatrix();
-				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-				worldMatrix *= XMMatrixTranslation(50, 2, 20);
-				woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-				worldMatrix *= XMMatrixTranslation(70, 2, 70);
-				keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-				worldMatrix = renderer->getWorldMatrix();
-				worldMatrix *= XMMatrixScaling(2, 2, 2);
-				worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
-				worldMatrix *= XMMatrixTranslation(-10, 1, 60);
-				woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-
-				worldMatrix = renderer->getWorldMatrix();
-				worldMatrix *= XMMatrixScaling(2, 2, 2);
-				worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
-				worldMatrix *= XMMatrixTranslation(110, 1, 60);
-				woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-				worldMatrix = renderer->getWorldMatrix();
-
-				worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-				worldMatrix *= XMMatrixTranslation(60, 1, 40);
-
-				boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+				renderDepthScene(lightViewMatrix, lightProjectionMatrix, worldMatrix);
 
 				renderer->setBackBufferRenderTarget();
 				renderer->resetViewport();
@@ -454,68 +501,33 @@ void App1::depthpass()
                          
 			shadowMaps[i * MAX_DEPTH_MAPS_PER_LIGHT]->BindDsvAndSetNullRenderTarget(renderer->getDeviceContext());
 			lights[i]->generateViewMatrix();
-			float fov = XMConvertToRadians(*lights[i]->getOuterCone()) * 2.0f;
+			float fov = XMConvertToRadians(*lights[i]->getOuterCone()) * 2.0f; // recalculate fov based on the cone of the spotlight
 
-
-			XMMATRIX lightViewMatrix = lights[i]->getViewMatrix();
-			XMMATRIX lightProjectionMatrix = XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f);
-			XMMATRIX worldMatrix = renderer->getWorldMatrix();
-
-			water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera);
-			worldMatrix *= XMMatrixTranslation(20, 1, 70);
-			crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(30, 1, 40);
-			barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(50, 2, 20);
-			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(70, 2, 70);
-			keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix *= XMMatrixScaling(2, 2, 2);
-			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
-			worldMatrix *= XMMatrixTranslation(-10, 1, 60);
-			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
-
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix *= XMMatrixScaling(2, 2, 2);
-			worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
-			worldMatrix *= XMMatrixTranslation(110, 1, 60);
-			woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			lightViewMatrix = lights[i]->getViewMatrix();
+			lightProjectionMatrix = XMMatrixPerspectiveFovLH(fov, 1, 5.0f, 100.f);
 			worldMatrix = renderer->getWorldMatrix();
 
-			worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-			worldMatrix *= XMMatrixTranslation(60, 1, 40);
-
-			boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader);
+			renderDepthScene(lightViewMatrix, lightProjectionMatrix, worldMatrix);
 
 			renderer->setBackBufferRenderTarget();
 			renderer->resetViewport();
 			break;
 		}
-		
-		
 	}
-	
-
 }
 
-void App1::computepass()
+void App1::computepass() // compute shaders used for post processing
 {
 	float groupSizeX;
 	float groupSizeY;
 
+	// gets brightest pixels and renders them to a SRV
 	computeBrightness->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), bloomThreshold);
-	computeBrightness->compute(renderer->getDeviceContext(), ceil((float)sWidth/8), ceil((float)sHeight/8), 1);
+	computeBrightness->compute(renderer->getDeviceContext(), ceil((float)sWidth/8), ceil((float)sHeight/8), 1); // groups are height / 8 to correspond to threads per group
 	computeBrightness->unbind(renderer->getDeviceContext());
 
 
+	// downscale image
 	for (int i = 0; i < 3; i++)
 	{
 		
@@ -538,23 +550,26 @@ void App1::computepass()
 
 	}
 
+	// apply gaussian blur
 	horizonalBlurShader[0]->setShaderParameters(renderer->getDeviceContext(), computeDownSample[2]->getSRV());
-	horizonalBlurShader[0]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+	horizonalBlurShader[0]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1); // groups are / 256 due to shader having 256 threads per group
 	horizonalBlurShader[0]->unbind(renderer->getDeviceContext());
 
 	verticalBlurShader[0]->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader[0]->getSRV());
 	verticalBlurShader[0]->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
 	verticalBlurShader[0]->unbind(renderer->getDeviceContext());
 
+	// upscale image
 	for (int i = 0; i < 3; i++)
 	{
-		groupSizeX = ceil((float)(sWidth / (6 - (2 * i))) / 8);
+		groupSizeX = ceil((float)(sWidth / (6 - (2 * i))) / 8); // hacky formula to work out up scaling division based on index
 		groupSizeY = ceil((float)(sWidth / (6 - (2 * i))) / 8);
 
 		computeUpSample[i]->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader[i]->getSRV());
 		computeUpSample[i]->compute(renderer->getDeviceContext(), groupSizeX, groupSizeY, 1);
 		computeUpSample[i]->unbind(renderer->getDeviceContext());
 
+		// apply gaussian blur
 		horizonalBlurShader[i+1]->setShaderParameters(renderer->getDeviceContext(), computeUpSample[i]->getSRV());
 		horizonalBlurShader[i+1]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
 		horizonalBlurShader[i+1]->unbind(renderer->getDeviceContext());
@@ -567,8 +582,7 @@ void App1::computepass()
 
 	}
 
-	
-
+	//blend final brightness image with orignal scene to create "bloom"
 	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader[3]->getSRV(), bloomIntensity, bloomGamma);
 	computeBlend->compute(renderer->getDeviceContext(), ceil((float)sWidth / 8), ceil((float)sHeight / 8), 1);
 	computeBlend->unbind(renderer->getDeviceContext());
@@ -579,14 +593,16 @@ void App1::computepass()
 void App1::basepass()
 {
 
-
+	
 	camera->update();
-	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+
+
 	XMMATRIX worldMatrix = renderer->getWorldMatrix();
 	XMMATRIX viewMatrix = camera->getViewMatrix();
 	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
 
 
+	// render world
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera, waterTessellation, viewMode);
 	
 	worldMatrix *= XMMatrixTranslation(20, 1, 70);
@@ -621,7 +637,8 @@ void App1::basepass()
 	worldMatrix *= XMMatrixTranslation(110, 1, 60);
 	woodenBox->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 
-	for (int i = 0; i < 4; i++)
+	// render visible spheres where lights are located
+	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		worldMatrix = XMMatrixTranslation(lights[i]->getPosition().x, lights[i]->getPosition().y, lights[i]->getPosition().z);
 		sphere->sendData(renderer->getDeviceContext());
@@ -630,6 +647,7 @@ void App1::basepass()
 	}
 
 	
+	// display shadow maps based on GUI
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		if (displayShadowMaps[i])
@@ -674,7 +692,6 @@ void App1::finalpass()
 	textureShader->render(renderer->getDeviceContext(), mainScene->getIndexCount());
 	renderer->setZBuffer(true);
 
-	// Render GUI
 
 }
 
@@ -694,6 +711,8 @@ void App1::gui()
 		viewMode = 0;
 	}
 
+	// drop down list for how to render scene
+	// changes "viewMode" integer which is used in multiple state machines
 	const char* LIST_ITEMS[] = { "Base", "Shaders", "UV", "Normals" };
 
 	ImGui::ListBox("View Mode", &viewMode, LIST_ITEMS, IM_ARRAYSIZE(LIST_ITEMS), 4);
@@ -742,6 +761,7 @@ void App1::gui()
 
 		for (int i = 0; i < MAX_LIGHTS; i++)
 		{
+			// define light headers
 			std::string mainHeaderName = "light ";
 			std::string shadowMapName = "display shadow map ";
 			std::string listboxName = "light type ";
@@ -756,6 +776,7 @@ void App1::gui()
 			std::string innerConeName = "inner cone (degrees) ";
 			std::string indexAsString = std::to_string(i);
 
+			// append current index to headers
 			mainHeaderName += indexAsString;
 			shadowMapName += indexAsString;
 			listboxName += indexAsString;
@@ -771,7 +792,9 @@ void App1::gui()
 
 			if (ImGui::CollapsingHeader(mainHeaderName.c_str()))
 			{
+				
 				ImGui::Checkbox(shadowMapName.c_str(), &displayShadowMaps[i]);
+				// disables other visible shadow map ortho mesh apart from this one
 				if (displayShadowMaps[i])
 				{
 					for (int j = 0; j < MAX_LIGHTS; j++)
@@ -784,9 +807,9 @@ void App1::gui()
 					}
 				}
 
+				// drop down box to switch light types
 				int currentSelection = (int)lights[i]->getLightType();
 				ImGui::ListBox(listboxName.c_str() , &currentSelection, LIGHT_ITEMS, IM_ARRAYSIZE(LIGHT_ITEMS), 3);
-
 
 				switch (currentSelection)
 				{
@@ -825,18 +848,19 @@ void App1::gui()
 
 			}
 		}
+		// ensures ambient is the same
 		lights[0]->update();
 
 		
 	}
 
+	// Bloom GUI
 	if (ImGui::CollapsingHeader("Post Processing"))
 	{
 		ImGui::SliderFloat("bloom threshold", &bloomThreshold, 0.0f, 1.0f);
 		ImGui::SliderFloat("bloom intensity", &bloomIntensity, 0.0f, 1.0f);
 		ImGui::SliderFloat("bloom gamma", &bloomGamma, 0.0f, 3.0f);
 		
-
 	}
 	
 	// Render UI

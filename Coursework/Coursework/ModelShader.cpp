@@ -6,27 +6,55 @@ ModelShader::ModelShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, h
 	initShader(L"model_vs.cso", L"model_ps.cso");
 }
 
-ModelShader::~ModelShader()
+ModelShader::~ModelShader() // release heap allocated data
 {
-	// Release the sampler state.
+
 	if (sampleState)
 	{
 		sampleState->Release();
 		sampleState = 0;
 	}
 
-	// Release the matrix constant buffer.
 	if (matrixBuffer)
 	{
 		matrixBuffer->Release();
 		matrixBuffer = 0;
 	}
 
-	// Release the layout.
 	if (layout)
 	{
 		layout->Release();
 		layout = 0;
+	}
+
+	if (lightBuffer)
+	{
+		lightBuffer->Release();
+		lightBuffer = 0;
+	}
+
+	if (cameraBuffer)
+	{
+		cameraBuffer->Release();
+		cameraBuffer = 0;
+	}
+
+	if (shadowBuffer)
+	{
+		shadowBuffer->Release();
+		shadowBuffer = 0;
+	}
+
+	if (miscParamBuffer)
+	{
+		miscParamBuffer->Release();
+		miscParamBuffer = 0;
+	}
+
+	if (shadowSampleState)
+	{
+		shadowSampleState->Release();
+		shadowSampleState = 0;
 	}
 
 	//Release base shader components
@@ -47,7 +75,7 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	loadVertexShader(vsFilename);
 	loadPixelShader(psFilename);
 
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -55,11 +83,10 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	renderer->CreateBuffer(&matrixBufferDesc, NULL, &matrixBuffer);
 
 
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -67,10 +94,10 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	lightBufferDesc.MiscFlags = 0;
 	lightBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	
 	renderer->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+
 	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
 	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -78,7 +105,7 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	cameraBufferDesc.MiscFlags = 0;
 	cameraBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+
 	renderer->CreateBuffer(&cameraBufferDesc, NULL, &cameraBuffer);
 
 	shadowBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -88,9 +115,9 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	shadowBufferDesc.MiscFlags = 0;
 	shadowBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+
 	renderer->CreateBuffer(&shadowBufferDesc, NULL, &shadowBuffer);
-	// Create a texture sampler state description.
+
 	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -101,7 +128,6 @@ void ModelShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	// Create the texture sampler state.
 	renderer->CreateSamplerState(&samplerDesc, &sampleState);
 
 
@@ -140,7 +166,7 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	
 	XMMATRIX tworld, tview, tproj;
 
-	// Transpose the matrices to prepare them for the shader.
+
 	tworld = XMMatrixTranspose(worldMatrix);
 	tview = XMMatrixTranspose(viewMatrix);
 	tproj = XMMatrixTranspose(projectionMatrix);
@@ -161,6 +187,8 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	ShadowBufferType* shadowPtr;
 	result = deviceContext->Map(shadowBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	shadowPtr = (ShadowBufferType*)mappedResource.pData;
+
+	// directions for each light to recalculate point light view matrix
 	XMFLOAT3 directions[6];
 	directions[0] = XMFLOAT3(1, 0, 0);
 	directions[1] = XMFLOAT3(-1, 0, 0);
@@ -241,6 +269,7 @@ void ModelShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->PSSetShaderResources(1, 1, &normalTexture);
 	deviceContext->PSSetShaderResources(2, 1, &specTexture);
 
+	// set depth maps
 	ID3D11ShaderResourceView* depth[24];
 	for (int i = 0; i < 24; i++)
 	{

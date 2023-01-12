@@ -41,8 +41,9 @@ private:
 	void initShader(const wchar_t* vsFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* psFilename);
 
 private:
-	ID3D11Buffer* waterBuffer;
+
 	ID3D11Buffer* matrixBuffer;
+	ID3D11Buffer* waterBuffer;
 	ID3D11Buffer* tessellationBuffer;
 };
 

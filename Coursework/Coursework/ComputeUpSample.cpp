@@ -9,7 +9,50 @@ ComputeUpSample::ComputeUpSample(ID3D11Device* device, HWND hwnd, int w, int h) 
 
 ComputeUpSample::~ComputeUpSample()
 {
+	// release heap allocated data
 
+	if (layout)
+	{
+		layout->Release();
+		layout = 0;
+	}
+
+	if (srv)
+	{
+		srv->Release();
+		srv = 0;
+	}
+
+
+	if (uav)
+	{
+		uav->Release();
+		uav = 0;
+	}
+
+
+	if (m_tex)
+	{
+		m_tex->Release();
+		m_tex = 0;
+	}
+
+
+	if (m_uavAccess)
+	{
+		m_uavAccess->Release();
+		m_uavAccess = 0;
+	}
+
+
+	if (m_srvTexOutput)
+	{
+		m_srvTexOutput->Release();
+		m_srvTexOutput = 0;
+	}
+
+	//Release base shader components
+	BaseShader::~BaseShader();
 }
 
 void ComputeUpSample::initShader(const wchar_t* cfile, const wchar_t* blank)

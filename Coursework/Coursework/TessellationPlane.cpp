@@ -1,5 +1,5 @@
 #include "TessellationPlane.h"
-
+// taken from PlaneMesh, and topology edited to be correct for quad tessellation
 TessellationPlane::TessellationPlane(ID3D11Device* device)
 {
 	initBuffers(device);
@@ -24,7 +24,7 @@ void TessellationPlane::sendData(ID3D11DeviceContext* deviceContext, D3D_PRIMITI
 	deviceContext->IASetPrimitiveTopology(top);
 }
 
-void TessellationPlane::initBuffers(ID3D11Device* device)
+void TessellationPlane::initBuffers(ID3D11Device* device) // creates quad 
 {
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	VertexType* vertices;

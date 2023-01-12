@@ -2,13 +2,55 @@
 
 ComputeBlend::ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h) : BaseShader(device, hwnd)
 {
+	// set initial values
 	sWidth = w;
 	sHeight = h;
 	initShader(L"computeBlendTextures_cs.cso", NULL);
 }
 
-ComputeBlend::~ComputeBlend()
+ComputeBlend::~ComputeBlend() // release heap allocated data
 {
+	if (matrixBuffer)
+	{
+		matrixBuffer->Release();
+		matrixBuffer = 0;
+	}
+
+	if (layout)
+	{
+		layout->Release();
+		layout = 0;
+	}
+
+	if (blendBuffer)
+	{
+		blendBuffer->Release();
+		blendBuffer = 0;
+	}
+
+	if (srv)
+	{
+		srv->Release();
+		srv = 0;
+	}
+
+	if (uav)
+	{
+		uav->Release();
+		uav = 0;
+	}
+
+	if (m_tex)
+	{
+		m_tex->Release();
+		m_tex = 0;
+	}
+
+	if (m_srvTexOutput)
+	{
+		m_srvTexOutput->Release();
+		m_srvTexOutput = 0;
+	}
 
 }
 

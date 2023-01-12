@@ -85,7 +85,7 @@
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ColourShader.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

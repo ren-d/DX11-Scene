@@ -14,6 +14,7 @@ Water::Water(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11Sha
 
 void Water::initWaves()
 {
+	// waves created and initialised
 	m_waves[0] = new Wave();
 	m_waves[0]->direction = XMFLOAT2(1, 0);
 	m_waves[0]->steepness = 0.264f;
@@ -34,9 +35,22 @@ void Water::initWaves()
 
 Water::~Water()
 {
+	if (m_normalMaps)
+	{
+		m_normalMaps[0]->Release();
+		m_normalMaps[0] = 0;
 
+		m_normalMaps[1]->Release();
+		m_normalMaps[1] = 0;
+	}
+
+	delete[] m_waves;
+
+
+	SceneObject::~SceneObject();
 }
 
+// easy wrapper for rendering
 void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, WaterShader* shader, LightSource* lights[4], ShadowMap* maps[24], float timeInSeconds, Camera* camera, float tessellation, int viewMode)
 {
 

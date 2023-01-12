@@ -71,6 +71,7 @@ void LightSource::init()
 }
 void LightSource::update()
 {
+    // updates actual lighting values to GUI input via float arrays
     setPosition(m_position[0], m_position[1], m_position[2]);
     setDirection(m_direction[0], m_direction[1], m_direction[2]);
     setDiffuseColour(m_diffuse[0], m_diffuse[1], m_diffuse[2], m_diffuse[3]);

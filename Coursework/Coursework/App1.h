@@ -49,7 +49,7 @@ protected:
 	void basepass();
 	void depthpass();
 	void computepass();
-	void renderSceneObjects();
+	void renderDepthScene(XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, XMMATRIX worldMatrix);
 	void finalpass();
 
 private:
@@ -91,7 +91,7 @@ private:
 
 
 
-	RenderTexture* renderTexture, * renderTexture2;
+	RenderTexture* renderTexture;
 
 
 	// GUI variables
