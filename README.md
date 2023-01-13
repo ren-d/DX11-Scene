@@ -1,6 +1,8 @@
-# DirectX 11 Scene
+for full working showcase build see [here](https://github.com/ren-d/DX11-Scene/tree/University_Submission_13012023)
+# DX11 Work In Progress Build
+
 ### Project Plan
-To create a small scene with gerstner waves and objects, showcasing multiple lighting types, vertex manipulation, shadow mapping and post processing shaders using DirectX11
+Added extra feature ontop of university coursework for fun :)
 
 ## Coding Standards
 
