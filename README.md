@@ -2,10 +2,25 @@
 ### Project Plan
 To create a small scene with gerstner waves and objects, showcasing multiple lighting types, vertex manipulation, shadow mapping and post processing compute shaders using DirectX11
 
-### index
+## Index
+[Scene](#scene)
+
+[Objects](#objects)
+
+[Tessellation](#tessellation)
+
+[Lighting & Shadows](#lighting--shadows)
+
+[Post-Processing Bloom](#post-processing-bloom)
+
+[Post-Processing Render Passes](#post-processing-render-passes)
+
+[Coding Standards](#coding-standards)
 
 ## Screenshots
 ### Scene
+<sub>[index](#index)</sub>
+  
 <sub> View mode GUI </sub>
 
 ![image](https://user-images.githubusercontent.com/49440612/212222918-f904ff2b-0c9b-48c4-bcdc-188559e813e4.png)
@@ -31,7 +46,9 @@ To create a small scene with gerstner waves and objects, showcasing multiple lig
 ![image](https://user-images.githubusercontent.com/49440612/212222667-23f47a12-744e-4c94-8a6f-f22a7ba4c776.png)
 
 ### Objects
-
+  
+<sub>[index](#index)</sub>
+  
 <sub> Wave GUI </sub>
 
 ![image](https://user-images.githubusercontent.com/49440612/212223315-9bc2fb3d-8def-4918-bdb7-8d6ba0b76923.png)
@@ -45,10 +62,10 @@ To create a small scene with gerstner waves and objects, showcasing multiple lig
 
 ![image](https://user-images.githubusercontent.com/49440612/212223457-3d42f5e7-fa56-45d0-b372-18d92cea0e90.png)![image](https://user-images.githubusercontent.com/49440612/212223482-eafddf6f-4f23-4445-b783-631518b52ed6.png)
 
-
-
 ### Tessellation
-
+  
+<sub>[index](#index)</sub>
+  
 <sub> Tessellation GUI </sub>
 
 ![image](https://user-images.githubusercontent.com/49440612/212223361-f8f89304-8a45-4485-82a2-0cfe3ed6a9ff.png)
@@ -59,6 +76,10 @@ To create a small scene with gerstner waves and objects, showcasing multiple lig
 
 
 ### Lighting & Shadows
+
+<sub>[index](#index)</sub>
+    
+    
 <sub>Showcasing multiple light types casting shadows: Point lights (blue & green), Spotlight (red), Directional light (pink)</sub>
 
 ![image](https://user-images.githubusercontent.com/49440612/212220864-5a9fee35-139a-415f-b5db-d6aee9603a7c.png)
@@ -78,7 +99,6 @@ To create a small scene with gerstner waves and objects, showcasing multiple lig
 
 ![image](https://user-images.githubusercontent.com/49440612/212221992-aa461f0e-b365-46cc-8ff7-37269cdac01c.png)![image](https://user-images.githubusercontent.com/49440612/212222314-fea606c1-5baa-44c4-b2cc-97c50f7775ac.png)![image](https://user-images.githubusercontent.com/49440612/212222053-92d99152-5917-4d68-871c-6eff6cedee17.png)
 
-
 <sub> Display shadow map GUI option </sub>
 
 ![image](https://user-images.githubusercontent.com/49440612/212223703-1f3346bc-3fa6-42b6-836b-ad7a09543252.png)
@@ -95,8 +115,9 @@ To create a small scene with gerstner waves and objects, showcasing multiple lig
 
 ![image](https://user-images.githubusercontent.com/49440612/212223892-7999b200-63a6-4484-a760-754393168aec.png)
 
-
 ### Post-Processing Bloom
+  
+  <sub>[index](#index)</sub>
 
 <sub> Post processing GUI options </sub>
 
@@ -114,8 +135,10 @@ To create a small scene with gerstner waves and objects, showcasing multiple lig
 
 ![image](https://user-images.githubusercontent.com/49440612/212221325-7f5208ea-013d-4da7-8a3a-16ecabaf59cc.png) ![image](https://user-images.githubusercontent.com/49440612/212221334-d52c753c-49c1-4222-9ede-7d6947f6d0a0.png)
 
-
 ### Post-Processing Render Passes
+  
+ <sub>[index](#index)</sub>
+  
 
 <sub> Original Scene </sub>
 
@@ -174,7 +197,9 @@ To create a small scene with gerstner waves and objects, showcasing multiple lig
 
 
 ## Coding Standards
-
+  
+<sub>[index](#index)</sub>
+  
 ### Variables
 
 **General**: camelCase
