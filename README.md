@@ -2,7 +2,7 @@ for full working showcase build see [here](https://github.com/ren-d/DX11-Scene/t
 # DX11 Work In Progress Build
 
 ### Project Plan
-Added extra feature ontop of university coursework for fun :)
+Add extra features ontop of university coursework for fun :)
 
 ## Coding Standards
 
