@@ -141,7 +141,8 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
     float distance,
      attenuation;
     float2 pTexCoord;
-    float4 specular = specularMap;
+    float4 specularCalc = float4(specularMap.r, specularMap.r, specularMap.r, 1.0f);
+    float4 specularMapValue = float4(specularMap.r, specularMap.r, specularMap.r, 1.0f);
     
     // note: i*6 refers to the max amount of depht maps per light
     // this means that each light is set to have 6 depth maps
@@ -186,11 +187,11 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
             case 1: 
                 
                 // Blinn-Phong Specular Calculation using specular map
-                specular = calculateSpecular(
+                specularCalc = calculateSpecular(
                     normalize(lightPosition[i].xyz - worldPosition),
                     normal,
                     normalize(cameraPosition.xyz - worldPosition),
-                    specularMap * specularColour[i],
+                    specularMapValue * specularColour[i],
                     specularPower[i].x
                 );
             
@@ -212,7 +213,7 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                         {
                          // is NOT in shadow, therefore light
                             lightColour[i] += calculateLighting(float3(lightPosition[i].xyz - worldPosition), normal, diffuseColour[i]) * attenuation;
-                            lightColour[i].rgb += specular.rgb * attenuation;
+                            lightColour[i].rgb += specularCalc.rgb * attenuation;
                 
  
                         }
@@ -236,16 +237,16 @@ float4 calculateFinalLighting(int numberOfLights, float3 normal, float3 worldPos
                     if (!isInShadow(depthMaps[i*6], pTexCoord, lightViewPos[i*6], 0.005))
                     {
                       // is NOT in shadow, therefore light
-                        specular = calculateSpecular(
+                        specularCalc = calculateSpecular(
                         normalize(lightPosition[i].xyz - worldPosition),
                         normal,
                         normalize(cameraPosition.xyz - worldPosition),
-                        specularMap * specularColour[i],
+                        specularMapValue * specularColour[i],
                         specularPower[i].x
                     );
           
                         lightColour[i] += (calculateLighting(distance, normal, diffuseColour[i]) * intensity) * attenuation;
-                        lightColour[i].rgb += (specular.rgb * attenuation) * intensity;
+                        lightColour[i].rgb += (specularCalc.rgb * attenuation) * intensity;
                     }
                 }
                 
