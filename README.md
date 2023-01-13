@@ -2,9 +2,6 @@
 
 See also [WIP Branch](https://github.com/ren-d/DX11-Scene)
 # DirectX 11 Scene    
-### Project Plan
-To create a small scene with gerstner waves and objects, showcasing multiple lighting types, vertex manipulation, shadow mapping and post processing compute shaders using DirectX11
-
 ## Index
 [Scene](#scene)
 
