@@ -44,7 +44,7 @@ public:
     
 
     ModelShader(ID3D11Device* device, HWND hwnd);
-    ~ModelShader();
+    ~ModelShader() override;
 
     void setShaderParameters(
         ID3D11DeviceContext* deviceContext, 

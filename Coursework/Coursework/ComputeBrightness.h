@@ -19,7 +19,7 @@ public:
 		XMFLOAT4 threshold;
 	};
 	ComputeBrightness(ID3D11Device* device, HWND hwnd, int w, int h);
-	~ComputeBrightness();
+	~ComputeBrightness() override;
 
 	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, float threshold);
 	void createOutputUAV();

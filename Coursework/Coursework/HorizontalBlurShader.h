@@ -12,7 +12,7 @@ class HorizontalBlurShader : public BaseShader
 {
 public:
 	HorizontalBlurShader(ID3D11Device* device, HWND hwnd, int w, int h);
-	~HorizontalBlurShader();
+	~HorizontalBlurShader() override;
 
 	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1);
 	void createOutputUAV();

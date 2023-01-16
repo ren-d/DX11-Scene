@@ -20,7 +20,7 @@ public:
 	};
 
 	ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h);
-	~ComputeBlend();
+	~ComputeBlend() override;
 
 	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, float intensity, float gamma);
 	void createOutputUAV();

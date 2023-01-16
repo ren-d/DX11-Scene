@@ -62,7 +62,7 @@ public:
     };
 
     WaterShader(ID3D11Device* device, HWND hwnd);
-    ~WaterShader();
+    ~WaterShader() override;
 
     void setShaderParameters(
         ID3D11DeviceContext* deviceContext, 
