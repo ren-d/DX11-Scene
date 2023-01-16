@@ -4,6 +4,12 @@ for full working showcase build see [here](https://github.com/ren-d/DX11-Scene/t
 ### Project Plan
 Add extra features ontop of university coursework for fun :)
 
+- [ ] Add Height Map using multiple normal recalculation methods
+- [ ] Smooth Shadows
+  - [ ] Research cascading shadow maps
+- [ ] PBR materials
+- [ ] DoF Shaders
+- [ ] Model tesssellation
 ## Coding Standards
 
 ### Variables
