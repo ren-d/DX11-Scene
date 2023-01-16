@@ -12,7 +12,7 @@ class DepthShader :
 public:
 
 	DepthShader(ID3D11Device* device, HWND hwnd);
-	~DepthShader() override;
+	~DepthShader();
 
 	void setShaderParameters(
 		ID3D11DeviceContext* deviceContext, 

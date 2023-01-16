@@ -11,7 +11,7 @@ class TextureShader : public BaseShader
 {
 public:
 	TextureShader(ID3D11Device* device, HWND hwnd);
-	~TextureShader() override;
+	~TextureShader();
 
 	void setShaderParameters(
 		ID3D11DeviceContext* deviceContext, 

@@ -20,7 +20,7 @@ public:
 	};
 
 	ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h);
-	~ComputeBlend() override;
+	~ComputeBlend();
 
 	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, float intensity, float gamma);
 	void createOutputUAV();
@@ -30,7 +30,7 @@ public:
 
 private:
 	void initShader(const wchar_t* cfile);
-
+	void initShader(const wchar_t* vs, const wchar_t* ps) { vs = nullptr; ps = nullptr; };
 	ID3D11Buffer* blendBuffer;
 
 	ID3D11ShaderResourceView* srv;

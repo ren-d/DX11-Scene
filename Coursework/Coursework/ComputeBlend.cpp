@@ -76,8 +76,8 @@ void ComputeBlend::createOutputUAV()
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
-	textureDesc.Width = sWidth / 1.1;
-	textureDesc.Height = sHeight / 1.1;
+	textureDesc.Width = sWidth;
+	textureDesc.Height = sHeight;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;

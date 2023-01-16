@@ -26,7 +26,7 @@ public:
 	};
 
 	WaterDepthShader(ID3D11Device* device, HWND hwnd);
-	~WaterDepthShader() override;
+	~WaterDepthShader();
 
 	void setShaderParameters(
 		ID3D11DeviceContext* deviceContext,

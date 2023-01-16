@@ -12,7 +12,7 @@ class VerticalBlurShader : public BaseShader
 {
 public:
 	VerticalBlurShader(ID3D11Device* device, HWND hwnd, int w, int h);
-	~VerticalBlurShader() override;
+	~VerticalBlurShader();
 
 	void setShaderParameters(ID3D11DeviceContext* dc, ID3D11ShaderResourceView* texture1);
 	void createOutputUAV();
@@ -22,6 +22,7 @@ public:
 
 private:
 	void initShader(const wchar_t* cfile);
+	void initShader(const wchar_t* vs, const wchar_t* ps) { vs = nullptr; ps = nullptr; };
 	ID3D11ShaderResourceView* srv;
 	ID3D11UnorderedAccessView* uav;
 

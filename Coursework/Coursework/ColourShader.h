@@ -16,7 +16,7 @@ public:
 	};
 
 	ColourShader(ID3D11Device* device, HWND hwnd);
-	~ColourShader() override;
+	~ColourShader();
 
 	void setShaderParameters(
 		ID3D11DeviceContext* deviceContext,
