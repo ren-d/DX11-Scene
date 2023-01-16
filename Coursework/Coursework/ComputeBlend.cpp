@@ -5,6 +5,7 @@ ComputeBlend::ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h) : Base
 	// set initial values
 	sWidth = w;
 	sHeight = h;
+	m_tex = nullptr;
 	initShader(L"computeBlendTextures_cs.cso");
 }
 
