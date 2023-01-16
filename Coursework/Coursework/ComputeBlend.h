@@ -29,7 +29,7 @@ public:
 
 
 private:
-	void initShader(const wchar_t* cfile, const wchar_t* blank);
+	void initShader(const wchar_t* cfile);
 
 	ID3D11Buffer* blendBuffer;
 

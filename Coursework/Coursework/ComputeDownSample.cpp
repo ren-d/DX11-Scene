@@ -4,7 +4,7 @@ ComputeDownSample::ComputeDownSample(ID3D11Device* device, HWND hwnd, int w, int
 {
 	sWidth = w;
 	sHeight = h;
-	initShader(L"downSample_cs.cso", NULL);
+	initShader(L"downSample_cs.cso");
 }
 
 ComputeDownSample::~ComputeDownSample()
@@ -63,12 +63,10 @@ ComputeDownSample::~ComputeDownSample()
 	BaseShader::~BaseShader();
 }
 
-void ComputeDownSample::initShader(const wchar_t* cfile, const wchar_t* blank)
+void ComputeDownSample::initShader(const wchar_t* cfile)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();
-
-
 }
 
 void ComputeDownSample::createOutputUAV()

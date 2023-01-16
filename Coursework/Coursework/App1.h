@@ -100,7 +100,6 @@ private:
 	float bloomIntensity, bloomThreshold, bloomGamma, waterTessellation;
 	OrthoMesh* shadowOrthos[MAX_DEPTH_MAPS], * mainScene;
 	int viewMode;
-	float lightdir[3];
 	float waveOneDir[2];
 	float waveTwoDir[2];
 	float waveThreeDir[2];

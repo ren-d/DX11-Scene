@@ -4,7 +4,7 @@ HorizontalBlurShader::HorizontalBlurShader(ID3D11Device* device, HWND hwnd, int 
 {
 	sWidth = w;
 	sHeight = h;
-	initShader(L"horizontalBlur_cs.cso", NULL);
+	initShader(L"horizontalBlur_cs.cso");
 }
 
 HorizontalBlurShader::~HorizontalBlurShader()
@@ -54,7 +54,7 @@ HorizontalBlurShader::~HorizontalBlurShader()
 	BaseShader::~BaseShader();
 }
 
-void HorizontalBlurShader::initShader(const wchar_t* cfile, const wchar_t* blank)
+void HorizontalBlurShader::initShader(const wchar_t* cfile)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();

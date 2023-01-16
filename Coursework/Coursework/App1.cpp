@@ -2,7 +2,17 @@
 // Lab 1 example, simple coloured triangle mesh
 #include "App1.h"
 
-App1::App1()
+App1::App1() : barrel(nullptr), barrelModel(nullptr), boat(nullptr), boatModel(nullptr),
+bloomGamma(0), bloomIntensity(0), bloomThreshold(0), calmWaters(false), colourShader(nullptr),
+computeBlend(nullptr), computeBrightness(nullptr), computeDownSample(), computeUpSample(),
+crate(nullptr), crateModel(nullptr), depthShader(nullptr), directions(), displayShadowMaps(),
+horizonalBlurShader(), verticalBlurShader(), isToggled(false), lights(), mainScene(nullptr),
+modelShader(nullptr), shadowMaps(), viewMode(0), renderTexture(nullptr), waterShader(nullptr),
+waveOneDir(), waveTwoDir(), waveThreeDir(), waveFourDir(), sphere(nullptr), shadowOrthos(),
+waterTessellation(0), water(nullptr), woodenBox(nullptr), woodenBoxModel(nullptr), keg(nullptr),
+kegModel(nullptr), textureShader(nullptr), timeInSeconds(0), waterDepthShader(nullptr)
+
+
 {
 
 }
@@ -51,20 +61,12 @@ App1::~App1()
 	colourShader = 0;
 
 	// delete heap allocated Compute Shaders
-	delete[] computeDownSample;
-	delete[] computeUpSample;
-	delete[] horizonalBlurShader;
-	delete[] verticalBlurShader;
+
 	delete computeBrightness;
 	delete computeBlend;
 
-	// delete heap allocated lighting data
-	delete[] shadowMaps;
-	delete[] lights;
-	
 
 	//GUI and others
-	delete[] shadowOrthos;
 	delete renderTexture;
 }
 
@@ -113,7 +115,7 @@ void App1::initLighting()	// Initalise scene lighting.
 
 	lights[0] = new LightSource();
 	lights[0]->setLightType(LightSource::LType::DIRECTIONAL);
-	lights[0]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[0]->setAmbientColour(0.2f, 0.2f, 0.2f, 1.0f);
 	lights[0]->setPosition(59.f, 36.f, 65.0f);
 	lights[0]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
 	lights[0]->setDiffuseColour(0.2f, 0.2f, 0.3f, 1.0f);
@@ -122,56 +124,56 @@ void App1::initLighting()	// Initalise scene lighting.
 	lights[0]->setConstantFactor(1.0f);
 	lights[0]->setLinearFactor(0.14f);
 	lights[0]->setQuadraticFactor(0.07f);
-	lights[0]->setInnerSpotlightConeInDegrees(25);
-	lights[0]->setOuterSpotlightConeInDegrees(35);
+	lights[0]->setInnerSpotlightConeInDegrees(25.f);
+	lights[0]->setOuterSpotlightConeInDegrees(35.f);
 	lights[0]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[0]->init();
 
 	lights[1] = new LightSource();
 	lights[1]->setLightType(LightSource::LType::POINT);
-	lights[1]->setPosition(22, 4.0, 65);
+	lights[1]->setPosition(22.f, 4.0f, 65.f);
 	lights[1]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[1]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[1]->setAmbientColour(0.2f, 0.2f, 0.2f, 1.0f);
 	lights[1]->setDiffuseColour(0.0f, 0.9f, 1.0f, 1.0f);
 	lights[1]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[1]->setSpecularPower(100.0f);
 	lights[1]->setConstantFactor(1.0f);
 	lights[1]->setLinearFactor(0.14f);
 	lights[1]->setQuadraticFactor(0.07f);
-	lights[1]->setInnerSpotlightConeInDegrees(25);
-	lights[1]->setOuterSpotlightConeInDegrees(35);
+	lights[1]->setInnerSpotlightConeInDegrees(25.f);
+	lights[1]->setOuterSpotlightConeInDegrees(35.f);
 	lights[1]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[1]->init();
 
 	lights[2] = new LightSource();
 	lights[2]->setLightType(LightSource::LType::POINT);
-	lights[2]->setPosition(59.7, 4, 38);
+	lights[2]->setPosition(59.7f, 4.f, 38.f);
 	lights[2]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[2]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[2]->setAmbientColour(0.2f, 0.2f, 0.2f, 1.0f);
 	lights[2]->setDiffuseColour(0.0f, 1.0f, 0.0f, 1.0f);
 	lights[2]->setSpecularPower(100.0f);
 	lights[2]->setDirection(0.45f, -0.5f, 0.75f);
 	lights[2]->setConstantFactor(1.0f);
 	lights[2]->setLinearFactor(0.14f);
 	lights[2]->setQuadraticFactor(0.07f);
-	lights[2]->setInnerSpotlightConeInDegrees(25);
-	lights[2]->setOuterSpotlightConeInDegrees(35);
+	lights[2]->setInnerSpotlightConeInDegrees(25.f);
+	lights[2]->setOuterSpotlightConeInDegrees(35.f);
 	lights[2]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[2]->init();
 
 	lights[3] = new LightSource();
 	lights[3]->setLightType(LightSource::LType::SPOTLIGHT);
-	lights[3]->setPosition(30, 13, 33);
+	lights[3]->setPosition(30.f, 13.f, 33.f);
 	lights[3]->setSpecularColour(1.0f, 1.0f, 1.0f, 1.0f);
-	lights[3]->setAmbientColour(0.2, 0.2, 0.2, 1.0f);
+	lights[3]->setAmbientColour(0.2f, 0.2f, 0.2f, 1.0f);
 	lights[3]->setDiffuseColour(1.0f, 1.0f, 0.0f, 1.0f);
 	lights[3]->setDirection(0.0f, -1.0f, 0.132f);
 	lights[3]->setSpecularPower(100.0f);
 	lights[3]->setConstantFactor(1.0f);
 	lights[3]->setLinearFactor(0.014f);
 	lights[3]->setQuadraticFactor(0.0007f);
-	lights[3]->setInnerSpotlightConeInDegrees(25);
-	lights[3]->setOuterSpotlightConeInDegrees(35);
+	lights[3]->setInnerSpotlightConeInDegrees(25.f);
+	lights[3]->setOuterSpotlightConeInDegrees(35.f);
 	lights[3]->generateOrthoMatrix((float)sceneWidth, (float)sceneHeight, 0.1f, 200.0f);
 	lights[3]->init();
 
@@ -203,12 +205,12 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		int index = (i * MAX_DEPTH_MAPS_PER_LIGHT);
-		shadowOrthos[index] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 2.2, *screenHeight / 2.2);
-		shadowOrthos[index+1] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 3.0, *screenHeight / 2.2);
-		shadowOrthos[index+2] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 4.78, *screenHeight / 2.2);
-		shadowOrthos[index+3] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, -*screenWidth / 11.18, *screenHeight / 2.2);
-		shadowOrthos[index+4] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, *screenWidth / 30.2, *screenHeight / 2.2);
-		shadowOrthos[index+5] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, *screenWidth / 6.5, *screenHeight / 2.2);
+		shadowOrthos[index] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 2.2f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+1] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 3.0f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+2] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 4.78f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+3] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 11.18f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+4] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(*screenWidth / 30.2f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+5] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(*screenWidth / 6.5f), (int)ceil(*screenHeight / 2.2f));
 	}
 	
 
@@ -258,20 +260,20 @@ void App1::initShaders(HWND hwnd)
 
 	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, sWidth, sHeight);
 
-	computeDownSample[0] = new ComputeDownSample(renderer->getDevice(), hwnd, ceil(sWidth/2) , ceil(sHeight/2));
-	computeDownSample[1] = new ComputeDownSample(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
-	computeDownSample[2] = new ComputeDownSample(renderer->getDevice(), hwnd, ceil(sWidth / 6), ceil(sHeight / 6));
+	computeDownSample[0] = new ComputeDownSample(renderer->getDevice(), hwnd, (int)ceil(sWidth/2) , (int)ceil(sHeight/2));
+	computeDownSample[1] = new ComputeDownSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	computeDownSample[2] = new ComputeDownSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
 
-	computeUpSample[0] = new ComputeUpSample(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
-	computeUpSample[1] = new ComputeUpSample(renderer->getDevice(), hwnd, ceil(sWidth / 2), ceil(sHeight / 2));
+	computeUpSample[0] = new ComputeUpSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	computeUpSample[1] = new ComputeUpSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
 	computeUpSample[2] = new ComputeUpSample(renderer->getDevice(), hwnd, sWidth, sHeight);
 
-	horizonalBlurShader[0] = new HorizontalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 6), ceil(sHeight / 6));
-	verticalBlurShader[0] = new VerticalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 6), ceil(sHeight / 6));
-	horizonalBlurShader[1] = new HorizontalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
-	verticalBlurShader[1] = new VerticalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 4), ceil(sHeight / 4));
-	horizonalBlurShader[2] = new HorizontalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 2), ceil(sHeight / 2));
-	verticalBlurShader[2] = new VerticalBlurShader(renderer->getDevice(), hwnd, ceil(sWidth / 2), ceil(sHeight / 2));
+	horizonalBlurShader[0] = new HorizontalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
+	verticalBlurShader[0] = new VerticalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
+	horizonalBlurShader[1] = new HorizontalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	verticalBlurShader[1] = new VerticalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	horizonalBlurShader[2] = new HorizontalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
+	verticalBlurShader[2] = new VerticalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
 	horizonalBlurShader[3] = new HorizontalBlurShader(renderer->getDevice(), hwnd, sWidth, sHeight);
 	verticalBlurShader[3] = new VerticalBlurShader(renderer->getDevice(), hwnd, sWidth, sHeight);
 
@@ -404,39 +406,39 @@ void App1::renderDepthScene(XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMa
 	// renders depth values
 	water->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, waterDepthShader, timeInSeconds, camera); // render water
 
-	worldMatrix *= XMMatrixTranslation(20, 1, 70);
+	worldMatrix *= XMMatrixTranslation(20.f, 1.f, 70.f);
 	crate->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render crate
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(30, 1, 40);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(30.f, 1.f, 40.f);
 	barrel->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render barrel
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(50, 2, 20);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(50.f, 2.f, 20.f);
 	woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render woodbox
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(70, 2, 70);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(70.f, 2.f, 70.f);
 	keg->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render keg
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixScaling(2, 2, 2);
-	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
-	worldMatrix *= XMMatrixTranslation(-10, 1, 60);
+	worldMatrix *= XMMatrixScaling(2.f, 2.f, 2.f);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90.f));
+	worldMatrix *= XMMatrixTranslation(-10.f, 1.f, 60.f);
 	woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render woodbox (LARGE)
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixScaling(2, 2, 2);
-	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
-	worldMatrix *= XMMatrixTranslation(110, 1, 60);
+	worldMatrix *= XMMatrixScaling(2.f, 2.f, 2.f);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90.f));
+	worldMatrix *= XMMatrixTranslation(110.f, 1.f, 60.f);
 	woodenBox->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render woodbox (LARGE)
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(60, 1, 40);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(60.f, 1.f, 40.f);
 	boat->renderDepth(worldMatrix, lightViewMatrix, lightProjectionMatrix, depthShader); // render boat
 }
 
@@ -518,12 +520,12 @@ void App1::depthpass()
 
 void App1::computepass() // compute shaders used for post processing
 {
-	float groupSizeX;
-	float groupSizeY;
+	int groupSizeX;
+	int groupSizeY;
 
 	// gets brightest pixels and renders them to a SRV
 	computeBrightness->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), bloomThreshold);
-	computeBrightness->compute(renderer->getDeviceContext(), ceil((float)sWidth/8), ceil((float)sHeight/8), 1); // groups are height / 8 to correspond to threads per group
+	computeBrightness->compute(renderer->getDeviceContext(), (int)ceil((float)sWidth/8), (int)ceil((float)sHeight/8), 1); // groups are height / 8 to correspond to threads per group
 	computeBrightness->unbind(renderer->getDeviceContext());
 
 
@@ -534,13 +536,13 @@ void App1::computepass() // compute shaders used for post processing
 		if (i == 0)
 		{
 			computeDownSample[i]->setShaderParameters(renderer->getDeviceContext(), computeBrightness->getSRV());
-			computeDownSample[i]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 8), ceil((float)sHeight / 8), 1);
+			computeDownSample[i]->compute(renderer->getDeviceContext(), (int)ceil((float)sWidth / 8), (int)ceil((float)sHeight / 8), 1);
 			computeDownSample[i]->unbind(renderer->getDeviceContext());
 		}
 		else
 		{
-			groupSizeX = ceil((float)(sWidth / (2 * i)) / 8);
-			groupSizeY = ceil((float)(sHeight / (2 * i)) / 8);
+			groupSizeX = (int)ceil((float)(sWidth / (2 * i)) / 8);
+			groupSizeY = (int)ceil((float)(sHeight / (2 * i)) / 8);
 			computeDownSample[i]->setShaderParameters(renderer->getDeviceContext(), computeDownSample[i-1]->getSRV());
 			computeDownSample[i]->compute(renderer->getDeviceContext(), groupSizeX, groupSizeY, 1);
 			computeDownSample[i]->unbind(renderer->getDeviceContext());
@@ -552,18 +554,18 @@ void App1::computepass() // compute shaders used for post processing
 
 	// apply gaussian blur
 	horizonalBlurShader[0]->setShaderParameters(renderer->getDeviceContext(), computeDownSample[2]->getSRV());
-	horizonalBlurShader[0]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1); // groups are / 256 due to shader having 256 threads per group
+	horizonalBlurShader[0]->compute(renderer->getDeviceContext(), (int)ceil((float)sWidth / 256.f), sHeight, 1); // groups are / 256 due to shader having 256 threads per group
 	horizonalBlurShader[0]->unbind(renderer->getDeviceContext());
 
 	verticalBlurShader[0]->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader[0]->getSRV());
-	verticalBlurShader[0]->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+	verticalBlurShader[0]->compute(renderer->getDeviceContext(), sWidth, (int)ceil((float)sHeight / 256.f), 1);
 	verticalBlurShader[0]->unbind(renderer->getDeviceContext());
 
 	// upscale image
 	for (int i = 0; i < 3; i++)
 	{
-		groupSizeX = ceil((float)(sWidth / (6 - (2 * i))) / 8); // hacky formula to work out up scaling division based on index
-		groupSizeY = ceil((float)(sWidth / (6 - (2 * i))) / 8);
+		groupSizeX = (int)ceil((float)(sWidth / (6 - (2 * i))) / 8); // hacky formula to work out up scaling division based on index
+		groupSizeY = (int)ceil((float)(sWidth / (6 - (2 * i))) / 8);
 
 		computeUpSample[i]->setShaderParameters(renderer->getDeviceContext(), verticalBlurShader[i]->getSRV());
 		computeUpSample[i]->compute(renderer->getDeviceContext(), groupSizeX, groupSizeY, 1);
@@ -571,11 +573,11 @@ void App1::computepass() // compute shaders used for post processing
 
 		// apply gaussian blur
 		horizonalBlurShader[i+1]->setShaderParameters(renderer->getDeviceContext(), computeUpSample[i]->getSRV());
-		horizonalBlurShader[i+1]->compute(renderer->getDeviceContext(), ceil((float)sWidth / 256.f), sHeight, 1);
+		horizonalBlurShader[i+1]->compute(renderer->getDeviceContext(), (int)ceil((float)sWidth / 256.f), sHeight, 1);
 		horizonalBlurShader[i+1]->unbind(renderer->getDeviceContext());
 
 		verticalBlurShader[i+1]->setShaderParameters(renderer->getDeviceContext(), horizonalBlurShader[i+1]->getSRV());
-		verticalBlurShader[i+1]->compute(renderer->getDeviceContext(), sWidth, ceil((float)sHeight / 256.f), 1);
+		verticalBlurShader[i+1]->compute(renderer->getDeviceContext(), sWidth, (int)ceil((float)sHeight / 256.f), 1);
 		verticalBlurShader[i+1]->unbind(renderer->getDeviceContext());
 
 
@@ -584,7 +586,7 @@ void App1::computepass() // compute shaders used for post processing
 
 	//blend final brightness image with orignal scene to create "bloom"
 	computeBlend->setShaderParameters(renderer->getDeviceContext(), renderTexture->getShaderResourceView(), verticalBlurShader[3]->getSRV(), bloomIntensity, bloomGamma);
-	computeBlend->compute(renderer->getDeviceContext(), ceil((float)sWidth / 8), ceil((float)sHeight / 8), 1);
+	computeBlend->compute(renderer->getDeviceContext(), (int)ceil((float)sWidth / 8), (int)ceil((float)sHeight / 8), 1);
 	computeBlend->unbind(renderer->getDeviceContext());
 
 }
@@ -605,36 +607,36 @@ void App1::basepass()
 	// render world
 	water->render(worldMatrix, viewMatrix, projectionMatrix, waterShader, lights, shadowMaps, timeInSeconds, camera, waterTessellation, viewMode);
 	
-	worldMatrix *= XMMatrixTranslation(20, 1, 70);
+	worldMatrix *= XMMatrixTranslation(20.f, 1.f, 70.f);
 	crate->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(30, 1, 40);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(30.f, 1.f, 40.f);
 	barrel->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 	worldMatrix = renderer->getWorldMatrix();
 
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(50, 2, 20);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(50.f, 2.f, 20.f);
 	woodenBox->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(70, 2, 70);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(70.f, 2.f, 70.f);
 	keg->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix = XMMatrixScaling(0.1 * 0.5, 0.1 * 0.5, 0.1 * 0.5);
-	worldMatrix *= XMMatrixTranslation(60, 1, 40);
+	worldMatrix = XMMatrixScaling(0.1f * 0.5f, 0.1f * 0.5f, 0.1f * 0.5f);
+	worldMatrix *= XMMatrixTranslation(60.f, 1.f, 40.f);
 
 	boat->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixScaling(2,2,2);
-	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90));
-	worldMatrix *= XMMatrixTranslation(-10, 1, 60);
+	worldMatrix *= XMMatrixScaling(2.f,2.f,2.f);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(-90.f));
+	worldMatrix *= XMMatrixTranslation(-10.f, 1.f, 60.f);
 	woodenBox->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 
 	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixScaling(2, 2, 2);
-	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90));
-	worldMatrix *= XMMatrixTranslation(110, 1, 60);
+	worldMatrix *= XMMatrixScaling(2.f, 2.f, 2.f);
+	worldMatrix *= XMMatrixRotationY(XMConvertToRadians(90.f));
+	worldMatrix *= XMMatrixTranslation(110.f, 1.f, 60.f);
 	woodenBox->render(worldMatrix, viewMatrix, projectionMatrix, modelShader, lights, camera, shadowMaps, viewMode);
 
 	// render visible spheres where lights are located
@@ -823,24 +825,24 @@ void App1::gui()
 					break;
 				case 1:
 					lights[i]->setLightType(LightSource::LType::POINT);
-					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0, 100);
+					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0.f, 100.f);
 					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
 					ImGui::ColorEdit4(specularColourName.c_str(), lights[i]->getSpecularColourFloatArray());
 					ImGui::SliderFloat(specularPowerName.c_str(), lights[i]->getSpecularPower(), 0.00f, 100.0f);
-					ImGui::SliderFloat(linearFactorName.c_str(), lights[i]->getLinearfactor(), 0.014f, 0.35);
-					ImGui::SliderFloat(quadraticFactorName.c_str(), lights[i]->getQuadraticFactor(), 0.0007f, 0.44);
+					ImGui::SliderFloat(linearFactorName.c_str(), lights[i]->getLinearfactor(), 0.014f, 0.35f);
+					ImGui::SliderFloat(quadraticFactorName.c_str(), lights[i]->getQuadraticFactor(), 0.0007f, 0.44f);
 					break;
 				case 2:
 					lights[i]->setLightType(LightSource::LType::SPOTLIGHT);
-					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0, 100);
+					ImGui::SliderFloat3(positionName.c_str(), lights[i]->getPositionFloatArray(), 0.f, 100.f);
 					ImGui::SliderFloat3(directionName.c_str(), lights[i]->getDirectionFloatArray(), -1.0f, 1.0f);
 					ImGui::ColorEdit4(colourName.c_str(), lights[i]->getDiffuseColourFloatArray());
 					ImGui::ColorEdit4(specularColourName.c_str(), lights[i]->getSpecularColourFloatArray());
 					ImGui::SliderFloat(specularPowerName.c_str(), lights[i]->getSpecularPower(), 0.00f, 100.0f);
 					ImGui::SliderFloat(outerConeName.c_str(), lights[i]->getOuterCone(), *lights[i]->getInnerCone(), 90.0f);
 					ImGui::SliderFloat(innerConeName.c_str(), lights[i]->getInnerCone(), 0.1f, *lights[i]->getOuterCone());
-					ImGui::SliderFloat(linearFactorName.c_str(), lights[i]->getLinearfactor(), 0.014, 0.35);
-					ImGui::SliderFloat(quadraticFactorName.c_str(), lights[i]->getQuadraticFactor(), 0.0007, 0.44);
+					ImGui::SliderFloat(linearFactorName.c_str(), lights[i]->getLinearfactor(), 0.014f, 0.35f);
+					ImGui::SliderFloat(quadraticFactorName.c_str(), lights[i]->getQuadraticFactor(), 0.0007f, 0.44f);
 					break;
 				}
 				lights[i]->update();

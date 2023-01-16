@@ -18,7 +18,7 @@ public:
     void init();
 
     // getters
-    void setSpecularPower(float specularPower) { m_specularPower = specularPower; }
+    void setSpecularPower(float _specularPower) { m_specularPower = _specularPower; }
     void setConstantFactor(float constantFactor) { m_constantFactor = constantFactor; }
     void setLinearFactor(float linearFactor) { m_linearFactor = linearFactor; }
     void setQuadraticFactor(float quadraticFactor) { m_quadraticFactor = quadraticFactor; }

@@ -4,7 +4,7 @@ VerticalBlurShader::VerticalBlurShader(ID3D11Device* device, HWND hwnd, int w, i
 {
 	sWidth = w;
 	sHeight = h;
-	initShader(L"verticalBlur_cs.cso", NULL);
+	initShader(L"verticalBlur_cs.cso");
 }
 
 VerticalBlurShader::~VerticalBlurShader()
@@ -54,7 +54,7 @@ VerticalBlurShader::~VerticalBlurShader()
 	BaseShader::~BaseShader();
 }
 
-void VerticalBlurShader::initShader(const wchar_t* cfile, const wchar_t* blank)
+void VerticalBlurShader::initShader(const wchar_t* cfile)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();

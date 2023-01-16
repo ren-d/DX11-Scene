@@ -5,7 +5,7 @@ ComputeBlend::ComputeBlend(ID3D11Device* device, HWND hwnd, int w, int h) : Base
 	// set initial values
 	sWidth = w;
 	sHeight = h;
-	initShader(L"computeBlendTextures_cs.cso", NULL);
+	initShader(L"computeBlendTextures_cs.cso");
 }
 
 ComputeBlend::~ComputeBlend() // release heap allocated data
@@ -54,7 +54,7 @@ ComputeBlend::~ComputeBlend() // release heap allocated data
 
 }
 
-void ComputeBlend::initShader(const wchar_t* cfile, const wchar_t* blank)
+void ComputeBlend::initShader(const wchar_t* cfile)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();

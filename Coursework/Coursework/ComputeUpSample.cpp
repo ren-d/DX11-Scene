@@ -4,7 +4,7 @@ ComputeUpSample::ComputeUpSample(ID3D11Device* device, HWND hwnd, int w, int h) 
 {
 	sWidth = w;
 	sHeight = h;
-	initShader(L"upSample_cs.cso", NULL);
+	initShader(L"upSample_cs.cso");
 }
 
 ComputeUpSample::~ComputeUpSample()
@@ -55,7 +55,7 @@ ComputeUpSample::~ComputeUpSample()
 	BaseShader::~BaseShader();
 }
 
-void ComputeUpSample::initShader(const wchar_t* cfile, const wchar_t* blank)
+void ComputeUpSample::initShader(const wchar_t* cfile)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();

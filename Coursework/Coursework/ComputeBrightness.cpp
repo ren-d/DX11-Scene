@@ -4,7 +4,7 @@ ComputeBrightness::ComputeBrightness(ID3D11Device* device, HWND hwnd, int w, int
 {
 	sWidth = w;
 	sHeight = h;
-	initShader(L"brightnessMap_cs.cso", NULL);
+	initShader(L"brightnessMap_cs.cso");
 }
 
 ComputeBrightness::~ComputeBrightness()
@@ -69,7 +69,7 @@ ComputeBrightness::~ComputeBrightness()
 	BaseShader::~BaseShader();
 }
 
-void ComputeBrightness::initShader(const wchar_t* cfile, const wchar_t* blank)
+void ComputeBrightness::initShader(const wchar_t* cfile)
 {
 	loadComputeShader(cfile);
 	createOutputUAV();
