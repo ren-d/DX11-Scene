@@ -26,8 +26,7 @@ App1::~App1()
 
 	delete sphere;
 	sphere = 0;
-	delete water;
-	water = 0;
+
 	delete boat;
 	boat = 0;
 	delete crate;
@@ -38,8 +37,6 @@ App1::~App1()
 	keg = 0;
 
 	// delete heap allocated shaders
-	delete waterShader;
-	waterShader = 0;
 	delete waterDepthShader;
 	waterDepthShader = 0;
 	delete modelShader;
@@ -208,7 +205,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	// main object & model definitions
 	mainScene = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
 	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
-	water = new Water(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
+	water = std::make_unique<Water>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
 
 	boatModel = std::make_shared<AModel>(renderer->getDevice(), "res/models/boat.fbx");

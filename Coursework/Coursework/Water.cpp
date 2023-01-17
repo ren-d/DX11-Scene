@@ -55,6 +55,7 @@ void Water::render(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projec
 {
 
 	m_mesh->sendData(m_deviceContext);
+	
 	shader->setShaderParameters(m_deviceContext, world, view, projection, m_texture, m_normalMaps, maps, timeInSeconds, lights, m_waves, camera, tessellation, viewMode);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 }

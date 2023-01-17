@@ -58,7 +58,7 @@ private:
 	// Models and Objects
 	std::shared_ptr<AModel> boatModel,  crateModel,  barrelModel,  woodenBoxModel,  kegModel;
 	SphereMesh* sphere;
-	Water* water;
+	std::unique_ptr<Water> water;
 	ModelObject* boat, *crate, *barrel, *woodenBox, * keg;
 	
 
@@ -100,6 +100,10 @@ private:
 	float bloomIntensity, bloomThreshold, bloomGamma, waterTessellation;
 	OrthoMesh* shadowOrthos[MAX_DEPTH_MAPS], * mainScene;
 	int viewMode;
+	/// 
+	/// CHANGE IMPLEMENTATION OF WAVE CLASS
+	/// FOR EASIER GUI INTEGRATION
+	/// 
 	float waveOneDir[2];
 	float waveTwoDir[2];
 	float waveThreeDir[2];
