@@ -13,7 +13,7 @@ public:
     ~SceneObject();
 
     // getters and setters
-    void setModel(AModel* model);
+    void setModel(std::shared_ptr<AModel>& model);
     bool setMesh(BaseMesh* mesh);
     bool setTexture(ID3D11ShaderResourceView* texture);
     BaseMesh* getMesh();
@@ -36,7 +36,7 @@ protected:
     ID3D11ShaderResourceView* m_texture;
 
     BaseMesh* m_mesh;
-    AModel* m_model;
+    std::shared_ptr<AModel> m_model;
 
 
     float m_rotX, m_rotY, m_rotZ;

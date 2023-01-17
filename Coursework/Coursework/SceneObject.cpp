@@ -50,7 +50,6 @@ SceneObject::~SceneObject()
 	}
 
 	delete m_mesh;
-	delete m_model;
 
 
 }
@@ -111,7 +110,7 @@ void SceneObject::scale(XMFLOAT3 scale)
 {
 	m_scale = scale;
 }
-void SceneObject::setModel(AModel* model)
+void SceneObject::setModel(std::shared_ptr<AModel>& model)
 {
 	m_model = model;
 }
