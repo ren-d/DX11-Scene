@@ -57,7 +57,7 @@ private:
 
 	// Models and Objects
 	std::shared_ptr<AModel> boatModel,  crateModel,  barrelModel,  woodenBoxModel,  kegModel;
-	SphereMesh* sphere;
+	std::unique_ptr<SphereMesh> sphere;
 	std::unique_ptr<Water> water;
 	std::unique_ptr<ModelObject> boat, crate, barrel, woodenBox, keg;
 	
