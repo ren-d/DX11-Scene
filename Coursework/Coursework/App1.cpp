@@ -24,17 +24,7 @@ App1::~App1()
 	// delete heap allocated Models & Objects
 
 
-	delete sphere;
-	sphere = 0;
 
-	delete boat;
-	boat = 0;
-	delete crate;
-	crate = 0;
-	delete barrel;
-	barrel = 0;
-	delete keg;
-	keg = 0;
 
 	// delete heap allocated shaders
 	delete waterDepthShader;
@@ -204,30 +194,30 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 
 	// main object & model definitions
 	mainScene = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
-	sphere = new SphereMesh(renderer->getDevice(), renderer->getDeviceContext());
+	sphere = std::make_unique<SphereMesh>(renderer->getDevice(), renderer->getDeviceContext());
 	water = std::make_unique<Water>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
 
 	boatModel = std::make_shared<AModel>(renderer->getDevice(), "res/models/boat.fbx");
-	boat = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"boatDiffuse"), textureMgr->getTexture(L"boatNormal"), textureMgr->getTexture(L"boatSpec"));
+	boat = std::make_unique<ModelObject>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"boatDiffuse"), textureMgr->getTexture(L"boatNormal"), textureMgr->getTexture(L"boatSpec"));
 	boat->setModel(boatModel);
 
 	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
 	crateModel = std::make_shared<AModel>(renderer->getDevice(), "res/models/Crate.fbx");
-	crate = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crateDiffuse"), textureMgr->getTexture(L"crateNormal"), textureMgr->getTexture(L"crate"));
+	crate = std::make_unique<ModelObject>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crateDiffuse"), textureMgr->getTexture(L"crateNormal"), textureMgr->getTexture(L"crate"));
 	crate->setModel(crateModel);
 
 	barrelModel = std::make_shared<AModel>(renderer->getDevice(), "res/models/barrel.fbx");
-	barrel = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
+	barrel = std::make_unique<ModelObject>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
 	barrel->setModel(barrelModel);
 
 	woodenBoxModel = std::make_shared<AModel>(renderer->getDevice(), "res/models/woodenBox.fbx");
-	woodenBox = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
+	woodenBox = std::make_unique<ModelObject>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
 	woodenBox->setModel(woodenBoxModel);
 
 	kegModel = std::make_shared<AModel>(renderer->getDevice(), "res/models/keg.fbx");
-	keg = new ModelObject(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
+	keg = std::make_unique<ModelObject>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"woodBarrelDiffuse"), textureMgr->getTexture(L"woodBarrelNormal"), textureMgr->getTexture(L"woodBarrelSpec"));
 	keg->setModel(kegModel);
 }
 

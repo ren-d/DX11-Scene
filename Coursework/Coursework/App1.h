@@ -59,7 +59,7 @@ private:
 	std::shared_ptr<AModel> boatModel,  crateModel,  barrelModel,  woodenBoxModel,  kegModel;
 	SphereMesh* sphere;
 	std::unique_ptr<Water> water;
-	ModelObject* boat, *crate, *barrel, *woodenBox, * keg;
+	std::unique_ptr<ModelObject> boat, crate, barrel, woodenBox, keg;
 	
 
 	// Shaders
