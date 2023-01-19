@@ -61,7 +61,7 @@ private:
 	std::unique_ptr<Water> water;
 	std::unique_ptr<ModelObject> boat, crate, barrel, woodenBox, keg;
 	
-
+	
 	// Shaders
 	WaterShader* waterShader;
 	WaterDepthShader* waterDepthShader;
@@ -91,14 +91,14 @@ private:
 
 
 
-	RenderTexture* renderTexture;
+	std::unique_ptr <RenderTexture> renderTexture;
 
 
 	// GUI variables
 	float timeInSeconds;
 	bool calmWaters, isToggled;
 	float bloomIntensity, bloomThreshold, bloomGamma, waterTessellation;
-	OrthoMesh* shadowOrthos[MAX_DEPTH_MAPS], * mainScene;
+	std::unique_ptr<OrthoMesh> shadowOrthos[MAX_DEPTH_MAPS], mainScene;
 	int viewMode;
 	/// 
 	/// CHANGE IMPLEMENTATION OF WAVE CLASS

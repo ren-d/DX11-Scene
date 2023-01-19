@@ -36,10 +36,6 @@ App1::~App1()
 	colourShader = 0;
 
 
-
-
-	//GUI and others
-	delete renderTexture;
 }
 
 
@@ -177,17 +173,17 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		int index = (i * MAX_DEPTH_MAPS_PER_LIGHT);
-		shadowOrthos[index] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 2.2f), (int)ceil(*screenHeight / 2.2f));
-		shadowOrthos[index+1] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 3.0f), (int)ceil(*screenHeight / 2.2f));
-		shadowOrthos[index+2] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 4.78f), (int)ceil(*screenHeight / 2.2f));
-		shadowOrthos[index+3] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 11.18f), (int)ceil(*screenHeight / 2.2f));
-		shadowOrthos[index+4] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(*screenWidth / 30.2f), (int)ceil(*screenHeight / 2.2f));
-		shadowOrthos[index+5] = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(*screenWidth / 6.5f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index] = make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 2.2f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+1] = make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 3.0f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+2] = make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 4.78f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+3] = make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(-*screenWidth / 11.18f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+4] = make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(*screenWidth / 30.2f), (int)ceil(*screenHeight / 2.2f));
+		shadowOrthos[index+5] = make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth / 8, *screenHeight / 8, (int)ceil(*screenWidth / 6.5f), (int)ceil(*screenHeight / 2.2f));
 	}
 	
 
 	// main object & model definitions
-	mainScene = new OrthoMesh(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
+	mainScene = std::make_unique<OrthoMesh>(renderer->getDevice(), renderer->getDeviceContext(), *screenWidth, *screenHeight);
 	sphere = std::make_unique<SphereMesh>(renderer->getDevice(), renderer->getDeviceContext());
 	water = std::make_unique<Water>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"water"), textureMgr->getTexture(L"normal1"), textureMgr->getTexture(L"normal2"));
 	water->setMesh(new TessellationPlane(renderer->getDevice()));
@@ -196,7 +192,7 @@ void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise s
 	boat = std::make_unique<ModelObject>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"boatDiffuse"), textureMgr->getTexture(L"boatNormal"), textureMgr->getTexture(L"boatSpec"));
 	boat->setModel(boatModel);
 
-	renderTexture = new RenderTexture(renderer->getDevice(), *screenWidth, *screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	renderTexture = std::make_unique<RenderTexture>(renderer->getDevice(), *screenWidth, *screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
 	crateModel = std::make_shared<AModel>(renderer->getDevice(), "res/models/Crate.fbx");
 	crate = std::make_unique<ModelObject>(renderer->getDevice(), renderer->getDeviceContext(), textureMgr->getTexture(L"crateDiffuse"), textureMgr->getTexture(L"crateNormal"), textureMgr->getTexture(L"crate"));
