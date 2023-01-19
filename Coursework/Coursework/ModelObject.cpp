@@ -1,13 +1,13 @@
 #include "ModelObject.h"
-ModelObject::ModelObject(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap, ID3D11ShaderResourceView* specMap)
+ModelObject::ModelObject(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* normalMap, ID3D11ShaderResourceView* specMap) 
+	: m_normalMap(normalMap)
+	, m_specMap(specMap)
 {
 	m_mesh = nullptr;
 	m_model = nullptr;
 	m_device = device;
 	m_deviceContext = deviceContext;
 	setTexture(texture);
-	m_normalMap = normalMap;
-	m_specMap = specMap;
 
 }
 
