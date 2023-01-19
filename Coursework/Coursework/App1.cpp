@@ -21,9 +21,6 @@ App1::~App1()
 	// Run base application deconstructor
 	BaseApplication::~BaseApplication();
 
-	// delete heap allocated Models & Objects
-
-
 
 
 	// delete heap allocated shaders
@@ -38,10 +35,7 @@ App1::~App1()
 	delete colourShader;
 	colourShader = 0;
 
-	// delete heap allocated Compute Shaders
 
-	delete computeBrightness;
-	delete computeBlend;
 
 
 	//GUI and others
@@ -236,27 +230,27 @@ void App1::initShaders(HWND hwnd)
 	// (sWidth / x) and (sHeight / x) 
 	// is in regards to the output texture size
 
-	computeBrightness = new ComputeBrightness(renderer->getDevice(), hwnd, sWidth, sHeight);
+	computeBrightness = std::make_unique<ComputeBrightness>(renderer->getDevice(), hwnd, sWidth, sHeight);
 
-	computeDownSample[0] = new ComputeDownSample(renderer->getDevice(), hwnd, (int)ceil(sWidth/2) , (int)ceil(sHeight/2));
-	computeDownSample[1] = new ComputeDownSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	computeDownSample[2] = new ComputeDownSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
+	computeDownSample[0] = std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth/2) , (int)ceil(sHeight/2));
+	computeDownSample[1] = std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	computeDownSample[2] = std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
 
-	computeUpSample[0] = new ComputeUpSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	computeUpSample[1] = new ComputeUpSample(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
-	computeUpSample[2] = new ComputeUpSample(renderer->getDevice(), hwnd, sWidth, sHeight);
+	computeUpSample[0] = std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	computeUpSample[1] = std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
+	computeUpSample[2] = std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, sWidth, sHeight);
 
-	horizonalBlurShader[0] = new HorizontalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
-	verticalBlurShader[0] = new VerticalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
-	horizonalBlurShader[1] = new HorizontalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	verticalBlurShader[1] = new VerticalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	horizonalBlurShader[2] = new HorizontalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
-	verticalBlurShader[2] = new VerticalBlurShader(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
-	horizonalBlurShader[3] = new HorizontalBlurShader(renderer->getDevice(), hwnd, sWidth, sHeight);
-	verticalBlurShader[3] = new VerticalBlurShader(renderer->getDevice(), hwnd, sWidth, sHeight);
+	horizonalBlurShader[0] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
+	verticalBlurShader[0] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
+	horizonalBlurShader[1] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	verticalBlurShader[1] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
+	horizonalBlurShader[2] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
+	verticalBlurShader[2] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
+	horizonalBlurShader[3] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, sWidth, sHeight);
+	verticalBlurShader[3] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, sWidth, sHeight);
 
 
-	computeBlend = new ComputeBlend(renderer->getDevice(), hwnd, sWidth, sHeight);
+	computeBlend = std::make_unique<ComputeBlend>(renderer->getDevice(), hwnd, sWidth, sHeight);
 
 
 }
