@@ -25,7 +25,7 @@ public:
 	TextureManager(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	~TextureManager();
 
-	void loadTexture(const wchar_t* uid, const wchar_t* filename);
+	bool loadTexture(const wchar_t* uid, const wchar_t* filename);
 	ID3D11ShaderResourceView* getTexture(const wchar_t* uid);
 
 private:

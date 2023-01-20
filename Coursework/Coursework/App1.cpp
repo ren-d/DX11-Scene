@@ -147,22 +147,38 @@ void App1::initLighting()	// Initalise scene lighting.
 
 void App1::initTextures() // load textures
 {
-	
-	textureMgr->loadTexture(L"water", L"res/water.png");
-	textureMgr->loadTexture(L"normal1", L"res/models/waternormal1.png");
-	textureMgr->loadTexture(L"normal2", L"res/models/waternormal2.png");
-	textureMgr->loadTexture(L"boatDiffuse", L"res/models/boatColor.png");
-	textureMgr->loadTexture(L"boatNormal", L"res/models/boatNormal.png");
-	textureMgr->loadTexture(L"boatSpec", L"res/models/boatMetallic.png");
+	bool texturesLoaded = true;
 
-	textureMgr->loadTexture(L"crateDiffuse", L"res/models/Crate_color.png");
-	textureMgr->loadTexture(L"crateNormal", L"res/models/Crate_normal.png");
-	textureMgr->loadTexture(L"crate", L"res/models/boatMetallic.png");
+	texturesLoaded &= textureMgr->loadTexture(L"water", L"res/water.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"normal1", L"res/models/waternormal1.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"normal2", L"res/models/waternormal2.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"boatDiffuse", L"res/models/boatColor.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"boatNormal", L"res/models/boatNormal.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"boatSpec", L"res/models/boatMetallic.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"crateDiffuse", L"res/models/Crate_color.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"crateNormal", L"res/models/Crate_normal.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"crate", L"res/models/boatMetallic.png");
+
+	texturesLoaded &= textureMgr->loadTexture(L"woodBarrelDiffuse", L"res/models/wooden_crate_barrel_BaseColor.jpg");
+
+	texturesLoaded &= textureMgr->loadTexture(L"woodBarrelNormal", L"res/models/wooden_crate_barrel_Normal.jpg");
+
+	texturesLoaded &= textureMgr->loadTexture(L"woodBarrelSpec", L"res/models/wooden_crate_barrel_Metallic.jpg");
+
+	if (!texturesLoaded)
+	{
+		MessageBox(NULL, L"Textures failed to load", L"ERROR", MB_OK);
+	}
 
 
-	textureMgr->loadTexture(L"woodBarrelDiffuse", L"res/models/wooden_crate_barrel_BaseColor.jpg");
-	textureMgr->loadTexture(L"woodBarrelNormal", L"res/models/wooden_crate_barrel_Normal.jpg");
-	textureMgr->loadTexture(L"woodBarrelSpec", L"res/models/wooden_crate_barrel_Metallic.jpg");
 }
 
 void App1::initSceneObjects(int* screenWidth, int* screenHeight) // initialise scene objects
@@ -226,23 +242,23 @@ void App1::initShaders(HWND hwnd)
 
 	computeBrightness = std::make_unique<ComputeBrightness>(renderer->getDevice(), hwnd, sWidth, sHeight);
 
-	computeDownSample[0] = std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth/2) , (int)ceil(sHeight/2));
-	computeDownSample[1] = std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	computeDownSample[2] = std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
+	computeDownSample.push_back(std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth/2) , (int)ceil(sHeight/2)));
+	computeDownSample.push_back(std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4)));
+	computeDownSample.push_back(std::make_unique<ComputeDownSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6)));
 
-	computeUpSample[0] = std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	computeUpSample[1] = std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
-	computeUpSample[2] = std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, sWidth, sHeight);
+	computeUpSample.push_back(std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4)));
+	computeUpSample.push_back(std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2)));
+	computeUpSample.push_back(std::make_unique<ComputeUpSample>(renderer->getDevice(), hwnd, sWidth, sHeight));
 
-	horizonalBlurShader[0] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
-	verticalBlurShader[0] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6));
-	horizonalBlurShader[1] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	verticalBlurShader[1] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4));
-	horizonalBlurShader[2] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
-	verticalBlurShader[2] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2));
-	horizonalBlurShader[3] = std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, sWidth, sHeight);
-	verticalBlurShader[3] = std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, sWidth, sHeight);
+	horizonalBlurShader.push_back(std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6)));
+	horizonalBlurShader.push_back(std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4)));
+	horizonalBlurShader.push_back(std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2)));
+	horizonalBlurShader.push_back(std::make_unique<HorizontalBlurShader>(renderer->getDevice(), hwnd, sWidth, sHeight));
 
+	verticalBlurShader.push_back(std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 6), (int)ceil(sHeight / 6)));
+	verticalBlurShader.push_back(std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 4), (int)ceil(sHeight / 4)));
+	verticalBlurShader.push_back(std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, (int)ceil(sWidth / 2), (int)ceil(sHeight / 2)));
+	verticalBlurShader.push_back(std::make_unique<VerticalBlurShader>(renderer->getDevice(), hwnd, sWidth, sHeight));
 
 	computeBlend = std::make_unique<ComputeBlend>(renderer->getDevice(), hwnd, sWidth, sHeight);
 
@@ -466,6 +482,9 @@ void App1::depthpass()
 
 void App1::computepass() // compute shaders used for post processing
 {
+	/// TODO:
+	///  Make this code rely less on arbitrary numbers!!!!
+
 	int groupSizeX;
 	int groupSizeY;
 
@@ -493,8 +512,6 @@ void App1::computepass() // compute shaders used for post processing
 			computeDownSample[i]->compute(renderer->getDeviceContext(), groupSizeX, groupSizeY, 1);
 			computeDownSample[i]->unbind(renderer->getDeviceContext());
 		}
-
-
 
 	}
 
@@ -617,7 +634,6 @@ void App1::basepass()
 		}
 	}
 
-	
 	renderer->setBackBufferRenderTarget();
 
 }

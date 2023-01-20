@@ -70,12 +70,14 @@ private:
 	ColourShader* colourShader;
 
 	// Compute Shaders
-	std::unique_ptr<ComputeDownSample> computeDownSample[3];
-	std::unique_ptr<ComputeBrightness> computeBrightness;
-	std::unique_ptr<ComputeUpSample> computeUpSample[3];
 	std::unique_ptr<ComputeBlend> computeBlend;
-	std::unique_ptr<HorizontalBlurShader> horizonalBlurShader[4];
-	std::unique_ptr<VerticalBlurShader> verticalBlurShader[4];
+	std::unique_ptr<ComputeBrightness> computeBrightness;
+
+	std::vector<std::unique_ptr<ComputeDownSample>> computeDownSample;
+	std::vector <std::unique_ptr<ComputeUpSample>> computeUpSample;
+	std::vector<std::unique_ptr<HorizontalBlurShader>> horizonalBlurShader;
+	std::vector<std::unique_ptr<VerticalBlurShader>> verticalBlurShader;
+
 
 
 	// Lighting

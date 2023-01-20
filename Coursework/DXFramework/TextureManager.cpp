@@ -13,7 +13,7 @@ TextureManager::TextureManager(ID3D11Device* ldevice, ID3D11DeviceContext* ldevi
 	addDefaultTexture();
 }
 
-void TextureManager::loadTexture(const wchar_t* uid, const wchar_t* filename)
+bool TextureManager::loadTexture(const wchar_t* uid, const wchar_t* filename)
 {
 	HRESULT result;
 
@@ -22,7 +22,7 @@ void TextureManager::loadTexture(const wchar_t* uid, const wchar_t* filename)
 	{
 		//filename = L"../res/DefaultDiffuse.png";
 		MessageBox(NULL, L"Texture filename does not exist", L"ERROR", MB_OK);
-		return;
+		return false;
 	}
 	// if not set default texture
 	if (!does_file_exist(filename))
@@ -30,7 +30,7 @@ void TextureManager::loadTexture(const wchar_t* uid, const wchar_t* filename)
 		// change default texture
 		//filename = L"../res/DefaultDiffuse.png";
 		MessageBox(NULL, L"Texture filename does not exist", L"ERROR", MB_OK);
-		return;
+		return false;
 	}
 
 	// check file extension for correct loading function.
@@ -61,12 +61,14 @@ void TextureManager::loadTexture(const wchar_t* uid, const wchar_t* filename)
 	
 	if (FAILED(result))
 	{
-		MessageBox(NULL, L"Texture loading error", L"ERROR", MB_OK);
+		return false;
 	}
 	else
 	{
 		textureMap.insert(std::make_pair(const_cast<wchar_t*>(uid), texture));
 	}
+
+	return true;
 }
 
 // Release resource.
