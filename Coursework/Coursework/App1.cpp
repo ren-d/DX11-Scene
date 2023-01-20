@@ -8,11 +8,9 @@ computeBlend(nullptr), computeBrightness(nullptr), computeDownSample(), computeU
 crate(nullptr), crateModel(nullptr), depthShader(nullptr), directions(), displayShadowMaps(),
 horizonalBlurShader(), verticalBlurShader(), isToggled(false), lights(), mainScene(nullptr),
 modelShader(nullptr), shadowMaps(), viewMode(0), renderTexture(nullptr), waterShader(nullptr),
-waveOneDir(), waveTwoDir(), waveThreeDir(), waveFourDir(), sphere(nullptr), shadowOrthos(),
-waterTessellation(0), water(nullptr), woodenBox(nullptr), woodenBoxModel(nullptr), keg(nullptr),
-kegModel(nullptr), textureShader(nullptr), timeInSeconds(0), waterDepthShader(nullptr)
-
-
+sphere(nullptr), shadowOrthos(), waterTessellation(0), water(nullptr), woodenBox(nullptr), 
+woodenBoxModel(nullptr), keg(nullptr), kegModel(nullptr), textureShader(nullptr), timeInSeconds(0), 
+waterDepthShader(nullptr)
 {
 
 }
@@ -253,16 +251,6 @@ void App1::initShaders(HWND hwnd)
 
 void App1::initGUI() // Setup GUI Variables
 {
-	
-
-	waveOneDir[0] = water->getWave(0)->direction.x;
-	waveOneDir[1] = water->getWave(0)->direction.y;
-	waveTwoDir[0] = water->getWave(1)->direction.x;
-	waveTwoDir[1] = water->getWave(1)->direction.y;
-	waveThreeDir[0] = water->getWave(2)->direction.x;
-	waveThreeDir[1] = water->getWave(2)->direction.y;
-	waveFourDir[0] = water->getWave(3)->direction.x;
-	waveFourDir[1] = water->getWave(3)->direction.y;
 
 	bloomIntensity = 0.8f;
 	bloomThreshold = 0.45f;
@@ -280,21 +268,11 @@ void App1::initGUI() // Setup GUI Variables
 
 
 
-void App1::updateInput() // update variables based on the GUI input
-{
-	water->setWaveDir(0, XMFLOAT2(waveOneDir[0], waveOneDir[1]));
-	water->setWaveDir(1, XMFLOAT2(waveTwoDir[0], waveTwoDir[1]));
-	water->setWaveDir(2, XMFLOAT2(waveThreeDir[0], waveThreeDir[1]));
-	water->setWaveDir(3, XMFLOAT2(waveFourDir[0], waveFourDir[1]));
-
-}
 
 bool App1::frame()
 {
 	
 	bool result;
-	
-	updateInput();
 	
 	result = BaseApplication::frame();
 
@@ -692,33 +670,29 @@ void App1::gui()
 	{
 		ImGui::Checkbox("calm waters", &calmWaters);
 		ImGui::SliderFloat("Tessellation", &waterTessellation, 0, 20);
-		if (ImGui::CollapsingHeader("wave 1"))
+		for (int i = 0; i < 4; i++)
 		{
-			ImGui::SliderFloat2("Direction1", waveOneDir, -1.0f, 1.0f);
-			ImGui::SliderFloat("Steepness1", &water->getWave(0)->steepness, 0.0f, 1.0f);
-			ImGui::SliderFloat("Wave Length1", &water->getWave(0)->waveLength, 0.0f, 100);
+			std::string mainWaveHeaderName = "wave ";
+			std::string waveDirectionName = "direction ";
+			std::string waveSteepnessName = "steepness ";
+			std::string waveLengthName = "wave length ";
+			std::string indexAsString = std::to_string(i);
+
+			mainWaveHeaderName += indexAsString;
+			waveDirectionName += indexAsString;
+			waveSteepnessName += indexAsString;
+			waveLengthName += indexAsString;
+
+			if (ImGui::CollapsingHeader(mainWaveHeaderName.c_str()))
+			{
+				ImGui::SliderFloat2(waveDirectionName.c_str(), &water->getWave(i)->direction.x, -1.0f, 1.0f);
+				ImGui::SliderFloat(waveSteepnessName.c_str(), &water->getWave(i)->steepness, 0.0f, 1.0f);
+				ImGui::SliderFloat(waveLengthName.c_str(), &water->getWave(i)->waveLength, 0.0f, 100);
+			}
 		}
+
 		
-		if (ImGui::CollapsingHeader("wave 2"))
-		{
-			ImGui::SliderFloat2("Direction2", waveTwoDir, -1.0f, 1.0f);
-			ImGui::SliderFloat("Steepness2", &water->getWave(1)->steepness, 0.0f, 1.0f);
-			ImGui::SliderFloat("Wave Length2", &water->getWave(1)->waveLength, 0.0f, 100);
-		}
 
-		if (ImGui::CollapsingHeader("wave 3"))
-		{
-			ImGui::SliderFloat2("Direction3", waveThreeDir, -1.0f, 1.0f);
-			ImGui::SliderFloat("Steepness3", &water->getWave(2)->steepness, 0.0f, 1.0f);
-			ImGui::SliderFloat("Wave Length3", &water->getWave(2)->waveLength, 0.0f, 100);
-		}
-
-		if (ImGui::CollapsingHeader("wave 4"))
-		{
-			ImGui::SliderFloat2("Direction4", waveFourDir, -1.0f, 1.0f);
-			ImGui::SliderFloat("Steepness4", &water->getWave(3)->steepness, 0.0f, 1.0f);
-			ImGui::SliderFloat("Wave Length4", &water->getWave(3)->waveLength, 0.0f, 100);
-		}
 
 	}
 

@@ -1,31 +1,28 @@
 #include "SceneObject.h"
-SceneObject::SceneObject()
+SceneObject::SceneObject() 
+	: m_mesh(nullptr)
+	, m_device(nullptr)
+	, m_deviceContext(nullptr)
+	, m_texture(nullptr)
+	, m_transformMatrix(XMMatrixIdentity())
+	, m_translation(XMFLOAT3(0,0,0))
+	, m_rotX(0.0f), m_rotY(0.0f), m_rotZ(0.0f)
+	, m_scale(XMFLOAT3(1,1,1))
 {
-	m_mesh = nullptr;
-	m_device = nullptr;
-	m_deviceContext = nullptr;
-	setTexture(nullptr);
-	m_transformMatrix = XMMatrixIdentity();
-	m_translation = XMFLOAT3(0, 0, 0);
-	m_rotX = 0.0f;
-	m_rotY = 0.0f;
-	m_rotZ = 0.0f;
-	m_scale = XMFLOAT3(1, 1, 1);
+
 
 }
 
 SceneObject::SceneObject(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture)
+	: m_mesh(nullptr)
+	, m_device(device)
+	, m_deviceContext(deviceContext)
+	, m_texture(texture)
+	, m_transformMatrix(XMMatrixIdentity())
+	, m_translation(XMFLOAT3(0,0,0))
+	, m_rotX(0.0f), m_rotY(0.0f), m_rotZ(0.0f)
+	, m_scale(XMFLOAT3(1, 1, 1))
 {
-	m_mesh = nullptr;
-	m_device = device;
-	m_deviceContext = deviceContext;
-	setTexture(texture);
-	m_transformMatrix = XMMatrixIdentity();
-	m_translation = XMFLOAT3(0, 0, 0);
-	m_rotX = 0.0f;
-	m_rotY = 0.0f;
-	m_rotZ = 0.0f;
-	m_scale = XMFLOAT3(1, 1, 1);
 
 }
 

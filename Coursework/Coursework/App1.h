@@ -40,7 +40,6 @@ public:
 	void initGUI();
 	bool frame();
 
-	void updateInput();
 protected:
 	bool render();
 	void gui();
@@ -100,14 +99,7 @@ private:
 	float bloomIntensity, bloomThreshold, bloomGamma, waterTessellation;
 	std::unique_ptr<OrthoMesh> shadowOrthos[MAX_DEPTH_MAPS], mainScene;
 	int viewMode;
-	/// 
-	/// CHANGE IMPLEMENTATION OF WAVE CLASS
-	/// FOR EASIER GUI INTEGRATION
-	/// 
-	float waveOneDir[2];
-	float waveTwoDir[2];
-	float waveThreeDir[2];
-	float waveFourDir[2];
+
 	bool displayShadowMaps[MAX_LIGHTS];
 	
 
