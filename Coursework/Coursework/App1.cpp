@@ -670,7 +670,7 @@ void App1::gui()
 	{
 		ImGui::Checkbox("calm waters", &calmWaters);
 		ImGui::SliderFloat("Tessellation", &waterTessellation, 0, 20);
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < water->getWavesSize(); i++)
 		{
 			std::string mainWaveHeaderName = "wave ";
 			std::string waveDirectionName = "direction ";
@@ -690,10 +690,6 @@ void App1::gui()
 				ImGui::SliderFloat(waveLengthName.c_str(), &water->getWave(i)->waveLength, 0.0f, 100);
 			}
 		}
-
-		
-
-
 	}
 
 	// Lighting GUI

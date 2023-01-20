@@ -90,7 +90,7 @@ void WaterDepthShader::initShader(const wchar_t* vsFilename, const wchar_t* hsFi
 	loadDomainShader(dsFilename);
 }
 
-void WaterDepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, Wave* waves[4], float timeInSeconds, Camera* camera)
+void WaterDepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, std::vector<Wave*> waves, float timeInSeconds, Camera* camera)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -115,7 +115,7 @@ void WaterDepthShader::setShaderParameters(ID3D11DeviceContext* deviceContext, c
 	WaterBufferType* waterPtr;
 	result = deviceContext->Map(waterBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	waterPtr = (WaterBufferType*)mappedResource.pData;
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < waves.size(); i++)
 	{
 		waterPtr->waves[i] =
 			XMFLOAT4(

@@ -15,19 +15,22 @@ Water::Water(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11Sha
 void Water::initWaves()
 {
 	// waves created and initialised
-	m_waves[0] = new Wave();
+	m_waves.push_back(new Wave());
 	m_waves[0]->direction = XMFLOAT2(1, 0);
 	m_waves[0]->steepness = 0.264f;
 	m_waves[0]->waveLength = 64.0f;
-	m_waves[1] = new Wave();
+
+	m_waves.push_back(new Wave());
 	m_waves[1]->direction = XMFLOAT2(0, 1);
 	m_waves[1]->steepness = 0.236f;
 	m_waves[1]->waveLength = 16.0f;
-	m_waves[2] = new Wave();
+
+	m_waves.push_back(new Wave());
 	m_waves[2]->direction = XMFLOAT2(-0.947, 0.912);
 	m_waves[2]->steepness = 0.402f;
 	m_waves[2]->waveLength = 64.0f;
-	m_waves[3] = new Wave();
+
+	m_waves.push_back(new Wave());
 	m_waves[3]->direction = XMFLOAT2(0, -0.9);
 	m_waves[3]->steepness = 0.102f;
 	m_waves[3]->waveLength = 16.0f;
@@ -44,8 +47,12 @@ Water::~Water()
 		m_normalMaps[1] = 0;
 	}
 
-	delete[] m_waves;
-
+	for (const Wave* wave : m_waves)
+	{
+		delete wave;
+		wave = 0;
+	}
+	m_waves.clear();
 
 	SceneObject::~SceneObject();
 }
@@ -67,6 +74,11 @@ void Water::renderDepth(XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& p
 	shader->setShaderParameters(m_deviceContext, world, view, projection, m_waves, timeInSeconds, camera);
 	shader->render(m_deviceContext, m_mesh->getIndexCount());
 
+}
+
+int  Water::getWavesSize()
+{
+	return m_waves.size();
 }
 Wave* Water::getWave(int id)
 {

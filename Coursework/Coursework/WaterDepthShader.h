@@ -31,7 +31,7 @@ public:
 	void setShaderParameters(
 		ID3D11DeviceContext* deviceContext,
 		const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection,
-		Wave* waves[4],
+		std::vector<Wave*> waves,
 		float timeInSeconds,
 		Camera* camera
 	);
