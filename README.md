@@ -4,7 +4,7 @@ for full working showcase build see [here](https://github.com/ren-d/DX11-Scene/t
 ### Project Plan
 Add extra features ontop of university coursework for fun :)
 
-- [ ] optimize and change code to adhere to "best practices" such as smart pointers
+- [ ] optimize and change code to adhere to "best practices" such as smart pointers, more appropriate data structures & general code consistency
   - [ ] Implement Smart Pointers in place of raw pointers
 - [ ] Add Height Map using multiple normal recalculation methods
 - [ ] Smooth Shadows
