@@ -6,6 +6,7 @@ Add extra features ontop of university coursework for fun :)
 
 - [ ] optimize and change code to adhere to "best practices" such as smart pointers, more appropriate data structures & general code consistency
   - [ ] Implement Smart Pointers in place of raw pointers
+- [ ] Improve bloom
 - [ ] Add Height Maps using multiple normal recalculation methods
 - [ ] Smooth Shadows
   - [ ] Research cascading shadow maps
